@@ -1,7 +1,4 @@
 <template>
-  <div class="logo-container">
-    <img src="../assets/logo.png"></img>
-  </div>
   <div class="login-container">
     <div class="login-box">
       <h1>Login</h1>

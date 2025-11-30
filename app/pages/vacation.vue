@@ -1,4 +1,3 @@
-// app/pages/vacation.vue
 <template>
   <div class="vacation-container">
     <div class="header">
@@ -44,6 +43,17 @@
           <button type="submit" class="submit-btn">Antrag einreichen</button>
         </form>
 
+        <div class="pdf-export-section">
+          <h3>Genehmigte Urlaube exportieren</h3>
+          <button
+              @click="exportMyApprovedVacations"
+              class="btn-pdf"
+              :disabled="approvedUserRequests.length === 0"
+          >
+            📄 Als PDF exportieren
+          </button>
+        </div>
+
         <div class="requests-list">
           <h3>Meine Anträge</h3>
           <div v-if="userRequests.length === 0" class="empty-state">
@@ -64,6 +74,17 @@
 
       <div v-show="activeTab === 'teamleiter'" class="tab-content">
         <h2>Anträge zur 1. Genehmigung</h2>
+
+        <div class="pdf-export-section">
+          <h3>Team-Urlaube exportieren</h3>
+          <button
+              @click="exportTeamVacations"
+              class="btn-pdf"
+          >
+            📄 Als PDF exportieren
+          </button>
+        </div>
+
         <div v-if="pendingTeamleiterRequests.length === 0" class="empty-state">
           Keine Anträge zur Genehmigung
         </div>
@@ -92,6 +113,17 @@
 
       <div v-show="activeTab === 'chef'" class="tab-content">
         <h2>Anträge zur 2. Genehmigung</h2>
+
+        <div class="pdf-export-section">
+          <h3>Alle Urlaube exportieren</h3>
+          <button
+              @click="exportAllVacations"
+              class="btn-pdf"
+          >
+            📄 Als PDF exportieren
+          </button>
+        </div>
+
         <div v-if="pendingChefRequests.length === 0" class="empty-state">
           Keine Anträge zur Genehmigung
         </div>
@@ -125,6 +157,9 @@
 </template>
 
 <script setup lang="ts">
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+
 interface VacationRequest {
   id: number
   user: string
@@ -137,8 +172,8 @@ interface VacationRequest {
 }
 
 const route = useRoute()
-const currentUser = ref(route.query.user as string || 'Benutzer')
-const userRole = ref(route.query.role as string || 'employee')
+const currentUser = ref((route.query.user as string) || 'Benutzer')
+const userRole = ref((route.query.role as string) || 'employee')
 
 const activeTab = ref('antrag')
 
@@ -196,12 +231,26 @@ const userRequests = computed(() => {
   return requests.value.filter(r => r.user === currentUser.value)
 })
 
+const approvedUserRequests = computed(() => {
+  return requests.value.filter(r => r.user === currentUser.value && r.status === 'approved')
+})
+
 const pendingTeamleiterRequests = computed(() => {
   return requests.value.filter(r => r.status === 'pending')
 })
 
 const pendingChefRequests = computed(() => {
   return requests.value.filter(r => r.status === 'teamleiter_approved')
+})
+
+const allTeamRequests = computed(() => {
+  // Für Teamleiter: Alle Anfragen außer eigene
+  return requests.value.filter(r => r.user !== currentUser.value)
+})
+
+const allRequests = computed(() => {
+  // Für Chef: Alle Anfragen
+  return requests.value
 })
 
 const submitRequest = () => {
@@ -272,5 +321,154 @@ const getStatusText = (status: string) => {
 
 const logout = () => {
   navigateTo('/login')
+}
+
+// PDF Export Funktionen
+const exportMyApprovedVacations = () => {
+  if (approvedUserRequests.value.length === 0) {
+    alert('Keine genehmigten Urlaube vorhanden')
+    return
+  }
+
+  const doc = new jsPDF()
+
+  // Titel
+  doc.setFontSize(18)
+  doc.text('Meine genehmigten Urlaube', 14, 20)
+
+  // Benutzer Info
+  doc.setFontSize(11)
+  doc.text(`Mitarbeiter: ${currentUser.value}`, 14, 30)
+  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+
+  // Tabelle
+  const tableData = approvedUserRequests.value.map(req => [
+    formatDate(req.startDate),
+    formatDate(req.endDate),
+    calculateDays(req.startDate, req.endDate).toString(),
+    req.reason || '-',
+    getStatusText(req.status)
+  ])
+
+  (doc as any).autoTable({
+    startY: 45,
+    head: [['Von', 'Bis', 'Tage', 'Grund', 'Status']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [102, 126, 234] },
+    styles: { fontSize: 10, cellPadding: 3 }
+  })
+
+  // Gesamtstatistik
+  const totalDays = approvedUserRequests.value.reduce((sum, req) =>
+      sum + calculateDays(req.startDate, req.endDate), 0
+  )
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10
+  doc.setFontSize(11)
+  doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
+
+  doc.save(`Urlaube_${currentUser.value}_${new Date().toISOString().split('T')[0]}.pdf`)
+}
+
+const exportTeamVacations = () => {
+  const doc = new jsPDF()
+
+  // Titel
+  doc.setFontSize(18)
+  doc.text('Team-Urlaubsübersicht', 14, 20)
+
+  // Info
+  doc.setFontSize(11)
+  doc.text(`Teamleiter: ${currentUser.value}`, 14, 30)
+  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+
+  // Tabelle mit allen Team-Urlauben
+  const tableData = allTeamRequests.value.map(req => [
+    req.user,
+    formatDate(req.startDate),
+    formatDate(req.endDate),
+    calculateDays(req.startDate, req.endDate).toString(),
+    req.reason || '-',
+    getStatusText(req.status)
+  ])
+
+  (doc as any).autoTable({
+    startY: 45,
+    head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [102, 126, 234] },
+    styles: { fontSize: 9, cellPadding: 2 }
+  })
+
+  // Statistik
+  const approvedCount = allTeamRequests.value.filter(r => r.status === 'approved').length
+  const pendingCount = allTeamRequests.value.filter(r => r.status === 'pending').length
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10
+  doc.setFontSize(10)
+  doc.text(`Gesamt Anträge: ${allTeamRequests.value.length}`, 14, finalY)
+  doc.text(`Genehmigt: ${approvedCount}`, 14, finalY + 6)
+  doc.text(`Ausstehend: ${pendingCount}`, 14, finalY + 12)
+
+  doc.save(`Team_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
+}
+
+const exportAllVacations = () => {
+  const doc = new jsPDF()
+
+  // Titel
+  doc.setFontSize(18)
+  doc.text('Urlaubsübersicht - Gesamtunternehmen', 14, 20)
+
+  // Info
+  doc.setFontSize(11)
+  doc.text(`Erstellt von: ${currentUser.value} (Chef)`, 14, 30)
+  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+
+  // Tabelle mit allen Urlauben
+  const tableData = allRequests.value.map(req => [
+    req.user,
+    formatDate(req.startDate),
+    formatDate(req.endDate),
+    calculateDays(req.startDate, req.endDate).toString(),
+    req.reason || '-',
+    getStatusText(req.status)
+  ])
+
+  (doc as any).autoTable({
+    startY: 45,
+    head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [102, 126, 234] },
+    styles: { fontSize: 9, cellPadding: 2 }
+  })
+
+  // Detaillierte Statistik
+  const totalRequests = allRequests.value.length
+  const approvedCount = allRequests.value.filter(r => r.status === 'approved').length
+  const teamleiterApprovedCount = allRequests.value.filter(r => r.status === 'teamleiter_approved').length
+  const pendingCount = allRequests.value.filter(r => r.status === 'pending').length
+  const rejectedCount = allRequests.value.filter(r => r.status === 'rejected').length
+
+  const totalApprovedDays = allRequests.value
+      .filter(r => r.status === 'approved')
+      .reduce((sum, req) => sum + calculateDays(req.startDate, req.endDate), 0)
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10
+  doc.setFontSize(10)
+  doc.setFont(undefined, 'bold')
+  doc.text('Statistik:', 14, finalY)
+  doc.setFont(undefined, 'normal')
+  doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
+  doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
+  doc.text(`Bei Chef ausstehend: ${teamleiterApprovedCount}`, 14, finalY + 18)
+  doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
+  doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
+  doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
+
+  doc.save(`Alle_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
 }
 </script>

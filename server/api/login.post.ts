@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
 
         const fileContent = await readFile(filePath, 'utf-8')
 
-        // Format: username:password:role
         const validCredentials = fileContent
             .split('\n')
             .filter(line => line.trim() && !line.startsWith('#'))
