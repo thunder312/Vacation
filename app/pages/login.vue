@@ -27,8 +27,8 @@
           />
         </div>
 
-        <button type="submit" :disabled="loading">
-          {{ loading ? 'Prüfe...' : 'Anmelden' }}
+        <button type="submit" :disabled="pending">
+          {{ pending ? 'Prüfe...' : 'Anmelden' }}
         </button>
 
         <p v-if="errorMessage" class="error-message">
@@ -39,21 +39,24 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const username = ref('')
 const password = ref('')
 const hasError = ref(false)
 const errorMessage = ref('')
-const loading = ref(false)
+const pending = ref(false)
 
 const handleLogin = async () => {
-  loading.value = true
+  pending.value = true
   hasError.value = false
   errorMessage.value = ''
 
+  console.log('Login-Versuch gestartet:', { username: username.value })
+
   try {
-    // API-Aufruf zum Validieren der Zugangsdaten
-    const response = await $fetch('/api/login', {
+    console.log('Sende Login-Request an API...')
+
+    const { data, error, status } = await useFetch('/api/login', {
       method: 'POST',
       body: {
         username: username.value,
@@ -61,16 +64,25 @@ const handleLogin = async () => {
       }
     })
 
-    if (response.success) {
-      // Erfolgreicher Login - weiterleiten
-      await navigateTo('/')
+    console.log('API Antwort erhalten:', { data: data.value, error: error.value, status: status.value })
+
+    if (error.value) {
+      console.error('Login-Fehler:', error.value)
+      hasError.value = true
+      errorMessage.value = 'Benutzername oder Passwort falsch'
+    } else if (data.value?.success) {
+      console.log('✅ Login erfolgreich, leite weiter zu index.vue...')
+      await navigateTo('/', { replace: true })
+    } else {
+      console.warn('Unerwartete API-Antwort:', data.value)
     }
-  } catch (error) {
-    // Fehler beim Login
+  } catch (err) {
+    console.error('Unerwarteter Fehler:', err)
     hasError.value = true
-    errorMessage.value = 'Benutzername oder Passwort falsch'
+    errorMessage.value = 'Ein Fehler ist aufgetreten'
   } finally {
-    loading.value = false
+    pending.value = false
+    console.log('Login-Vorgang abgeschlossen')
   }
 }
 </script>
