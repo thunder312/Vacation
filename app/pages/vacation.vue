@@ -325,50 +325,71 @@ const logout = () => {
 
 // PDF Export Funktionen
 const exportMyApprovedVacations = () => {
+  console.log('Export gestartet...')
+  console.log('Genehmigte Anträge:', approvedUserRequests.value.length)
+
   if (approvedUserRequests.value.length === 0) {
     alert('Keine genehmigten Urlaube vorhanden')
     return
   }
 
-  const doc = new jsPDF()
+  try {
+    console.log('Erstelle jsPDF...')
+    const doc = new jsPDF()
+    console.log('jsPDF erstellt:', doc)
 
-  // Titel
-  doc.setFontSize(18)
-  doc.text('Meine genehmigten Urlaube', 14, 20)
+    // Titel
+    doc.setFontSize(18)
+    doc.text('Meine genehmigten Urlaube', 14, 20)
 
-  // Benutzer Info
-  doc.setFontSize(11)
-  doc.text(`Mitarbeiter: ${currentUser.value}`, 14, 30)
-  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+    // Benutzer Info
+    doc.setFontSize(11)
+    doc.text(`Mitarbeiter: ${currentUser.value}`, 14, 30)
+    doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
-  // Tabelle
-  const tableData = approvedUserRequests.value.map(req => [
-    formatDate(req.startDate),
-    formatDate(req.endDate),
-    calculateDays(req.startDate, req.endDate).toString(),
-    req.reason || '-',
-    getStatusText(req.status)
-  ])
+    console.log('Erstelle Tabellendaten...')
+    // Tabelle
+    const tableData = approvedUserRequests.value.map(req => [
+      formatDate(req.startDate),
+      formatDate(req.endDate),
+      calculateDays(req.startDate, req.endDate).toString(),
+      req.reason || '-',
+      getStatusText(req.status)
+    ])
 
-  (doc as any).autoTable({
-    startY: 45,
-    head: [['Von', 'Bis', 'Tage', 'Grund', 'Status']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [102, 126, 234] },
-    styles: { fontSize: 10, cellPadding: 3 }
-  })
+    console.log('Tabellendaten:', tableData)
+    console.log('Rufe autoTable auf...')
 
-  // Gesamtstatistik
-  const totalDays = approvedUserRequests.value.reduce((sum, req) =>
-      sum + calculateDays(req.startDate, req.endDate), 0
-  )
+    (doc as any).autoTable({
+      startY: 45,
+      head: [['Von', 'Bis', 'Tage', 'Grund', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [102, 126, 234] },
+      styles: { fontSize: 10, cellPadding: 3 }
+    })
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10
-  doc.setFontSize(11)
-  doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
+    console.log('autoTable fertig')
 
-  doc.save(`Urlaube_${currentUser.value}_${new Date().toISOString().split('T')[0]}.pdf`)
+    // Gesamtstatistik
+    const totalDays = approvedUserRequests.value.reduce((sum, req) =>
+        sum + calculateDays(req.startDate, req.endDate), 0
+    )
+
+    const finalY = (doc as any).lastAutoTable.finalY + 10
+    doc.setFontSize(11)
+    doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
+
+    console.log('Speichere PDF...')
+    const filename = `Urlaube_${currentUser.value}_${new Date().toISOString().split('T')[0]}.pdf`
+    console.log('Dateiname:', filename)
+    doc.save(filename)
+    console.log('PDF gespeichert!')
+
+  } catch (error) {
+    console.error('Fehler beim PDF-Export:', error)
+    alert('Fehler beim PDF-Export: ' + error)
+  }
 }
 
 const exportTeamVacations = () => {
