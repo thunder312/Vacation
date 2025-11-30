@@ -1,4 +1,7 @@
 <template>
+  <div class="logo-container">
+    <img src="../assets/logo.png"></img>
+  </div>
   <div class="login-container">
     <div class="login-box">
       <h1>Login</h1>
@@ -27,7 +30,7 @@
           />
         </div>
 
-        <button type="submit" :disabled="pending">
+        <button type="submit" class="btn-primary" :disabled="pending">
           {{ pending ? 'Prüfe...' : 'Anmelden' }}
         </button>
 
@@ -51,12 +54,8 @@ const handleLogin = async () => {
   hasError.value = false
   errorMessage.value = ''
 
-  console.log('Login-Versuch gestartet:', { username: username.value })
-
   try {
-    console.log('Sende Login-Request an API...')
-
-    const { data, error, status } = await useFetch('/api/login', {
+    const { data, error } = await useFetch('/api/login', {
       method: 'POST',
       body: {
         username: username.value,
@@ -64,110 +63,17 @@ const handleLogin = async () => {
       }
     })
 
-    console.log('API Antwort erhalten:', { data: data.value, error: error.value, status: status.value })
-
     if (error.value) {
-      console.error('Login-Fehler:', error.value)
       hasError.value = true
       errorMessage.value = 'Benutzername oder Passwort falsch'
     } else if (data.value?.success) {
-      console.log('✅ Login erfolgreich, leite weiter zu index.vue...')
-      await navigateTo('/', { replace: true })
-    } else {
-      console.warn('Unerwartete API-Antwort:', data.value)
+      await navigateTo(`/vacation?role=${data.value.role}&user=${username.value}`, { replace: true })
     }
   } catch (err) {
-    console.error('Unerwarteter Fehler:', err)
     hasError.value = true
     errorMessage.value = 'Ein Fehler ist aufgetreten'
   } finally {
     pending.value = false
-    console.log('Login-Vorgang abgeschlossen')
   }
 }
 </script>
-
-<style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.login-box {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 400px;
-}
-
-h1 {
-  margin: 0 0 1.5rem 0;
-  color: #333;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
-  font-weight: 500;
-}
-
-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-  box-sizing: border-box;
-}
-
-input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-input.error {
-  border-color: #e74c3c;
-  background-color: #ffe6e6;
-}
-
-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: #e74c3c;
-  text-align: center;
-  margin-top: 1rem;
-  font-weight: 500;
-}
-</style>
