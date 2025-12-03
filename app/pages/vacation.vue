@@ -297,7 +297,8 @@ const rejectRequest = (id: number, level: string) => {
   alert('Antrag abgelehnt!')
 }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string | undefined): string => {
+  if (!dateStr) return '-'
   const date = new Date(dateStr)
   return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
@@ -349,7 +350,7 @@ const exportMyApprovedVacations = () => {
 
     console.log('Erstelle Tabellendaten...')
     // Tabelle
-    const tableData = approvedUserRequests.value.map(req => [
+    const tableData: string[][] = approvedUserRequests.value.map(req => [
       formatDate(req.startDate),
       formatDate(req.endDate),
       calculateDays(req.startDate, req.endDate).toString(),
