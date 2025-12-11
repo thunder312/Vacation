@@ -1,5 +1,7 @@
 <template>
   <div class="vacation-container">
+    <ToastContainer />
+
     <div class="header">
       <h1>Urlaubsantrags-System</h1>
       <div class="user-info">
@@ -132,6 +134,8 @@ const {
   exportAllVacations
 } = usePdfExport()
 
+const toast = useToast()
+
 // Computed Properties
 const userRequests = getUserRequests(currentUser.value)
 const approvedUserRequests = getApprovedUserRequests(currentUser.value)
@@ -165,18 +169,18 @@ const visibleTabs = computed(() => {
 // Event Handlers
 const handleSubmitRequest = (startDate: string, endDate: string, reason: string) => {
   submitRequest(currentUser.value, startDate, endDate, reason)
-  alert('Antrag erfolgreich eingereicht!')
+  toast.success('Antrag erfolgreich eingereicht!')
 }
 
 const handleApprove = (id: number, level: 'teamleiter' | 'chef') => {
   if (approveRequest(id, level)) {
-    alert('Antrag genehmigt!')
+    toast.success('Antrag genehmigt!')
   }
 }
 
 const handleReject = (id: number) => {
   if (rejectRequest(id)) {
-    alert('Antrag abgelehnt!')
+    toast.info('Antrag abgelehnt')
   }
 }
 

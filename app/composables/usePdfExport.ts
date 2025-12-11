@@ -4,12 +4,14 @@ import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, getStatusText } from '~/utils/dateHelpers'
 
 export const usePdfExport = () => {
+    const toast = useToast()
+
     const exportMyApprovedVacations = (
         approvedRequests: VacationRequest[],
         username: string
     ) => {
         if (!approvedRequests || approvedRequests.length === 0) {
-            alert('Keine genehmigten Urlaube vorhanden')
+            toast.warning('Keine genehmigten Urlaube vorhanden')
             return
         }
 
@@ -50,9 +52,10 @@ export const usePdfExport = () => {
 
             const filename = `Urlaube_${username}_${new Date().toISOString().split('T')[0]}.pdf`
             doc.save(filename)
+            toast.success('PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler beim PDF-Export:', error)
-            alert('Fehler beim PDF-Export: ' + error)
+            toast.error('Fehler beim PDF-Export')
         }
     }
 
@@ -61,7 +64,7 @@ export const usePdfExport = () => {
         teamleiterName: string
     ) => {
         if (!teamRequests || teamRequests.length === 0) {
-            alert('Keine Team-Urlaube vorhanden')
+            toast.warning('Keine Team-Urlaube vorhanden')
             return
         }
 
@@ -103,9 +106,10 @@ export const usePdfExport = () => {
             doc.text(`Ausstehend: ${pendingCount}`, 14, finalY + 12)
 
             doc.save(`Team_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
+            toast.success('Team-PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler:', error)
-            alert('Fehler beim PDF-Export: ' + error)
+            toast.error('Fehler beim PDF-Export')
         }
     }
 
@@ -114,7 +118,7 @@ export const usePdfExport = () => {
         chefName: string
     ) => {
         if (!allRequests || allRequests.length === 0) {
-            alert('Keine Urlaube vorhanden')
+            toast.warning('Keine Urlaube vorhanden')
             return
         }
 
@@ -157,9 +161,9 @@ export const usePdfExport = () => {
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)
-            doc.setFont('Arial', 'bold')
+            doc.setFont(undefined, 'bold')
             doc.text('Statistik:', 14, finalY)
-            doc.setFont('Arial', 'normal')
+            doc.setFont(undefined, 'normal')
             doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
             doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
             doc.text(`Bei Chef ausstehend: ${teamleiterApprovedCount}`, 14, finalY + 18)
@@ -168,9 +172,10 @@ export const usePdfExport = () => {
             doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
 
             doc.save(`Alle_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
+            toast.success('Urlaubs-PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler:', error)
-            alert('Fehler beim PDF-Export: ' + error)
+            toast.error('Fehler beim PDF-Export')
         }
     }
 
