@@ -172,6 +172,12 @@ interface VacationRequest {
 }
 
 const route = useRoute()
+
+// Prüfe ob Benutzer eingeloggt ist
+if (!route.query.user || !route.query.role) {
+  navigateTo('/login')
+}
+
 const currentUser = ref((route.query.user as string) || 'Benutzer')
 const userRole = ref((route.query.role as string) || 'employee')
 
