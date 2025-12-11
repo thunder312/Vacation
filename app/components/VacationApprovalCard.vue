@@ -8,7 +8,7 @@
         </span>
       </div>
       <span :class="['status', request.status]">
-        {{ getStatusText(request.status) }}
+        {{ getStatusTextWithIcon(request.status) }}
       </span>
     </div>
     <p v-if="request.reason" class="request-reason">{{ request.reason }}</p>
@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import type { VacationRequest } from '~/types/vacation'
-import { formatDate, calculateDays, getStatusText } from '~/utils/dateHelpers'
+import { formatDate, calculateDays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
 defineProps<{
   request: VacationRequest

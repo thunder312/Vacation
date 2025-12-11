@@ -18,6 +18,16 @@ export const calculateDays = (start: string, end: string): number => {
 export const getStatusText = (status: string): string => {
     const statusMap: Record<string, string> = {
         pending: 'Ausstehend',
+        teamleiter_approved: 'Teamleiter genehmigt',
+        approved: 'Genehmigt',
+        rejected: 'Abgelehnt'
+    }
+    return statusMap[status] || status
+}
+
+export const getStatusTextWithIcon = (status: string): string => {
+    const statusMap: Record<string, string> = {
+        pending: 'Ausstehend',
         teamleiter_approved: 'Teamleiter ✓',
         approved: 'Genehmigt ✓✓',
         rejected: 'Abgelehnt'
