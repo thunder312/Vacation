@@ -364,8 +364,8 @@ const exportMyApprovedVacations = () => {
       getStatusText(req.status)
     ])
 
-    console.log('Tabellendaten:', tableData)
-    console.log('Rufe autoTable auf...')
+    console.log('Tabellendaten:', tableData);
+    console.log('Rufe autoTable auf...');
 
     (doc as any).autoTable({
       startY: 45,
