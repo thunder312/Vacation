@@ -18,7 +18,10 @@
     </div>
 
     <div class="request-footer">
-      <small>Tage: {{ calculateDays(request.startDate, request.endDate) }}</small>
+      <small>
+        Urlaubstage: {{ calculateWorkdays(request.startDate, request.endDate) }}
+        ({{ calculateDays(request.startDate, request.endDate) }} Tage gesamt)
+      </small>
     </div>
 
     <div class="approval-actions">
@@ -34,7 +37,7 @@
 
 <script setup lang="ts">
 import type { VacationRequest } from '~/types/vacation'
-import { formatDate, calculateDays, getStatusTextWithIcon } from '~/utils/dateHelpers'
+import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
 defineProps<{
   request: VacationRequest

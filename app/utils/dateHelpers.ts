@@ -15,6 +15,23 @@ export const calculateDays = (start: string, end: string): number => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }
 
+export const calculateWorkdays = (start: string, end: string): number => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+
+    let workdays = 0
+    const currentDate = new Date(startDate)
+
+    while (currentDate <= endDate) {
+        if (isWorkday(currentDate)) {
+            workdays++
+        }
+        currentDate.setDate(currentDate.getDate() + 1)
+    }
+
+    return workdays
+}
+
 export const getStatusText = (status: string): string => {
     const statusMap: Record<string, string> = {
         pending: 'Ausstehend',

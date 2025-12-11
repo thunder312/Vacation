@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { VacationRequest } from '~/types/vacation'
-import { formatDate, calculateDays, getStatusText } from '~/utils/dateHelpers'
+import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/utils/dateHelpers'
 
 export const usePdfExport = () => {
     const toast = useToast()
@@ -28,14 +28,14 @@ export const usePdfExport = () => {
             const tableData = approvedRequests.map(req => [
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateDays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Von', 'Bis', 'Tage', 'Grund', 'Status']],
+                head: [['Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -43,7 +43,7 @@ export const usePdfExport = () => {
             })
 
             const totalDays = approvedRequests.reduce((sum, req) =>
-                sum + calculateDays(req.startDate, req.endDate), 0
+                sum + calculateWorkdays(req.startDate, req.endDate), 0
             )
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
@@ -82,14 +82,14 @@ export const usePdfExport = () => {
                 req.user,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateDays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
+                head: [['Mitarbeiter', 'Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -136,14 +136,14 @@ export const usePdfExport = () => {
                 req.user,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateDays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
+                head: [['Mitarbeiter', 'Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -157,7 +157,7 @@ export const usePdfExport = () => {
             const rejectedCount = allRequests.filter(r => r.status === 'rejected').length
             const totalApprovedDays = allRequests
                 .filter(r => r.status === 'approved')
-                .reduce((sum, req) => sum + calculateDays(req.startDate, req.endDate), 0)
+                .reduce((sum, req) => sum + calculateWorkdays(req.startDate, req.endDate), 0)
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)

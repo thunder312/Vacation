@@ -10,14 +10,17 @@
     </div>
     <p v-if="request.reason" class="request-reason">{{ request.reason }}</p>
     <div class="request-footer">
-      <small>Tage: {{ calculateDays(request.startDate, request.endDate) }}</small>
+      <small>
+        Urlaubstage: {{ calculateWorkdays(request.startDate, request.endDate) }}
+        ({{ calculateDays(request.startDate, request.endDate) }} Tage gesamt)
+      </small>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { VacationRequest } from '~/types/vacation'
-import { formatDate, calculateDays, getStatusTextWithIcon } from '~/utils/dateHelpers'
+import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
 defineProps<{
   request: VacationRequest
