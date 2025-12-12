@@ -9,4 +9,4 @@ export interface VacationRequest {
     chefApprovalDate?: string
 }
 
-export type UserRole = 'employee' | 'teamleiter' | 'chef'
+export type UserRole = 'employee' | 'teamleiter' | 'chef' | 'office'
