@@ -44,16 +44,16 @@ const handleSubmit = () => {
 
 <style scoped>
 .request-form-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  margin-bottom: 2rem;
+  background: var(--color-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .request-form-container h2 {
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: #333;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-gray-800);
 }
 </style>
