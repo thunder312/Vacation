@@ -20,6 +20,12 @@
         {{ tab.label }}
         <span v-if="tab.count > 0" class="badge">{{ tab.count }}</span>
       </button>
+
+      <!-- Theme Toggle Button -->
+      <button @click="toggleTheme" class="theme-toggle" title="Farbschema wechseln">
+        <span v-if="currentTheme === 'business'">☀️</span>
+        <span v-else>💼</span>
+      </button>
     </div>
 
     <div class="content">
@@ -233,6 +239,13 @@ const {
 } = usePdfExport()
 
 const toast = useToast()
+
+const { currentTheme, toggleTheme, initTheme } = useTheme()
+
+// Theme beim Laden initialisieren
+onMounted(() => {
+  initTheme()
+})
 
 // Computed Properties
 const userRequests = getUserRequests(currentUser.value)

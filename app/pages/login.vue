@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-wrapper">
-      <img src="/Logo_TecKonzept_blue.png" alt="TecKonzept logo" class="login-logo" />
+      <img src="/Logo_TecKonzept_noBg.png" alt="TecKonzept logo" class="login-logo" />
       <div class="login-box">
         <h1>Login</h1>
       <form @submit.prevent="handleLogin">
