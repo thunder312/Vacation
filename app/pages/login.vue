@@ -1,7 +1,9 @@
 <template>
   <div class="login-container">
-    <div class="login-box">
-      <h1>Login</h1>
+    <div class="login-wrapper">
+      <img src="/Logo_TecKonzept_blue.png" alt="TecKonzept logo" class="login-logo" />
+      <div class="login-box">
+        <h1>Login</h1>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">Benutzername</label>
@@ -35,6 +37,7 @@
           {{ errorMessage }}
         </p>
       </form>
+      </div>
     </div>
   </div>
 </template>
