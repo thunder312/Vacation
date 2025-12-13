@@ -5,8 +5,8 @@
   - custom days (holydays) addable by admin, even half days
   - <del>role: office (see as admin, but no edits)</del>
    ### optical
-  - css with fondsKonzept blue
-  - favicon
+  - <del>css with fondsKonzept blue</del>
+  - <del>favicon</del>
   - pdf logo
 
   ## late doings

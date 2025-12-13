@@ -6,6 +6,16 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/u
 export const usePdfExport = () => {
     const toast = useToast()
 
+    // Logo als Base64 laden
+    const addLogoToPdf = (doc: any) => {
+        try {
+            // Logo oben rechts einfügen (40x40px)
+            doc.addImage('/Logo_TecKonzept_noBg_blue.png', 'PNG', 170, 10, 30, 30)
+        } catch (error) {
+            console.warn('Logo konnte nicht geladen werden:', error)
+        }
+    }
+
     const exportMyApprovedVacations = (
         approvedRequests: VacationRequest[],
         username: string
@@ -17,6 +27,9 @@ export const usePdfExport = () => {
 
         try {
             const doc = new jsPDF()
+
+            // Logo hinzufügen
+            addLogoToPdf(doc)
 
             doc.setFontSize(18)
             doc.text('Meine genehmigten Urlaube', 14, 20)
@@ -70,6 +83,9 @@ export const usePdfExport = () => {
 
         try {
             const doc = new jsPDF()
+
+            // Logo hinzufügen
+            addLogoToPdf(doc)
 
             doc.setFontSize(18)
             doc.text('Team-Urlaubsübersicht', 14, 20)
@@ -125,11 +141,14 @@ export const usePdfExport = () => {
         try {
             const doc = new jsPDF()
 
+            // Logo hinzufügen
+            addLogoToPdf(doc)
+
             doc.setFontSize(18)
-            doc.text('Urlaubsübersicht - Gesamtunternehmen', 14, 20)
+            doc.text('Urlaubsübersicht - TecKonzept', 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Erstellt von: ${chefName} (Chef)`, 14, 30)
+            doc.text(`Erstellt von: ${chefName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             const tableData = allRequests.map(req => [
