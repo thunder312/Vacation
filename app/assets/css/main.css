@@ -1,6 +1,6 @@
 /* app/assets/css/main.css */
 
-/* ===== THEME VARIABLEN ===== */
+/* ===== THEME VARIABLEN - BUSINESS (Standard) ===== */
 :root {
     /* Primärfarben */
     --color-primary: #113049;
@@ -77,6 +77,56 @@
     --spacing-3xl: 3rem;
 }
 
+/* ===== THEME VARIABLEN - SUMMER ===== */
+[data-theme="summer"] {
+    /* Primärfarben - Warme Sommer-Töne */
+    --color-primary: #FF6B35;
+    --color-primary-dark: #FF8C42;
+    --color-primary-light: #FFD93D;
+
+    /* Statusfarben */
+    --color-success: #6BCF7F;
+    --color-success-dark: #4CAF50;
+    --color-success-light: #E8F5E9;
+    --color-success-text: #2E7D32;
+
+    --color-error: #FF5252;
+    --color-error-dark: #E53935;
+    --color-error-light: #FFEBEE;
+    --color-error-text: #C62828;
+
+    --color-warning: #FFB74D;
+    --color-warning-light: #FFF3E0;
+    --color-warning-text: #E65100;
+
+    --color-info: #4FC3F7;
+    --color-info-light: #E1F5FE;
+    --color-info-text: #01579B;
+
+    /* Neutrale Farben - Heller & wärmer */
+    --color-white: #ffffff;
+    --color-gray-50: #FFF8F0;
+    --color-gray-100: #FFF5E9;
+    --color-gray-200: #FFE5CC;
+    --color-gray-300: #FFD6A5;
+    --color-gray-400: #FFAD5A;
+    --color-gray-500: #FF8C42;
+    --color-gray-600: #D97130;
+    --color-gray-700: #B35624;
+    --color-gray-800: #8C3B1A;
+    --color-gray-900: #662010;
+
+    /* Status Badge Farben - Sommerlich */
+    --status-pending-bg: #FFF3E0;
+    --status-pending-text: #E65100;
+    --status-teamleiter-bg: #E1F5FE;
+    --status-teamleiter-text: #01579B;
+    --status-approved-bg: #E8F5E9;
+    --status-approved-text: #2E7D32;
+    --status-rejected-bg: #FFEBEE;
+    --status-rejected-text: #C62828;
+}
+
 /* ===== GLOBALE STYLES ===== */
 
 /* Reset & Base Styles */
@@ -90,6 +140,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 /* ===== LOGIN PAGE ===== */
@@ -100,6 +151,7 @@ body {
     min-height: 100vh;
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     padding: var(--spacing-xl);
+    transition: background var(--transition-base);
 }
 
 .login-wrapper {
@@ -131,7 +183,6 @@ body {
     color: var(--color-gray-800);
     text-align: center;
 }
-
 
 /* ===== FORM ELEMENTS ===== */
 .form-group {
@@ -291,6 +342,7 @@ button {
 .vacation-container {
     min-height: 100vh;
     background: var(--color-gray-100);
+    transition: background-color var(--transition-base);
 }
 
 .header {
@@ -301,6 +353,7 @@ button {
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-md);
+    transition: background var(--transition-base);
 }
 
 .header h1 {
@@ -320,6 +373,7 @@ button {
     background: var(--color-white);
     border-bottom: 2px solid var(--color-gray-200);
     padding: 0 var(--spacing-xl);
+    transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .tab {
@@ -357,6 +411,36 @@ button {
     font-weight: bold;
 }
 
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle {
+    margin-left: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-gray-50);
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+[data-theme="summer"] .theme-toggle {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+    border-color: var(--color-primary);
+}
+
+[data-theme="summer"] .theme-toggle:hover {
+    transform: scale(1.1) rotate(20deg);
+}
+
 /* ===== CONTENT AREAS ===== */
 .content {
     padding: var(--spacing-xl);
@@ -376,6 +460,7 @@ button {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     margin-bottom: var(--spacing-xl);
+    transition: background-color var(--transition-base);
 }
 
 /* ===== PDF EXPORT ===== */
@@ -388,6 +473,7 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: background-color var(--transition-base);
 }
 
 .pdf-export-section h3 {
@@ -401,6 +487,7 @@ button {
     padding: var(--spacing-xl);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
+    transition: background-color var(--transition-base);
 }
 
 .requests-list h3 {
@@ -424,6 +511,7 @@ button {
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-md);
     border-left: 4px solid var(--color-primary);
+    transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .request-card.approval {
@@ -463,6 +551,7 @@ button {
     margin: var(--spacing-xs) 0;
     color: var(--color-success-text);
     font-size: 0.9rem;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 .approval-actions {
@@ -477,6 +566,7 @@ button {
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 .status.pending {
@@ -613,14 +703,13 @@ button {
     .info-section {
         grid-template-columns: 1fr;
     }
-}
-@media (max-width: 768px) {
-    .login-box {
-        flex-direction: column;
-        max-width: 400px;
+
+    .login-wrapper {
+        width: 100%;
     }
-    .login-image {
-        width: 200px;
-        height: 200px;
+
+    .login-logo {
+        width: 100px;
+        height: 100px;
     }
 }
