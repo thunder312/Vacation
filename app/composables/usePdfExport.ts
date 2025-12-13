@@ -161,9 +161,9 @@ export const usePdfExport = () => {
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)
-            doc.setFont(undefined, 'bold')
+            doc.setFont('arial', 'bold')
             doc.text('Statistik:', 14, finalY)
-            doc.setFont(undefined, 'normal')
+            doc.setFont('arial', 'normal')
             doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
             doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
             doc.text(`Bei Chef ausstehend: ${teamleiterApprovedCount}`, 14, finalY + 18)
