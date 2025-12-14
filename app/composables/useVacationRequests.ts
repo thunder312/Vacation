@@ -6,6 +6,7 @@ export const useVacationRequests = () => {
         {
             id: 1,
             user: 'Max Mustermann',
+            userId: 'Mustermann',
             startDate: '2025-12-15',
             endDate: '2025-12-20',
             reason: 'Weihnachtsurlaub',
@@ -14,6 +15,7 @@ export const useVacationRequests = () => {
         {
             id: 2,
             user: 'Anna Schmidt',
+            userId: 'Schmidt',
             startDate: '2026-01-10',
             endDate: '2026-01-15',
             reason: 'Familienbesuch',
@@ -23,14 +25,16 @@ export const useVacationRequests = () => {
     ])
 
     const submitRequest = (
-        user: string,
+        userId: string,
+        displayName: string,
         startDate: string,
         endDate: string,
         reason: string
     ) => {
         const request: VacationRequest = {
             id: Date.now(),
-            user,
+            user: displayName,
+            userId,
             startDate,
             endDate,
             reason,
@@ -64,13 +68,13 @@ export const useVacationRequests = () => {
         return true
     }
 
-    const getUserRequests = (username: string) => {
-        return computed(() => requests.value.filter(r => r.user === username))
+    const getUserRequests = (userId: string) => {
+        return computed(() => requests.value.filter(r => r.userId === userId))
     }
 
-    const getApprovedUserRequests = (username: string) => {
+    const getApprovedUserRequests = (userId: string) => {
         return computed(() =>
-            requests.value.filter(r => r.user === username && r.status === 'approved')
+            requests.value.filter(r => r.userId === userId && r.status === 'approved')
         )
     }
 
@@ -82,8 +86,8 @@ export const useVacationRequests = () => {
         return computed(() => requests.value.filter(r => r.status === 'teamleiter_approved'))
     }
 
-    const getAllTeamRequests = (currentUser: string) => {
-        return computed(() => requests.value.filter(r => r.user !== currentUser))
+    const getAllTeamRequests = (currentUserId: string) => {
+        return computed(() => requests.value.filter(r => r.userId !== currentUserId))
     }
 
     const getAllRequests = () => {
