@@ -41,19 +41,3 @@ const handleSubmit = () => {
   reason.value = ''
 }
 </script>
-
-<style scoped>
-.request-form-container {
-  background: var(--color-white);
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.request-form-container h2 {
-  margin-top: 0;
-  margin-bottom: var(--spacing-lg);
-  color: var(--color-gray-800);
-}
-</style>
