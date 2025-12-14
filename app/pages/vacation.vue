@@ -1,10 +1,12 @@
 <template>
   <div class="vacation-container">
+    <ToastContainer />
+
     <div class="header">
       <h1>Urlaubsantrags-System</h1>
       <div class="user-info">
-        <span>Angemeldet als: <strong>{{ currentUser }}</strong></span>
-        <button @click="logout" class="logout-btn">Abmelden</button>
+        <span>Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
+        <button @click="handleLogout" class="logout-btn">Abmelden</button>
       </div>
     </div>
 
@@ -18,35 +20,26 @@
         {{ tab.label }}
         <span v-if="tab.count > 0" class="badge">{{ tab.count }}</span>
       </button>
+
+      <!-- Theme Toggle Button -->
+      <button @click="toggleTheme" class="theme-toggle" title="Farbschema wechseln">
+        <span v-if="currentTheme === 'business'">☀️</span>
+        <span v-else>💼</span>
+      </button>
     </div>
 
     <div class="content">
-      <div v-show="activeTab === 'antrag'" class="tab-content">
-        <h2>Neuer Urlaubsantrag</h2>
-        <form @submit.prevent="submitRequest" class="request-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Von</label>
-              <input v-model="newRequest.startDate" type="date" required />
-            </div>
-            <div class="form-group">
-              <label>Bis</label>
-              <input v-model="newRequest.endDate" type="date" required />
-            </div>
-          </div>
+      <!-- Tab 1: Antrag (für employee, teamleiter, chef) -->
+      <div v-show="activeTab === 'antrag' && currentUser?.role !== 'office'" class="tab-content">
+        <!-- Urlaubskonto-Anzeige -->
+        <VacationBalanceCard v-if="userBalance" :balance="userBalance" />
 
-          <div class="form-group">
-            <label>Grund / Bemerkung</label>
-            <textarea v-model="newRequest.reason" rows="3" placeholder="Optional"></textarea>
-          </div>
-
-          <button type="submit" class="submit-btn">Antrag einreichen</button>
-        </form>
+        <VacationRequestForm @submit="handleSubmitRequest" />
 
         <div class="pdf-export-section">
           <h3>Genehmigte Urlaube exportieren</h3>
           <button
-              @click="exportMyApprovedVacations"
+              @click="handleExportMyVacations"
               class="btn-pdf"
               :disabled="approvedUserRequests.length === 0"
           >
@@ -59,437 +52,373 @@
           <div v-if="userRequests.length === 0" class="empty-state">
             Keine Anträge vorhanden
           </div>
-          <div v-for="req in userRequests" :key="req.id" class="request-card">
-            <div class="request-header">
-              <span class="request-date">{{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}</span>
-              <span :class="['status', req.status]">{{ getStatusText(req.status) }}</span>
-            </div>
-            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-            <div class="request-footer">
-              <small>Tage: {{ calculateDays(req.startDate, req.endDate) }}</small>
-            </div>
-          </div>
+          <VacationRequestCard
+              v-for="req in userRequests"
+              :key="req.id"
+              :request="req"
+          />
         </div>
       </div>
 
-      <div v-show="activeTab === 'teamleiter'" class="tab-content">
-        <h2>Anträge zur 1. Genehmigung</h2>
+      <!-- Tab: Übersicht (nur für office) -->
+      <div v-show="activeTab === 'overview' && currentUser?.role === 'office'" class="tab-content">
+        <h2>Übersicht aller Urlaubsanträge</h2>
 
         <div class="pdf-export-section">
-          <h3>Team-Urlaube exportieren</h3>
-          <button
-              @click="exportTeamVacations"
-              class="btn-pdf"
-          >
+          <h3>Alle Urlaube exportieren</h3>
+          <button @click="handleExportAllVacations" class="btn-pdf">
             📄 Als PDF exportieren
           </button>
         </div>
 
-        <div v-if="pendingTeamleiterRequests.length === 0" class="empty-state">
-          Keine Anträge zur Genehmigung
-        </div>
-        <div v-for="req in pendingTeamleiterRequests" :key="req.id" class="request-card approval">
-          <div class="request-header">
-            <div>
-              <strong>{{ req.user }}</strong>
-              <span class="request-date">{{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}</span>
+        <div class="requests-list">
+          <h3>Alle Anträge</h3>
+          <div v-if="allRequests.length === 0" class="empty-state">
+            Keine Anträge vorhanden
+          </div>
+          <div v-for="req in allRequests" :key="req.id" class="request-card approval">
+            <div class="request-header">
+              <div>
+                <strong>{{ req.user }}</strong>
+                <span class="request-date">
+                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
+                </span>
+              </div>
+              <span :class="['status', req.status]">
+                {{ getStatusTextWithIcon(req.status) }}
+              </span>
             </div>
-            <span :class="['status', req.status]">{{ getStatusText(req.status) }}</span>
-          </div>
-          <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-          <div class="request-footer">
-            <small>Tage: {{ calculateDays(req.startDate, req.endDate) }}</small>
-          </div>
-          <div class="approval-actions">
-            <button @click="approveRequest(req.id, 'teamleiter')" class="approve-btn">
-              ✓ Genehmigen
-            </button>
-            <button @click="rejectRequest(req.id, 'teamleiter')" class="reject-btn">
-              ✗ Ablehnen
-            </button>
+            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
+            <div class="request-footer">
+              <small>
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
+                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
+              </small>
+            </div>
           </div>
         </div>
       </div>
 
-      <div v-show="activeTab === 'chef'" class="tab-content">
+      <!-- Tab 2: Teamlead -->
+      <div v-show="activeTab === 'teamlead'" class="tab-content">
+        <h2>Anträge zur 1. Genehmigung</h2>
+
+        <div v-if="currentUser?.role !== 'office'" class="pdf-export-section">
+          <h3>Team-Urlaube exportieren</h3>
+          <button @click="handleExportTeamVacations" class="btn-pdf">
+            📄 Als PDF exportieren
+          </button>
+        </div>
+
+        <div v-else class="pdf-export-section">
+          <h3>Team-Urlaube exportieren</h3>
+          <button @click="handleExportTeamVacations" class="btn-pdf">
+            📄 Als PDF exportieren
+          </button>
+        </div>
+
+        <div v-if="pendingTeamleadRequests.length === 0" class="empty-state">
+          Keine Anträge zur Genehmigung
+        </div>
+        <div v-for="req in pendingTeamleadRequests" :key="req.id">
+          <!-- Office: Nur anzeigen, keine Buttons -->
+          <div v-if="currentUser?.role === 'office'" class="request-card approval">
+            <div class="request-header">
+              <div>
+                <strong>{{ req.user }}</strong>
+                <span class="request-date">
+                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
+                </span>
+              </div>
+              <span :class="['status', req.status]">
+                {{ getStatusTextWithIcon(req.status) }}
+              </span>
+            </div>
+            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
+            <div class="request-footer">
+              <small>
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
+                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
+              </small>
+            </div>
+          </div>
+
+          <!-- Teamlead/Manager: Mit Approve/Reject Buttons -->
+          <VacationApprovalCard
+              v-else
+              :request="req"
+              @approve="handleApprove($event, 'teamlead')"
+              @reject="handleReject"
+          />
+        </div>
+      </div>
+
+      <!-- Tab 3: Manager -->
+      <div v-show="activeTab === 'manager'" class="tab-content">
         <h2>Anträge zur 2. Genehmigung</h2>
 
         <div class="pdf-export-section">
           <h3>Alle Urlaube exportieren</h3>
-          <button
-              @click="exportAllVacations"
-              class="btn-pdf"
-          >
+          <button @click="handleExportAllVacations" class="btn-pdf">
             📄 Als PDF exportieren
           </button>
         </div>
 
-        <div v-if="pendingChefRequests.length === 0" class="empty-state">
+        <div v-if="pendingManagerRequests.length === 0" class="empty-state">
           Keine Anträge zur Genehmigung
         </div>
-        <div v-for="req in pendingChefRequests" :key="req.id" class="request-card approval">
-          <div class="request-header">
-            <div>
-              <strong>{{ req.user }}</strong>
-              <span class="request-date">{{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}</span>
+        <div v-for="req in pendingManagerRequests" :key="req.id">
+          <!-- Office: Nur anzeigen, keine Buttons -->
+          <div v-if="currentUser?.role === 'office'" class="request-card approval">
+            <div class="request-header">
+              <div>
+                <strong>{{ req.user }}</strong>
+                <span class="request-date">
+                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
+                </span>
+              </div>
+              <span :class="['status', req.status]">
+                {{ getStatusTextWithIcon(req.status) }}
+              </span>
             </div>
-            <span :class="['status', req.status]">{{ getStatusText(req.status) }}</span>
+            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
+            <div v-if="req.teamleadApprovalDate" class="approval-info">
+              <small>✓ Genehmigt von Teamlead am {{ formatDate(req.teamleadApprovalDate) }}</small>
+            </div>
+            <div class="request-footer">
+              <small>
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
+                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
+              </small>
+            </div>
           </div>
-          <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-          <div class="approval-info">
-            <small>✓ Genehmigt von Teamleiter am {{ formatDate(req.teamleiterApprovalDate) }}</small>
-          </div>
-          <div class="request-footer">
-            <small>Tage: {{ calculateDays(req.startDate, req.endDate) }}</small>
-          </div>
-          <div class="approval-actions">
-            <button @click="approveRequest(req.id, 'chef')" class="approve-btn">
-              ✓ Genehmigen
-            </button>
-            <button @click="rejectRequest(req.id, 'chef')" class="reject-btn">
-              ✗ Ablehnen
-            </button>
-          </div>
+
+          <!-- Manager: Mit Approve/Reject Buttons -->
+          <VacationApprovalCard
+              v-else
+              :request="req"
+              :show-teamlead-approval="true"
+              @approve="handleApprove($event, 'manager')"
+              @reject="handleReject"
+          />
         </div>
+      </div>
+
+      <!-- Tab 4: Firmeninterne Urlaubsregelung (nur für manager/admin) -->
+      <div v-show="activeTab === 'halftimes'" class="tab-content">
+        <HalfDayRuleManager />
+      </div>
+
+      <!-- Tab 5: Urlaubstage-Übertrag (nur für manager/admin) -->
+      <div v-show="activeTab === 'carryover'" class="tab-content">
+        <CarryoverManager />
+      </div>
+
+      <!-- Tab 6: Organigramm (nur für manager/admin) -->
+      <div v-show="activeTab === 'organization'" class="tab-content">
+        <OrganizationChart />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import type { UserRole } from '~/types/vacation'
+import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
-interface VacationRequest {
-  id: number
-  user: string
-  startDate: string
-  endDate: string
-  reason: string
-  status: 'pending' | 'teamleiter_approved' | 'approved' | 'rejected'
-  teamleiterApprovalDate?: string
-  chefApprovalDate?: string
-}
+const { currentUser, logout, isAuthenticated, initAuth } = useAuth()
+const { getAllRules } = useHalfDayRules()
+const { getCurrentUserBalance } = useVacationBalance()
 
-const route = useRoute()
-const currentUser = ref((route.query.user as string) || 'Benutzer')
-const userRole = ref((route.query.role as string) || 'employee')
+// Halbtags-Regelungen als Array von Datums-Strings
+const halfDayDates = computed(() => getAllRules.value.map(rule => rule.date))
 
-const activeTab = ref('antrag')
-
-const newRequest = ref({
-  startDate: '',
-  endDate: '',
-  reason: ''
+// Urlaubskonto des aktuellen Users
+const userBalance = computed(() => {
+  if (!currentUser.value?.username) return null
+  return getCurrentUserBalance(currentUser.value.username).value
 })
 
-const requests = ref<VacationRequest[]>([
-  {
-    id: 1,
-    user: 'Max Mustermann',
-    startDate: '2025-12-15',
-    endDate: '2025-12-20',
-    reason: 'Weihnachtsurlaub',
-    status: 'pending'
-  },
-  {
-    id: 2,
-    user: 'Anna Schmidt',
-    startDate: '2026-01-10',
-    endDate: '2026-01-15',
-    reason: 'Familienbesuch',
-    status: 'teamleiter_approved',
-    teamleiterApprovalDate: '2025-11-25'
+// Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
+const calculateVacationDays = (startDate: string, endDate: string) => {
+  return calculateWorkdays(startDate, endDate, halfDayDates.value)
+}
+
+// Auth beim Laden initialisieren
+onMounted(() => {
+  initAuth()
+  
+  // Redirect wenn nicht eingeloggt
+  if (!isAuthenticated.value) {
+    navigateTo('/login')
   }
-])
+})
+
+// Redirect wenn nicht eingeloggt (auch nach Mount prüfen)
+watch(isAuthenticated, (authenticated) => {
+  if (!authenticated) {
+    navigateTo('/login')
+  }
+})
+
+const activeTab = ref(currentUser.value?.role === 'office' ? 'overview' : 'antrag')
+
+// Composables
+const {
+  submitRequest,
+  approveRequest,
+  rejectRequest,
+  getUserRequests,
+  getApprovedUserRequests,
+  getPendingTeamleadRequests,
+  getPendingManagerRequests,
+  getAllTeamRequests,
+  getAllRequests
+} = useVacationRequests()
+
+const {
+  exportMyApprovedVacations,
+  exportTeamVacations,
+  exportAllVacations
+} = usePdfExport()
+
+const toast = useToast()
+
+const { currentTheme, toggleTheme, initTheme } = useTheme()
+
+// Theme beim Laden initialisieren
+onMounted(() => {
+  initTheme()
+})
+
+// Computed Properties - mit userId statt displayName
+const userRequests = computed(() => {
+  if (!currentUser.value?.username) return []
+  return getUserRequests(currentUser.value.username).value
+})
+
+const approvedUserRequests = computed(() => {
+  if (!currentUser.value?.username) return []
+  return getApprovedUserRequests(currentUser.value.username).value
+})
+
+// Nur pending Requests für das eigene Team (bei Teamlead) oder alle (bei Manager)
+const pendingTeamleadRequests = computed(() => {
+  if (!currentUser.value?.username) return []
+  
+  // Manager sieht alle pending requests, Teamleads nur ihr Team
+  if (currentUser.value.role === 'manager') {
+    return getPendingTeamleadRequests().value
+  } else if (currentUser.value.role === 'teamlead') {
+    return getPendingTeamleadRequests(currentUser.value.username).value
+  }
+  
+  return []
+})
+
+const pendingManagerRequests = getPendingManagerRequests()
+
+const allTeamRequests = computed(() => {
+  if (!currentUser.value?.username) return []
+  return getAllTeamRequests(currentUser.value.username).value
+})
+
+const allRequests = getAllRequests()
 
 const visibleTabs = computed(() => {
-  const tabs = [
-    { id: 'antrag', label: 'Mein Antrag', count: 0 }
-  ]
+  const tabs = [{ id: 'antrag', label: 'Mein Antrag', count: 0 }]
 
-  if (userRole.value === 'teamleiter' || userRole.value === 'chef') {
+  if (currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager') {
     tabs.push({
-      id: 'teamleiter',
-      label: 'Teamleiter',
-      count: pendingTeamleiterRequests.value.length
+      id: 'teamlead',
+      label: 'Teamlead',
+      count: pendingTeamleadRequests.value.length
     })
   }
 
-  if (userRole.value === 'chef') {
+  if (currentUser.value?.role === 'manager') {
     tabs.push({
-      id: 'chef',
-      label: 'Chef',
-      count: pendingChefRequests.value.length
+      id: 'manager',
+      label: 'Manager',
+      count: pendingManagerRequests.value.length
     })
+    tabs.push({
+      id: 'halftimes',
+      label: 'Urlaubsregelung',
+      count: 0
+    })
+    tabs.push({
+      id: 'carryover',
+      label: 'Übertrag',
+      count: 0
+    })
+    tabs.push({
+      id: 'organization',
+      label: 'Organigramm',
+      count: 0
+    })
+  }
+
+  // Office sieht alle Tabs, aber ohne Badge-Counts
+  if (currentUser.value?.role === 'office') {
+    return [
+      { id: 'overview', label: 'Übersicht', count: 0 },
+      { id: 'teamlead', label: 'Teamlead-Ansicht', count: 0 },
+      { id: 'manager', label: 'Manager-Ansicht', count: 0 },
+      { id: 'carryover', label: 'Übertrag', count: 0 }
+    ]
   }
 
   return tabs
 })
 
-const userRequests = computed(() => {
-  return requests.value.filter(r => r.user === currentUser.value)
-})
+// Event Handlers
+const handleSubmitRequest = (startDate: string, endDate: string, reason: string) => {
+  if (!currentUser.value) return
+  
+  submitRequest(
+    currentUser.value.username,
+    currentUser.value.displayName,
+    startDate,
+    endDate,
+    reason
+  )
+  toast.success('Antrag erfolgreich eingereicht!')
+}
 
-const approvedUserRequests = computed(() => {
-  return requests.value.filter(r => r.user === currentUser.value && r.status === 'approved')
-})
-
-const pendingTeamleiterRequests = computed(() => {
-  return requests.value.filter(r => r.status === 'pending')
-})
-
-const pendingChefRequests = computed(() => {
-  return requests.value.filter(r => r.status === 'teamleiter_approved')
-})
-
-const allTeamRequests = computed(() => {
-  // Für Teamleiter: Alle Anfragen außer eigene
-  return requests.value.filter(r => r.user !== currentUser.value)
-})
-
-const allRequests = computed(() => {
-  // Für Chef: Alle Anfragen
-  return requests.value
-})
-
-const submitRequest = () => {
-  const request: VacationRequest = {
-    id: Date.now(),
-    user: currentUser.value,
-    startDate: newRequest.value.startDate,
-    endDate: newRequest.value.endDate,
-    reason: newRequest.value.reason,
-    status: 'pending'
+const handleApprove = (id: number, level: 'teamlead' | 'manager') => {
+  if (approveRequest(id, level)) {
+    toast.success('Antrag genehmigt!')
   }
+}
 
-  requests.value.push(request)
-
-  newRequest.value = {
-    startDate: '',
-    endDate: '',
-    reason: ''
+const handleReject = (id: number) => {
+  if (rejectRequest(id)) {
+    toast.info('Antrag abgelehnt')
   }
-
-  alert('Antrag erfolgreich eingereicht!')
 }
 
-const approveRequest = (id: number, level: 'teamleiter' | 'chef') => {
-  const request = requests.value.find(r => r.id === id)
-  if (!request) return
-
-  if (level === 'teamleiter') {
-    request.status = 'teamleiter_approved'
-    request.teamleiterApprovalDate = new Date().toISOString().split('T')[0]
-  } else {
-    request.status = 'approved'
-    request.chefApprovalDate = new Date().toISOString().split('T')[0]
-  }
-
-  alert('Antrag genehmigt!')
+const handleExportMyVacations = () => {
+  if (!currentUser.value) return
+  exportMyApprovedVacations(
+    approvedUserRequests.value, 
+    currentUser.value.displayName,
+    currentUser.value.username
+  )
 }
 
-const rejectRequest = (id: number, level: string) => {
-  const request = requests.value.find(r => r.id === id)
-  if (!request) return
-
-  request.status = 'rejected'
-  alert('Antrag abgelehnt!')
+const handleExportTeamVacations = () => {
+  if (!currentUser.value) return
+  exportTeamVacations(allTeamRequests.value, currentUser.value.displayName)
 }
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+const handleExportAllVacations = () => {
+  if (!currentUser.value) return
+  exportAllVacations(allRequests.value, currentUser.value.displayName)
 }
 
-const calculateDays = (start: string, end: string) => {
-  const startDate = new Date(start)
-  const endDate = new Date(end)
-  const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
-}
-
-const getStatusText = (status: string) => {
-  const statusMap: Record<string, string> = {
-    pending: 'Ausstehend',
-    teamleiter_approved: 'Teamleiter ✓',
-    approved: 'Genehmigt ✓✓',
-    rejected: 'Abgelehnt'
-  }
-  return statusMap[status] || status
-}
-
-const logout = () => {
+const handleLogout = () => {
+  logout()
   navigateTo('/login')
-}
-
-// PDF Export Funktionen
-const exportMyApprovedVacations = () => {
-  console.log('Export gestartet...')
-  console.log('Genehmigte Anträge:', approvedUserRequests.value.length)
-
-  if (approvedUserRequests.value.length === 0) {
-    alert('Keine genehmigten Urlaube vorhanden')
-    return
-  }
-
-  try {
-    console.log('Erstelle jsPDF...')
-    const doc = new jsPDF()
-    console.log('jsPDF erstellt:', doc)
-
-    // Titel
-    doc.setFontSize(18)
-    doc.text('Meine genehmigten Urlaube', 14, 20)
-
-    // Benutzer Info
-    doc.setFontSize(11)
-    doc.text(`Mitarbeiter: ${currentUser.value}`, 14, 30)
-    doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
-
-    console.log('Erstelle Tabellendaten...')
-    // Tabelle
-    const tableData = approvedUserRequests.value.map(req => [
-      formatDate(req.startDate),
-      formatDate(req.endDate),
-      calculateDays(req.startDate, req.endDate).toString(),
-      req.reason || '-',
-      getStatusText(req.status)
-    ])
-
-    console.log('Tabellendaten:', tableData)
-    console.log('Rufe autoTable auf...')
-
-    (doc as any).autoTable({
-      startY: 45,
-      head: [['Von', 'Bis', 'Tage', 'Grund', 'Status']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [102, 126, 234] },
-      styles: { fontSize: 10, cellPadding: 3 }
-    })
-
-    console.log('autoTable fertig')
-
-    // Gesamtstatistik
-    const totalDays = approvedUserRequests.value.reduce((sum, req) =>
-        sum + calculateDays(req.startDate, req.endDate), 0
-    )
-
-    const finalY = (doc as any).lastAutoTable.finalY + 10
-    doc.setFontSize(11)
-    doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
-
-    console.log('Speichere PDF...')
-    const filename = `Urlaube_${currentUser.value}_${new Date().toISOString().split('T')[0]}.pdf`
-    console.log('Dateiname:', filename)
-    doc.save(filename)
-    console.log('PDF gespeichert!')
-
-  } catch (error) {
-    console.error('Fehler beim PDF-Export:', error)
-    alert('Fehler beim PDF-Export: ' + error)
-  }
-}
-
-const exportTeamVacations = () => {
-  const doc = new jsPDF()
-
-  // Titel
-  doc.setFontSize(18)
-  doc.text('Team-Urlaubsübersicht', 14, 20)
-
-  // Info
-  doc.setFontSize(11)
-  doc.text(`Teamleiter: ${currentUser.value}`, 14, 30)
-  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
-
-  // Tabelle mit allen Team-Urlauben
-  const tableData = allTeamRequests.value.map(req => [
-    req.user,
-    formatDate(req.startDate),
-    formatDate(req.endDate),
-    calculateDays(req.startDate, req.endDate).toString(),
-    req.reason || '-',
-    getStatusText(req.status)
-  ])
-
-  (doc as any).autoTable({
-    startY: 45,
-    head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [102, 126, 234] },
-    styles: { fontSize: 9, cellPadding: 2 }
-  })
-
-  // Statistik
-  const approvedCount = allTeamRequests.value.filter(r => r.status === 'approved').length
-  const pendingCount = allTeamRequests.value.filter(r => r.status === 'pending').length
-
-  const finalY = (doc as any).lastAutoTable.finalY + 10
-  doc.setFontSize(10)
-  doc.text(`Gesamt Anträge: ${allTeamRequests.value.length}`, 14, finalY)
-  doc.text(`Genehmigt: ${approvedCount}`, 14, finalY + 6)
-  doc.text(`Ausstehend: ${pendingCount}`, 14, finalY + 12)
-
-  doc.save(`Team_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
-}
-
-const exportAllVacations = () => {
-  const doc = new jsPDF()
-
-  // Titel
-  doc.setFontSize(18)
-  doc.text('Urlaubsübersicht - Gesamtunternehmen', 14, 20)
-
-  // Info
-  doc.setFontSize(11)
-  doc.text(`Erstellt von: ${currentUser.value} (Chef)`, 14, 30)
-  doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
-
-  // Tabelle mit allen Urlauben
-  const tableData = allRequests.value.map(req => [
-    req.user,
-    formatDate(req.startDate),
-    formatDate(req.endDate),
-    calculateDays(req.startDate, req.endDate).toString(),
-    req.reason || '-',
-    getStatusText(req.status)
-  ])
-
-  (doc as any).autoTable({
-    startY: 45,
-    head: [['Mitarbeiter', 'Von', 'Bis', 'Tage', 'Grund', 'Status']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [102, 126, 234] },
-    styles: { fontSize: 9, cellPadding: 2 }
-  })
-
-  // Detaillierte Statistik
-  const totalRequests = allRequests.value.length
-  const approvedCount = allRequests.value.filter(r => r.status === 'approved').length
-  const teamleiterApprovedCount = allRequests.value.filter(r => r.status === 'teamleiter_approved').length
-  const pendingCount = allRequests.value.filter(r => r.status === 'pending').length
-  const rejectedCount = allRequests.value.filter(r => r.status === 'rejected').length
-
-  const totalApprovedDays = allRequests.value
-      .filter(r => r.status === 'approved')
-      .reduce((sum, req) => sum + calculateDays(req.startDate, req.endDate), 0)
-
-  const finalY = (doc as any).lastAutoTable.finalY + 10
-  doc.setFontSize(10)
-  doc.setFont(undefined, 'bold')
-  doc.text('Statistik:', 14, finalY)
-  doc.setFont(undefined, 'normal')
-  doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
-  doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
-  doc.text(`Bei Chef ausstehend: ${teamleiterApprovedCount}`, 14, finalY + 18)
-  doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
-  doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
-  doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
-
-  doc.save(`Alle_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
 }
 </script>

@@ -1,66 +1,72 @@
-import { readFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
+import fs from 'fs'
+import path from 'path'
 
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event)
-    const { username, password } = body
+  const body = await readBody(event)
+  const { username, password } = body
 
-    if (!username || !password) {
-        throw createError({
-            statusCode: 400,
-            message: 'Benutzername und Passwort erforderlich'
-        })
+  try {
+    // credentials.txt aus dem Stammverzeichnis lesen
+    const credentialsPath = path.join(process.cwd(), 'credentials.txt')
+    const fileContent = fs.readFileSync(credentialsPath, 'utf-8')
+    
+    const lines = fileContent.split('\n').filter(line => 
+      line.trim() && !line.startsWith('#')
+    )
+
+    for (const line of lines) {
+      const parts = line.trim().split(':')
+      
+      let user = null
+      
+      // Admin und Office (Format: username:password:role)
+      if (parts.length === 3) {
+        const [uname, pwd, role] = parts
+        if (uname.toLowerCase() === username.toLowerCase() && pwd === password) {
+          user = {
+            username: uname,
+            password: pwd,
+            role,
+            displayName: uname
+          }
+        }
+      }
+      // Normale Accounts (Format: Nachname:Vorname:Passwort:Rolle)
+      else if (parts.length === 4) {
+        const [lastName, firstName, pwd, role] = parts
+        if (lastName.toLowerCase() === username.toLowerCase() && pwd === password) {
+          user = {
+            username: lastName,
+            firstName,
+            lastName,
+            password: pwd,
+            role,
+            displayName: `${firstName} ${lastName}`
+          }
+        }
+      }
+
+      if (user) {
+        // Passwort nicht zurückgeben
+        const { password: _, ...userWithoutPassword } = user
+        return {
+          success: true,
+          user: userWithoutPassword
+        }
+      }
     }
 
-    try {
-        const filePath = join(process.cwd(), 'credentials.txt')
-
-        if (!existsSync(filePath)) {
-            throw createError({
-                statusCode: 500,
-                message: 'Credentials-Datei nicht gefunden'
-            })
-        }
-
-        const fileContent = await readFile(filePath, 'utf-8')
-
-        const validCredentials = fileContent
-            .split('\n')
-            .filter(line => line.trim() && !line.startsWith('#'))
-            .map(line => {
-                const [user, pass, role] = line.split(':')
-                return {
-                    username: user?.trim(),
-                    password: pass?.trim(),
-                    role: role?.trim() || 'employee'
-                }
-            })
-            .filter(cred => cred.username && cred.password)
-
-        const user = validCredentials.find(
-            cred => cred.username === username && cred.password === password
-        )
-
-        if (user) {
-            return {
-                success: true,
-                role: user.role
-            }
-        } else {
-            throw createError({
-                statusCode: 401,
-                message: 'Ungültige Zugangsdaten'
-            })
-        }
-    } catch (error: any) {
-        if (error.statusCode) {
-            throw error
-        }
-
-        throw createError({
-            statusCode: 500,
-            message: 'Interner Server-Fehler'
-        })
+    // Kein passender User gefunden
+    return {
+      success: false,
+      error: 'Invalid credentials'
     }
+
+  } catch (error) {
+    console.error('Login error:', error)
+    return {
+      success: false,
+      error: 'Server error'
+    }
+  }
 })
