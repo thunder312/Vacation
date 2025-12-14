@@ -2,12 +2,12 @@
   ## next doings 
    ### business logic
   - days off per year: 20 (pulling to next year)
-  - custom days (holydays) addable by admin, even half days
+  - <del>custom days (holydays) addable by admin, even half days</del>
   - <del>role: office (see as admin, but no edits)</del>
    ### optical
   - <del>css with fondsKonzept blue</del>
   - <del>favicon</del>
-  - pdf logo
+  - <del>pdf logo</del>
 
   ## late doings
    ### business logic
