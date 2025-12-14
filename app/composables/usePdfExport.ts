@@ -5,6 +5,10 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/u
 
 export const usePdfExport = () => {
     const toast = useToast()
+    const { getAllRules } = useHalfDayRules()
+
+    // Halbtags-Daten für Berechnung
+    const getHalfDayDates = () => getAllRules.value.map(rule => rule.date)
 
     // Logo als Base64 laden
     const addLogoToPdf = (doc: any) => {
@@ -41,7 +45,7 @@ export const usePdfExport = () => {
             const tableData = approvedRequests.map(req => [
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateWorkdays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
@@ -56,7 +60,7 @@ export const usePdfExport = () => {
             })
 
             const totalDays = approvedRequests.reduce((sum, req) =>
-                sum + calculateWorkdays(req.startDate, req.endDate), 0
+                sum + calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()), 0
             )
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
@@ -98,7 +102,7 @@ export const usePdfExport = () => {
                 req.user,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateWorkdays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
@@ -155,7 +159,7 @@ export const usePdfExport = () => {
                 req.user,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
-                calculateWorkdays(req.startDate, req.endDate).toString(),
+                calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
                 req.reason || '-',
                 getStatusText(req.status)
             ])
@@ -176,7 +180,7 @@ export const usePdfExport = () => {
             const rejectedCount = allRequests.filter(r => r.status === 'rejected').length
             const totalApprovedDays = allRequests
                 .filter(r => r.status === 'approved')
-                .reduce((sum, req) => sum + calculateWorkdays(req.startDate, req.endDate), 0)
+                .reduce((sum, req) => sum + calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()), 0)
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)

@@ -11,7 +11,7 @@
     <p v-if="request.reason" class="request-reason">{{ request.reason }}</p>
     <div class="request-footer">
       <small>
-        Urlaubstage: {{ calculateWorkdays(request.startDate, request.endDate) }}
+        Urlaubstage: {{ vacationDays }}
         ({{ calculateDays(request.startDate, request.endDate) }} Tage gesamt)
       </small>
     </div>
@@ -22,7 +22,14 @@
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
-defineProps<{
+const props = defineProps<{
   request: VacationRequest
 }>()
+
+const { getAllRules } = useHalfDayRules()
+
+const vacationDays = computed(() => {
+  const halfDayDates = getAllRules.value.map(rule => rule.date)
+  return calculateWorkdays(props.request.startDate, props.request.endDate, halfDayDates)
+})
 </script>

@@ -88,7 +88,7 @@
             <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
             <div class="request-footer">
               <small>
-                Urlaubstage: {{ calculateWorkdays(req.startDate, req.endDate) }}
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
                 ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
               </small>
             </div>
@@ -134,7 +134,7 @@
             <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
             <div class="request-footer">
               <small>
-                Urlaubstage: {{ calculateWorkdays(req.startDate, req.endDate) }}
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
                 ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
               </small>
             </div>
@@ -184,7 +184,7 @@
             </div>
             <div class="request-footer">
               <small>
-                Urlaubstage: {{ calculateWorkdays(req.startDate, req.endDate) }}
+                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
                 ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
               </small>
             </div>
@@ -200,6 +200,11 @@
           />
         </div>
       </div>
+
+      <!-- Tab 4: Firmeninterne Urlaubsregelung (nur für manager/admin) -->
+      <div v-show="activeTab === 'halftimes'" class="tab-content">
+        <HalfDayRuleManager />
+      </div>
     </div>
   </div>
 </template>
@@ -209,6 +214,15 @@ import type { UserRole } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
 const { currentUser, logout, isAuthenticated, initAuth } = useAuth()
+const { getAllRules } = useHalfDayRules()
+
+// Halbtags-Regelungen als Array von Datums-Strings
+const halfDayDates = computed(() => getAllRules.value.map(rule => rule.date))
+
+// Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
+const calculateVacationDays = (startDate: string, endDate: string) => {
+  return calculateWorkdays(startDate, endDate, halfDayDates.value)
+}
 
 // Auth beim Laden initialisieren
 onMounted(() => {
@@ -294,6 +308,11 @@ const visibleTabs = computed(() => {
       id: 'manager',
       label: 'Manager',
       count: pendingManagerRequests.value.length
+    })
+    tabs.push({
+      id: 'halftimes',
+      label: 'Urlaubsregelung',
+      count: 0
     })
   }
 

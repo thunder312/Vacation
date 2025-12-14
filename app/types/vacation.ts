@@ -20,3 +20,11 @@ export interface User {
     role: UserRole
     displayName: string // "Vorname Nachname" oder "admin"/"office"
 }
+
+export interface HalfDayRule {
+    id: number
+    date: string // ISO format: YYYY-MM-DD
+    description: string
+    createdBy: string
+    createdAt: string
+}

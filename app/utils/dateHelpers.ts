@@ -1,3 +1,5 @@
+import { isWorkday } from '~/utils/holidays'
+
 export const formatDate = (dateStr: string | undefined): string => {
     if (!dateStr) return '-'
     const date = new Date(dateStr)
@@ -15,7 +17,7 @@ export const calculateDays = (start: string, end: string): number => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }
 
-export const calculateWorkdays = (start: string, end: string): number => {
+export const calculateWorkdays = (start: string, end: string, halfDayDates: string[] = []): number => {
     const startDate = new Date(start)
     const endDate = new Date(end)
 
@@ -24,7 +26,14 @@ export const calculateWorkdays = (start: string, end: string): number => {
 
     while (currentDate <= endDate) {
         if (isWorkday(currentDate)) {
-            workdays++
+            const dateStr = currentDate.toISOString().split('T')[0]
+            
+            // Prüfen ob es ein Halbtag ist
+            if (halfDayDates.includes(dateStr)) {
+                workdays += 0.5
+            } else {
+                workdays += 1
+            }
         }
         currentDate.setDate(currentDate.getDate() + 1)
     }
