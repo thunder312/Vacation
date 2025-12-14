@@ -44,10 +44,10 @@ const props = defineProps<{
   showTeamleadApproval?: boolean
 }>()
 
-const { getAllRules } = useHalfDayRules()
+const { halfDayRules } = useHalfDayRules()
 
 const vacationDays = computed(() => {
-  const halfDayDates = getAllRules.value.map(rule => rule.date)
+  const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
   return calculateWorkdays(props.request.startDate, props.request.endDate, halfDayDates)
 })
 

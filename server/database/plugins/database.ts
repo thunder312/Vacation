@@ -1,5 +1,5 @@
 // server/plugins/database.ts
-import { initSchema } from '../database/schema'
+import { initSchema } from '../schema'
 
 /**
  * Nitro Plugin: Wird beim Server-Start ausgeführt

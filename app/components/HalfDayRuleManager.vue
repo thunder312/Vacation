@@ -30,13 +30,13 @@
 
     <!-- Liste der Regelungen -->
     <div class="rules-list">
-      <h3>Definierte Halbtage ({{ allRules.length }})</h3>
+      <h3>Definierte Halbtage ({{ allRules?.length || 0 }})</h3>
       
-      <div v-if="allRules.length === 0" class="empty-state">
+      <div v-if="!allRules || allRules.length === 0" class="empty-state">
         Noch keine Halbtags-Regelungen definiert
       </div>
 
-      <div v-for="rule in allRules" :key="rule.id" class="rule-card">
+      <div v-for="rule in allRules || []" :key="rule.id" class="rule-card">
         <div class="rule-header">
           <div>
             <strong>{{ formatDate(rule.date) }}</strong>
@@ -68,21 +68,20 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/dateHelpers'
 
-const { addRule, removeRule, getAllRules } = useHalfDayRules()
+const { addHalfDayRule, removeHalfDayRule, halfDayRules } = useHalfDayRules()
 const { currentUser } = useAuth()
 
 const newDate = ref('')
 const newDescription = ref('')
 
-const allRules = getAllRules
+const allRules = halfDayRules
 
-const handleAddRule = () => {
+const handleAddRule = async () => {
   if (!currentUser.value) return
   
-  const success = addRule(
+  const success = await addHalfDayRule(
     newDate.value,
-    newDescription.value,
-    currentUser.value.displayName
+    newDescription.value
   )
 
   if (success) {
@@ -91,9 +90,9 @@ const handleAddRule = () => {
   }
 }
 
-const handleRemoveRule = (id: number) => {
+const handleRemoveRule = async (id: number) => {
   if (confirm('Möchten Sie diese Regelung wirklich löschen?')) {
-    removeRule(id)
+    await removeHalfDayRule(id)
   }
 }
 </script>

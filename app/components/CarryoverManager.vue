@@ -45,13 +45,13 @@
 
     <!-- Liste der Überträge -->
     <div class="carryovers-list">
-      <h3>Aktuelle Überträge ({{ allCarryovers.length }})</h3>
+      <h3>Aktuelle Überträge ({{ allCarryovers?.length || 0 }})</h3>
       
-      <div v-if="allCarryovers.length === 0" class="empty-state">
+      <div v-if="!allCarryovers || allCarryovers.length === 0" class="empty-state">
         Noch keine Überträge definiert
       </div>
 
-      <div v-for="carryover in allCarryovers" :key="carryover.userId + '-' + carryover.year" class="carryover-card">
+      <div v-for="carryover in allCarryovers || []" :key="carryover.userId + '-' + carryover.year" class="carryover-card">
         <div class="carryover-header">
           <div>
             <strong>{{ getDisplayName(carryover.userId) }}</strong>
@@ -95,14 +95,14 @@
 import { formatDate } from '~/utils/dateHelpers'
 
 const { currentUser } = useAuth()
-const { setCarryover, removeCarryover, getAllCarryovers, isCarryoverExpiringSoon } = useCarryover()
+const { setCarryover, removeCarryover, carryovers, isCarryoverExpiringSoon } = useCarryover()
 const { orgNodes } = useOrganization()
 
 const newUserId = ref('')
 const newDays = ref(0)
 const newExpiryDate = ref('')
 
-const allCarryovers = getAllCarryovers
+const allCarryovers = carryovers
 
 // Nur Manager können bearbeiten, Office hat nur Leserechte
 const isEditable = computed(() => {
@@ -111,15 +111,15 @@ const isEditable = computed(() => {
 
 // Hole vollen Namen statt nur userId
 const getDisplayName = (userId: string): string => {
-  const user = orgNodes.value.find(u => u.userId === userId)
+  const user = orgNodes.value?.find(u => u.userId === userId)
   return user?.displayName || userId
 }
 
-const handleSetCarryover = () => {
+const handleSetCarryover = async () => {
   const year = new Date().getFullYear()
   const expiryDate = newExpiryDate.value || undefined
   
-  setCarryover(
+  await setCarryover(
     newUserId.value,
     newDays.value,
     year,
@@ -132,9 +132,9 @@ const handleSetCarryover = () => {
   newExpiryDate.value = ''
 }
 
-const handleRemoveCarryover = (userId: string, year: number) => {
+const handleRemoveCarryover = async (userId: string, year: number) => {
   if (confirm(`Möchten Sie den Übertrag für ${userId} wirklich löschen?`)) {
-    removeCarryover(userId, year)
+    await removeCarryover(userId, year)
   }
 }
 

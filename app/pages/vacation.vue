@@ -41,170 +41,77 @@
           <button
               @click="handleExportMyVacations"
               class="btn-pdf"
-              :disabled="approvedUserRequests.length === 0"
+              :disabled="!approvedUserRequests || approvedUserRequests.length === 0"
           >
             📄 Als PDF exportieren
           </button>
         </div>
 
         <div class="requests-list">
-          <h3>Meine Anträge</h3>
-          <div v-if="userRequests.length === 0" class="empty-state">
-            Keine Anträge vorhanden
+          <h2>Meine Urlaubsanträge</h2>
+          <div v-if="!userRequests || userRequests.length === 0" class="empty-state">
+            Noch keine Urlaubsanträge vorhanden
           </div>
           <VacationRequestCard
-              v-for="req in userRequests"
-              :key="req.id"
-              :request="req"
+              v-for="request in userRequests || []"
+              :key="request.id"
+              :request="request"
+              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
           />
         </div>
       </div>
 
-      <!-- Tab: Übersicht (nur für office) -->
-      <div v-show="activeTab === 'overview' && currentUser?.role === 'office'" class="tab-content">
-        <h2>Übersicht aller Urlaubsanträge</h2>
-
-        <div class="pdf-export-section">
-          <h3>Alle Urlaube exportieren</h3>
-          <button @click="handleExportAllVacations" class="btn-pdf">
-            📄 Als PDF exportieren
-          </button>
-        </div>
-
-        <div class="requests-list">
-          <h3>Alle Anträge</h3>
-          <div v-if="allRequests.length === 0" class="empty-state">
-            Keine Anträge vorhanden
-          </div>
-          <div v-for="req in allRequests" :key="req.id" class="request-card approval">
-            <div class="request-header">
-              <div>
-                <strong>{{ req.user }}</strong>
-                <span class="request-date">
-                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
-                </span>
-              </div>
-              <span :class="['status', req.status]">
-                {{ getStatusTextWithIcon(req.status) }}
-              </span>
-            </div>
-            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-            <div class="request-footer">
-              <small>
-                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
-                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
-              </small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 2: Teamlead -->
+      <!-- Tab 2: Teamlead (nur für teamleiter und chef) -->
       <div v-show="activeTab === 'teamlead'" class="tab-content">
-        <h2>Anträge zur 1. Genehmigung</h2>
+        <h2>Urlaubsanträge zur Genehmigung (Teamlead)</h2>
 
-        <div v-if="currentUser?.role !== 'office'" class="pdf-export-section">
+        <div class="pdf-export-section">
           <h3>Team-Urlaube exportieren</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
-            📄 Als PDF exportieren
+            📄 Team-PDF exportieren
           </button>
         </div>
 
-        <div v-else class="pdf-export-section">
-          <h3>Team-Urlaube exportieren</h3>
-          <button @click="handleExportTeamVacations" class="btn-pdf">
-            📄 Als PDF exportieren
-          </button>
+        <div v-if="!pendingTeamleadRequests || pendingTeamleadRequests.length === 0" class="empty-state">
+          Keine ausstehenden Urlaubsanträge
         </div>
-
-        <div v-if="pendingTeamleadRequests.length === 0" class="empty-state">
-          Keine Anträge zur Genehmigung
-        </div>
-        <div v-for="req in pendingTeamleadRequests" :key="req.id">
-          <!-- Office: Nur anzeigen, keine Buttons -->
-          <div v-if="currentUser?.role === 'office'" class="request-card approval">
-            <div class="request-header">
-              <div>
-                <strong>{{ req.user }}</strong>
-                <span class="request-date">
-                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
-                </span>
-              </div>
-              <span :class="['status', req.status]">
-                {{ getStatusTextWithIcon(req.status) }}
-              </span>
-            </div>
-            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-            <div class="request-footer">
-              <small>
-                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
-                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
-              </small>
-            </div>
-          </div>
-
-          <!-- Teamlead/Manager: Mit Approve/Reject Buttons -->
-          <VacationApprovalCard
-              v-else
-              :request="req"
-              @approve="handleApprove($event, 'teamlead')"
-              @reject="handleReject"
-          />
-        </div>
+        <VacationApprovalCard
+            v-for="request in pendingTeamleadRequests || []"
+            :key="request.id"
+            :request="request"
+            :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+            approval-level="teamlead"
+            @approve="handleApprove"
+            @reject="handleReject"
+        />
       </div>
 
-      <!-- Tab 3: Manager -->
+      <!-- Tab 3: Manager (nur für chef) -->
       <div v-show="activeTab === 'manager'" class="tab-content">
-        <h2>Anträge zur 2. Genehmigung</h2>
+        <h2>Urlaubsanträge zur finalen Genehmigung (Manager)</h2>
 
         <div class="pdf-export-section">
           <h3>Alle Urlaube exportieren</h3>
           <button @click="handleExportAllVacations" class="btn-pdf">
-            📄 Als PDF exportieren
+            📄 Alle Urlaube als PDF exportieren
           </button>
         </div>
 
-        <div v-if="pendingManagerRequests.length === 0" class="empty-state">
-          Keine Anträge zur Genehmigung
+        <div v-if="!pendingManagerRequests.value || pendingManagerRequests.value.length === 0" class="empty-state">
+          Keine ausstehenden Urlaubsanträge für finale Genehmigung
         </div>
-        <div v-for="req in pendingManagerRequests" :key="req.id">
-          <!-- Office: Nur anzeigen, keine Buttons -->
-          <div v-if="currentUser?.role === 'office'" class="request-card approval">
-            <div class="request-header">
-              <div>
-                <strong>{{ req.user }}</strong>
-                <span class="request-date">
-                  {{ formatDate(req.startDate) }} - {{ formatDate(req.endDate) }}
-                </span>
-              </div>
-              <span :class="['status', req.status]">
-                {{ getStatusTextWithIcon(req.status) }}
-              </span>
-            </div>
-            <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-            <div v-if="req.teamleadApprovalDate" class="approval-info">
-              <small>✓ Genehmigt von Teamlead am {{ formatDate(req.teamleadApprovalDate) }}</small>
-            </div>
-            <div class="request-footer">
-              <small>
-                Urlaubstage: {{ calculateVacationDays(req.startDate, req.endDate) }}
-                ({{ calculateDays(req.startDate, req.endDate) }} Tage gesamt)
-              </small>
-            </div>
-          </div>
-
-          <!-- Manager: Mit Approve/Reject Buttons -->
-          <VacationApprovalCard
-              v-else
-              :request="req"
-              :show-teamlead-approval="true"
-              @approve="handleApprove($event, 'manager')"
-              @reject="handleReject"
-          />
-        </div>
+        <VacationApprovalCard
+            v-for="request in pendingManagerRequests.value || []"
+            :key="request.id"
+            :request="request"
+            :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+            approval-level="manager"
+            @approve="handleApprove"
+            @reject="handleReject"
+        />
       </div>
 
-      <!-- Tab 4: Firmeninterne Urlaubsregelung (nur für manager/admin) -->
+      <!-- Tab 4: Urlaubsregelung (nur für manager) -->
       <div v-show="activeTab === 'halftimes'" class="tab-content">
         <HalfDayRuleManager />
       </div>
@@ -218,53 +125,42 @@
       <div v-show="activeTab === 'organization'" class="tab-content">
         <OrganizationChart />
       </div>
+
+      <!-- Tab: Übersicht (nur für office) -->
+      <div v-show="activeTab === 'overview'" class="tab-content">
+        <h2>Übersicht aller Urlaubsanträge</h2>
+        <div v-if="!allRequests.value || allRequests.value.length === 0" class="empty-state">
+          Keine Urlaubsanträge vorhanden
+        </div>
+        <VacationRequestCard
+            v-for="request in allRequests.value || []"
+            :key="request.id"
+            :request="request"
+            :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { UserRole } from '~/types/vacation'
-import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
+import { calculateWorkdays } from '~/utils/dateHelpers'
 
-const { currentUser, logout, isAuthenticated, initAuth } = useAuth()
-const { getAllRules } = useHalfDayRules()
-const { getCurrentUserBalance } = useVacationBalance()
+// KEINE Middleware - Auth-Check ist in onMounted
 
-// Halbtags-Regelungen als Array von Datums-Strings
-const halfDayDates = computed(() => getAllRules.value.map(rule => rule.date))
+// Auth
+const { currentUser, isAuthenticated, logout, initAuth } = useAuth()
 
-// Urlaubskonto des aktuellen Users
-const userBalance = computed(() => {
-  if (!currentUser.value?.username) return null
-  return getCurrentUserBalance(currentUser.value.username).value
-})
-
-// Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
-const calculateVacationDays = (startDate: string, endDate: string) => {
-  return calculateWorkdays(startDate, endDate, halfDayDates.value)
+const handleLogout = () => {
+  logout()
+  navigateTo('/login')
 }
-
-// Auth beim Laden initialisieren
-onMounted(() => {
-  initAuth()
-  
-  // Redirect wenn nicht eingeloggt
-  if (!isAuthenticated.value) {
-    navigateTo('/login')
-  }
-})
-
-// Redirect wenn nicht eingeloggt (auch nach Mount prüfen)
-watch(isAuthenticated, (authenticated) => {
-  if (!authenticated) {
-    navigateTo('/login')
-  }
-})
 
 const activeTab = ref(currentUser.value?.role === 'office' ? 'overview' : 'antrag')
 
-// Composables
+// Composables mit Fetch-Funktionen
 const {
+  fetchRequests,
   submitRequest,
   approveRequest,
   rejectRequest,
@@ -276,6 +172,10 @@ const {
   getAllRequests
 } = useVacationRequests()
 
+const { fetchOrganization } = useOrganization()
+const { fetchHalfDayRules, halfDayDates } = useHalfDayRules()
+const { fetchCarryovers } = useCarryover()
+
 const {
   exportMyApprovedVacations,
   exportTeamVacations,
@@ -286,12 +186,48 @@ const toast = useToast()
 
 const { currentTheme, toggleTheme, initTheme } = useTheme()
 
-// Theme beim Laden initialisieren
-onMounted(() => {
-  initTheme()
+// Urlaubskonto des aktuellen Users
+const { getCurrentUserBalance } = useVacationBalance()
+const userBalance = computed(() => {
+  if (!currentUser.value?.username) return null
+  return getCurrentUserBalance(currentUser.value.username).value
 })
 
-// Computed Properties - mit userId statt displayName
+// Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
+const calculateVacationDays = (startDate: string, endDate: string) => {
+  return calculateWorkdays(startDate, endDate, halfDayDates.value)
+}
+
+// Auth beim Laden initialisieren & Daten vom Server laden
+onMounted(async () => {
+  initAuth()
+  
+  // Redirect wenn nicht eingeloggt
+  if (!isAuthenticated.value) {
+    navigateTo('/login')
+    return
+  }
+
+  // Theme initialisieren
+  initTheme()
+
+  // Daten vom Server laden
+  await Promise.all([
+    fetchRequests(),
+    fetchOrganization(),
+    fetchHalfDayRules(),
+    fetchCarryovers()
+  ])
+})
+
+// Redirect wenn nicht eingeloggt (auch nach Mount prüfen)
+watch(isAuthenticated, (authenticated) => {
+  if (!authenticated) {
+    navigateTo('/login')
+  }
+})
+
+// Computed Properties
 const userRequests = computed(() => {
   if (!currentUser.value?.username) return []
   return getUserRequests(currentUser.value.username).value
@@ -332,7 +268,7 @@ const visibleTabs = computed(() => {
     tabs.push({
       id: 'teamlead',
       label: 'Teamlead',
-      count: pendingTeamleadRequests.value.length
+      count: pendingTeamleadRequests.value?.length || 0
     })
   }
 
@@ -340,7 +276,7 @@ const visibleTabs = computed(() => {
     tabs.push({
       id: 'manager',
       label: 'Manager',
-      count: pendingManagerRequests.value.length
+      count: pendingManagerRequests.value?.length || 0
     })
     tabs.push({
       id: 'halftimes',
@@ -373,52 +309,37 @@ const visibleTabs = computed(() => {
 })
 
 // Event Handlers
-const handleSubmitRequest = (startDate: string, endDate: string, reason: string) => {
+const handleSubmitRequest = async (formData: { startDate: string; endDate: string; reason: string }) => {
   if (!currentUser.value) return
-  
-  submitRequest(
-    currentUser.value.username,
-    currentUser.value.displayName,
-    startDate,
-    endDate,
-    reason
+
+  await submitRequest(
+      currentUser.value.username,
+      currentUser.value.displayName,
+      formData.startDate,
+      formData.endDate,
+      formData.reason
   )
-  toast.success('Antrag erfolgreich eingereicht!')
 }
 
-const handleApprove = (id: number, level: 'teamlead' | 'manager') => {
-  if (approveRequest(id, level)) {
-    toast.success('Antrag genehmigt!')
-  }
+const handleApprove = async (requestId: number, level: 'teamlead' | 'manager') => {
+  await approveRequest(requestId, level)
 }
 
-const handleReject = (id: number) => {
-  if (rejectRequest(id)) {
-    toast.info('Antrag abgelehnt')
-  }
+const handleReject = async (requestId: number) => {
+  await rejectRequest(requestId)
 }
 
 const handleExportMyVacations = () => {
-  if (!currentUser.value) return
-  exportMyApprovedVacations(
-    approvedUserRequests.value, 
-    currentUser.value.displayName,
-    currentUser.value.username
-  )
+  if (!currentUser.value?.username) return
+  exportMyApprovedVacations(currentUser.value.username)
 }
 
 const handleExportTeamVacations = () => {
-  if (!currentUser.value) return
-  exportTeamVacations(allTeamRequests.value, currentUser.value.displayName)
+  if (!currentUser.value?.username) return
+  exportTeamVacations(currentUser.value.username)
 }
 
 const handleExportAllVacations = () => {
-  if (!currentUser.value) return
-  exportAllVacations(allRequests.value, currentUser.value.displayName)
-}
-
-const handleLogout = () => {
-  logout()
-  navigateTo('/login')
+  exportAllVacations()
 }
 </script>

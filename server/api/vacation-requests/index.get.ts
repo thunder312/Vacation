@@ -1,5 +1,5 @@
 // server/api/vacation-requests/index.get.ts
-import { query } from '~/server/database/db'
+import { query } from '../../database/db'
 
 interface VacationRequest {
   id: number

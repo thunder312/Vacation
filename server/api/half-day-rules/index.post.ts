@@ -1,5 +1,5 @@
 // server/api/half-day-rules/index.post.ts
-import { execute } from '~/server/database/db'
+import { execute } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   try {
