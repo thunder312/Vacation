@@ -96,8 +96,8 @@
         </div>
       </div>
 
-      <!-- Tab 2: Teamleiter -->
-      <div v-show="activeTab === 'teamleiter'" class="tab-content">
+      <!-- Tab 2: Teamlead -->
+      <div v-show="activeTab === 'teamlead'" class="tab-content">
         <h2>Anträge zur 1. Genehmigung</h2>
 
         <div v-if="currentUser?.role !== 'office'" class="pdf-export-section">
@@ -114,10 +114,10 @@
           </button>
         </div>
 
-        <div v-if="pendingTeamleiterRequests.length === 0" class="empty-state">
+        <div v-if="pendingTeamleadRequests.length === 0" class="empty-state">
           Keine Anträge zur Genehmigung
         </div>
-        <div v-for="req in pendingTeamleiterRequests" :key="req.id">
+        <div v-for="req in pendingTeamleadRequests" :key="req.id">
           <!-- Office: Nur anzeigen, keine Buttons -->
           <div v-if="currentUser?.role === 'office'" class="request-card approval">
             <div class="request-header">
@@ -140,18 +140,18 @@
             </div>
           </div>
 
-          <!-- Teamleiter/Chef: Mit Approve/Reject Buttons -->
+          <!-- Teamlead/Manager: Mit Approve/Reject Buttons -->
           <VacationApprovalCard
               v-else
               :request="req"
-              @approve="handleApprove($event, 'teamleiter')"
+              @approve="handleApprove($event, 'teamlead')"
               @reject="handleReject"
           />
         </div>
       </div>
 
-      <!-- Tab 3: Chef -->
-      <div v-show="activeTab === 'chef'" class="tab-content">
+      <!-- Tab 3: Manager -->
+      <div v-show="activeTab === 'manager'" class="tab-content">
         <h2>Anträge zur 2. Genehmigung</h2>
 
         <div class="pdf-export-section">
@@ -161,10 +161,10 @@
           </button>
         </div>
 
-        <div v-if="pendingChefRequests.length === 0" class="empty-state">
+        <div v-if="pendingManagerRequests.length === 0" class="empty-state">
           Keine Anträge zur Genehmigung
         </div>
-        <div v-for="req in pendingChefRequests" :key="req.id">
+        <div v-for="req in pendingManagerRequests" :key="req.id">
           <!-- Office: Nur anzeigen, keine Buttons -->
           <div v-if="currentUser?.role === 'office'" class="request-card approval">
             <div class="request-header">
@@ -179,8 +179,8 @@
               </span>
             </div>
             <p v-if="req.reason" class="request-reason">{{ req.reason }}</p>
-            <div v-if="req.teamleiterApprovalDate" class="approval-info">
-              <small>✓ Genehmigt von Teamleiter am {{ formatDate(req.teamleiterApprovalDate) }}</small>
+            <div v-if="req.teamleadApprovalDate" class="approval-info">
+              <small>✓ Genehmigt von Teamlead am {{ formatDate(req.teamleadApprovalDate) }}</small>
             </div>
             <div class="request-footer">
               <small>
@@ -190,12 +190,12 @@
             </div>
           </div>
 
-          <!-- Chef: Mit Approve/Reject Buttons -->
+          <!-- Manager: Mit Approve/Reject Buttons -->
           <VacationApprovalCard
               v-else
               :request="req"
-              :show-teamleiter-approval="true"
-              @approve="handleApprove($event, 'chef')"
+              :show-teamlead-approval="true"
+              @approve="handleApprove($event, 'manager')"
               @reject="handleReject"
           />
         </div>
@@ -236,8 +236,8 @@ const {
   rejectRequest,
   getUserRequests,
   getApprovedUserRequests,
-  getPendingTeamleiterRequests,
-  getPendingChefRequests,
+  getPendingTeamleadRequests,
+  getPendingManagerRequests,
   getAllTeamRequests,
   getAllRequests
 } = useVacationRequests()
@@ -268,8 +268,8 @@ const approvedUserRequests = computed(() => {
   return getApprovedUserRequests(currentUser.value.username).value
 })
 
-const pendingTeamleiterRequests = getPendingTeamleiterRequests()
-const pendingChefRequests = getPendingChefRequests()
+const pendingTeamleadRequests = getPendingTeamleadRequests()
+const pendingManagerRequests = getPendingManagerRequests()
 
 const allTeamRequests = computed(() => {
   if (!currentUser.value?.username) return []
@@ -281,19 +281,19 @@ const allRequests = getAllRequests()
 const visibleTabs = computed(() => {
   const tabs = [{ id: 'antrag', label: 'Mein Antrag', count: 0 }]
 
-  if (currentUser.value?.role === 'teamleiter' || currentUser.value?.role === 'chef') {
+  if (currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager') {
     tabs.push({
-      id: 'teamleiter',
-      label: 'Teamleiter',
-      count: pendingTeamleiterRequests.value.length
+      id: 'teamlead',
+      label: 'Teamlead',
+      count: pendingTeamleadRequests.value.length
     })
   }
 
-  if (currentUser.value?.role === 'chef') {
+  if (currentUser.value?.role === 'manager') {
     tabs.push({
-      id: 'chef',
-      label: 'Chef',
-      count: pendingChefRequests.value.length
+      id: 'manager',
+      label: 'Manager',
+      count: pendingManagerRequests.value.length
     })
   }
 
@@ -301,8 +301,8 @@ const visibleTabs = computed(() => {
   if (currentUser.value?.role === 'office') {
     return [
       { id: 'overview', label: 'Übersicht', count: 0 },
-      { id: 'teamleiter', label: 'Teamleiter-Ansicht', count: 0 },
-      { id: 'chef', label: 'Chef-Ansicht', count: 0 }
+      { id: 'teamlead', label: 'Teamlead-Ansicht', count: 0 },
+      { id: 'manager', label: 'Manager-Ansicht', count: 0 }
     ]
   }
 
@@ -323,7 +323,7 @@ const handleSubmitRequest = (startDate: string, endDate: string, reason: string)
   toast.success('Antrag erfolgreich eingereicht!')
 }
 
-const handleApprove = (id: number, level: 'teamleiter' | 'chef') => {
+const handleApprove = (id: number, level: 'teamlead' | 'manager') => {
   if (approveRequest(id, level)) {
     toast.success('Antrag genehmigt!')
   }

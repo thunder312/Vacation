@@ -5,12 +5,12 @@ export interface VacationRequest {
     startDate: string
     endDate: string
     reason: string
-    status: 'pending' | 'teamleiter_approved' | 'approved' | 'rejected'
-    teamleiterApprovalDate?: string
-    chefApprovalDate?: string
+    status: 'pending' | 'teamlead_approved' | 'approved' | 'rejected'
+    teamleadApprovalDate?: string
+    managerApprovalDate?: string
 }
 
-export type UserRole = 'employee' | 'teamleiter' | 'chef' | 'office'
+export type UserRole = 'employee' | 'teamlead' | 'manager' | 'office'
 
 export interface User {
     username: string // Nachname (Login-Name) oder admin/office

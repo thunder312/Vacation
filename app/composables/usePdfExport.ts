@@ -74,7 +74,7 @@ export const usePdfExport = () => {
 
     const exportTeamVacations = (
         teamRequests: VacationRequest[],
-        teamleiterName: string
+        teamleadName: string
     ) => {
         if (!teamRequests || teamRequests.length === 0) {
             toast.warning('Keine Team-Urlaube vorhanden')
@@ -91,7 +91,7 @@ export const usePdfExport = () => {
             doc.text('Team-Urlaubsübersicht', 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Teamleiter: ${teamleiterName}`, 14, 30)
+            doc.text(`Teamlead: ${teamleadName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             const tableData = teamRequests.map(req => [
@@ -131,7 +131,7 @@ export const usePdfExport = () => {
 
     const exportAllVacations = (
         allRequests: VacationRequest[],
-        chefName: string
+        managerName: string
     ) => {
         if (!allRequests || allRequests.length === 0) {
             toast.warning('Keine Urlaube vorhanden')
@@ -148,7 +148,7 @@ export const usePdfExport = () => {
             doc.text('Urlaubsübersicht - TecKonzept', 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Erstellt von: ${chefName}`, 14, 30)
+            doc.text(`Erstellt von: ${managerName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             const tableData = allRequests.map(req => [
@@ -171,7 +171,7 @@ export const usePdfExport = () => {
 
             const totalRequests = allRequests.length
             const approvedCount = allRequests.filter(r => r.status === 'approved').length
-            const teamleiterApprovedCount = allRequests.filter(r => r.status === 'teamleiter_approved').length
+            const teamleadApprovedCount = allRequests.filter(r => r.status === 'teamlead_approved').length
             const pendingCount = allRequests.filter(r => r.status === 'pending').length
             const rejectedCount = allRequests.filter(r => r.status === 'rejected').length
             const totalApprovedDays = allRequests
@@ -185,8 +185,8 @@ export const usePdfExport = () => {
             doc.setFont('arial', 'normal')
             doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
             doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
-            doc.text(`Bei Chef ausstehend: ${teamleiterApprovedCount}`, 14, finalY + 18)
-            doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
+            doc.text(`Bei Manager ausstehend: ${teamleadApprovedCount}`, 14, finalY + 18)
+            doc.text(`Bei Teamlead ausstehend: ${pendingCount}`, 14, finalY + 24)
             doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
             doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
 

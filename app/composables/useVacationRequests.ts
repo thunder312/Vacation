@@ -19,8 +19,8 @@ export const useVacationRequests = () => {
             startDate: '2026-01-10',
             endDate: '2026-01-15',
             reason: 'Familienbesuch',
-            status: 'teamleiter_approved',
-            teamleiterApprovalDate: '2025-11-25'
+            status: 'teamlead_approved',
+            teamleadApprovalDate: '2025-11-25'
         }
     ])
 
@@ -45,16 +45,16 @@ export const useVacationRequests = () => {
         return request
     }
 
-    const approveRequest = (id: number, level: 'teamleiter' | 'chef') => {
+    const approveRequest = (id: number, level: 'teamlead' | 'manager') => {
         const request = requests.value.find(r => r.id === id)
         if (!request) return false
 
-        if (level === 'teamleiter') {
-            request.status = 'teamleiter_approved'
-            request.teamleiterApprovalDate = new Date().toISOString().split('T')[0]
+        if (level === 'teamlead') {
+            request.status = 'teamlead_approved'
+            request.teamleadApprovalDate = new Date().toISOString().split('T')[0]
         } else {
             request.status = 'approved'
-            request.chefApprovalDate = new Date().toISOString().split('T')[0]
+            request.managerApprovalDate = new Date().toISOString().split('T')[0]
         }
 
         return true
@@ -78,12 +78,12 @@ export const useVacationRequests = () => {
         )
     }
 
-    const getPendingTeamleiterRequests = () => {
+    const getPendingTeamleadRequests = () => {
         return computed(() => requests.value.filter(r => r.status === 'pending'))
     }
 
-    const getPendingChefRequests = () => {
-        return computed(() => requests.value.filter(r => r.status === 'teamleiter_approved'))
+    const getPendingManagerRequests = () => {
+        return computed(() => requests.value.filter(r => r.status === 'teamlead_approved'))
     }
 
     const getAllTeamRequests = (currentUserId: string) => {
@@ -101,8 +101,8 @@ export const useVacationRequests = () => {
         rejectRequest,
         getUserRequests,
         getApprovedUserRequests,
-        getPendingTeamleiterRequests,
-        getPendingChefRequests,
+        getPendingTeamleadRequests,
+        getPendingManagerRequests,
         getAllTeamRequests,
         getAllRequests
     }
