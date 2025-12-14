@@ -31,6 +31,9 @@
     <div class="content">
       <!-- Tab 1: Antrag (für employee, teamleiter, chef) -->
       <div v-show="activeTab === 'antrag' && currentUser?.role !== 'office'" class="tab-content">
+        <!-- Urlaubskonto-Anzeige -->
+        <VacationBalanceCard v-if="userBalance" :balance="userBalance" />
+
         <VacationRequestForm @submit="handleSubmitRequest" />
 
         <div class="pdf-export-section">
@@ -205,6 +208,16 @@
       <div v-show="activeTab === 'halftimes'" class="tab-content">
         <HalfDayRuleManager />
       </div>
+
+      <!-- Tab 5: Urlaubstage-Übertrag (nur für manager/admin) -->
+      <div v-show="activeTab === 'carryover'" class="tab-content">
+        <CarryoverManager />
+      </div>
+
+      <!-- Tab 6: Organigramm (nur für manager/admin) -->
+      <div v-show="activeTab === 'organization'" class="tab-content">
+        <OrganizationChart />
+      </div>
     </div>
   </div>
 </template>
@@ -215,9 +228,16 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } f
 
 const { currentUser, logout, isAuthenticated, initAuth } = useAuth()
 const { getAllRules } = useHalfDayRules()
+const { getCurrentUserBalance } = useVacationBalance()
 
 // Halbtags-Regelungen als Array von Datums-Strings
 const halfDayDates = computed(() => getAllRules.value.map(rule => rule.date))
+
+// Urlaubskonto des aktuellen Users
+const userBalance = computed(() => {
+  if (!currentUser.value?.username) return null
+  return getCurrentUserBalance(currentUser.value.username).value
+})
 
 // Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
 const calculateVacationDays = (startDate: string, endDate: string) => {
@@ -282,7 +302,20 @@ const approvedUserRequests = computed(() => {
   return getApprovedUserRequests(currentUser.value.username).value
 })
 
-const pendingTeamleadRequests = getPendingTeamleadRequests()
+// Nur pending Requests für das eigene Team (bei Teamlead) oder alle (bei Manager)
+const pendingTeamleadRequests = computed(() => {
+  if (!currentUser.value?.username) return []
+  
+  // Manager sieht alle pending requests, Teamleads nur ihr Team
+  if (currentUser.value.role === 'manager') {
+    return getPendingTeamleadRequests().value
+  } else if (currentUser.value.role === 'teamlead') {
+    return getPendingTeamleadRequests(currentUser.value.username).value
+  }
+  
+  return []
+})
+
 const pendingManagerRequests = getPendingManagerRequests()
 
 const allTeamRequests = computed(() => {
@@ -314,6 +347,16 @@ const visibleTabs = computed(() => {
       label: 'Urlaubsregelung',
       count: 0
     })
+    tabs.push({
+      id: 'carryover',
+      label: 'Übertrag',
+      count: 0
+    })
+    tabs.push({
+      id: 'organization',
+      label: 'Organigramm',
+      count: 0
+    })
   }
 
   // Office sieht alle Tabs, aber ohne Badge-Counts
@@ -321,7 +364,8 @@ const visibleTabs = computed(() => {
     return [
       { id: 'overview', label: 'Übersicht', count: 0 },
       { id: 'teamlead', label: 'Teamlead-Ansicht', count: 0 },
-      { id: 'manager', label: 'Manager-Ansicht', count: 0 }
+      { id: 'manager', label: 'Manager-Ansicht', count: 0 },
+      { id: 'carryover', label: 'Übertrag', count: 0 }
     ]
   }
 
@@ -356,7 +400,11 @@ const handleReject = (id: number) => {
 
 const handleExportMyVacations = () => {
   if (!currentUser.value) return
-  exportMyApprovedVacations(approvedUserRequests.value, currentUser.value.displayName)
+  exportMyApprovedVacations(
+    approvedUserRequests.value, 
+    currentUser.value.displayName,
+    currentUser.value.username
+  )
 }
 
 const handleExportTeamVacations = () => {

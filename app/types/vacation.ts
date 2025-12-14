@@ -28,3 +28,34 @@ export interface HalfDayRule {
     createdBy: string
     createdAt: string
 }
+
+export interface VacationBalance {
+    userId: string
+    totalDays: number // Gesamt verfügbare Urlaubstage (Standard: 30)
+    carryoverDays: number // Übertrag aus Vorjahr
+    standardDays: number // Standard-Urlaubstage (30)
+    usedDays: number // Genommene Urlaubstage (nur approved)
+    remainingDays: number // Verbleibende Tage
+    year: number
+}
+
+export interface UserCarryover {
+    userId: string
+    year: number
+    carryoverDays: number
+    expiryDate?: string // Optional: Verfallsdatum für Übertrag
+}
+
+export interface OrgNode {
+    userId: string
+    displayName: string
+    role: UserRole
+    managerId?: string // ID des Vorgesetzten
+    teamId?: string // ID des Teamleiters (für employees)
+}
+
+export interface Team {
+    teamleadId: string
+    teamleadName: string
+    members: string[] // Array von userIds
+}

@@ -6,6 +6,7 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/u
 export const usePdfExport = () => {
     const toast = useToast()
     const { getAllRules } = useHalfDayRules()
+    const { getBalance } = useVacationBalance()
 
     // Halbtags-Daten für Berechnung
     const getHalfDayDates = () => getAllRules.value.map(rule => rule.date)
@@ -22,7 +23,8 @@ export const usePdfExport = () => {
 
     const exportMyApprovedVacations = (
         approvedRequests: VacationRequest[],
-        username: string
+        username: string,
+        userId: string
     ) => {
         if (!approvedRequests || approvedRequests.length === 0) {
             toast.warning('Keine genehmigten Urlaube vorhanden')
@@ -31,6 +33,7 @@ export const usePdfExport = () => {
 
         try {
             const doc = new jsPDF()
+            const balance = getBalance(userId)
 
             // Logo hinzufügen
             addLogoToPdf(doc)
@@ -41,6 +44,19 @@ export const usePdfExport = () => {
             doc.setFontSize(11)
             doc.text(`Mitarbeiter: ${username}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+            
+            // Urlaubskonto-Info
+            doc.setFontSize(10)
+            doc.setFont('arial', 'bold')
+            doc.text('Urlaubskonto:', 14, 45)
+            doc.setFont('arial', 'normal')
+            
+            if (balance.carryoverDays > 0) {
+                doc.text(`Standard: ${balance.standardDays} Tage | Übertrag: ${balance.carryoverDays} Tage | Gesamt: ${balance.totalDays} Tage`, 14, 51)
+                doc.text(`Genommen: ${balance.usedDays} Tage | Verbleibend: ${balance.remainingDays} Tage`, 14, 57)
+            } else {
+                doc.text(`Gesamt: ${balance.totalDays} Tage | Genommen: ${balance.usedDays} Tage | Verbleibend: ${balance.remainingDays} Tage`, 14, 51)
+            }
 
             const tableData = approvedRequests.map(req => [
                 formatDate(req.startDate),
@@ -51,7 +67,7 @@ export const usePdfExport = () => {
             ])
 
             autoTable(doc, {
-                startY: 45,
+                startY: balance.carryoverDays > 0 ? 63 : 57,
                 head: [['Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
                 body: tableData,
                 theme: 'grid',

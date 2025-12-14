@@ -21,6 +21,39 @@ export const useVacationRequests = () => {
             reason: 'Familienbesuch',
             status: 'teamlead_approved',
             teamleadApprovalDate: '2025-11-25'
+        },
+        {
+            id: 3,
+            user: 'Max Mustermann',
+            userId: 'Mustermann',
+            startDate: '2025-07-01',
+            endDate: '2025-07-14',
+            reason: 'Sommerurlaub',
+            status: 'approved',
+            teamleadApprovalDate: '2025-06-15',
+            managerApprovalDate: '2025-06-16'
+        },
+        {
+            id: 4,
+            user: 'Max Mustermann',
+            userId: 'Mustermann',
+            startDate: '2025-03-24',
+            endDate: '2025-03-28',
+            reason: 'Osterurlaub',
+            status: 'approved',
+            teamleadApprovalDate: '2025-03-10',
+            managerApprovalDate: '2025-03-11'
+        },
+        {
+            id: 5,
+            user: 'Max Mustermann',
+            userId: 'Mustermann',
+            startDate: '2025-05-02',
+            endDate: '2025-05-02',
+            reason: 'Brückentag',
+            status: 'approved',
+            teamleadApprovalDate: '2025-04-20',
+            managerApprovalDate: '2025-04-21'
         }
     ])
 
@@ -78,8 +111,21 @@ export const useVacationRequests = () => {
         )
     }
 
-    const getPendingTeamleadRequests = () => {
-        return computed(() => requests.value.filter(r => r.status === 'pending'))
+    const getPendingTeamleadRequests = (teamleadId?: string) => {
+        return computed(() => {
+            if (!teamleadId) {
+                // Fallback: alle pending (für Manager)
+                return requests.value.filter(r => r.status === 'pending')
+            }
+            
+            // Nur Mitarbeiter des eigenen Teams
+            const { getTeamMembers } = useOrganization()
+            const teamMemberIds = getTeamMembers(teamleadId).value.map(m => m.userId)
+            
+            return requests.value.filter(r => 
+                r.status === 'pending' && teamMemberIds.includes(r.userId)
+            )
+        })
     }
 
     const getPendingManagerRequests = () => {
