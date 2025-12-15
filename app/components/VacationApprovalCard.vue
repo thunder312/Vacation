@@ -43,8 +43,10 @@ const props = withDefaults(defineProps<{
   request: VacationRequest
   approvalLevel?: 'teamlead' | 'manager'
   showActions?: boolean  // Buttons zeigen oder verstecken (für readonly)
+  showTeamleadApproval?: boolean  // Teamleiter-Genehmigung anzeigen
 }>(), {
-  showActions: true  // Default: Buttons sind sichtbar
+  showActions: true,  // Default: Buttons sind sichtbar
+  showTeamleadApproval: false  // Default: Nicht anzeigen
 })
 
 const { currentUser } = useAuth()

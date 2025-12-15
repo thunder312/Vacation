@@ -11,6 +11,8 @@
   - Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".
   - Manager can add new MA (with custom vacation days - default: 30)
   - admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)
+  - hide admin in Organigramm
+  - 
    
 ### optical
   - <del>css with fondsKonzept blue</del>

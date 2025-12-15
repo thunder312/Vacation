@@ -130,6 +130,11 @@
         <OrganizationChart />
       </div>
 
+      <!-- Tab 7: Mitarbeiterverwaltung (nur für Manager) -->
+      <div v-show="activeTab === 'users'" class="tab-content">
+        <UserManagement />
+      </div>
+
       <!-- Tab: Übersicht (nur für office) -->
       <div v-show="activeTab === 'overview'" class="tab-content">
         <h2>Übersicht aller Urlaubsanträge</h2>
@@ -331,6 +336,11 @@ const visibleTabs = computed(() => {
     tabs.push({
       id: 'carryover',
       label: 'Übertrag',
+      count: 0
+    })
+    tabs.push({
+      id: 'users',
+      label: 'Mitarbeiterverwaltung',
       count: 0
     })
   }
