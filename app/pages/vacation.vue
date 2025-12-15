@@ -333,12 +333,14 @@ const visibleTabs = computed(() => {
       label: 'Übertrag',
       count: 0
     })
-    tabs.push({
-      id: 'organization',
-      label: 'Organigramm',
-      count: 0
-    })
   }
+  
+  // Organigramm für alle (readonly für nicht-Manager)
+  tabs.push({
+    id: 'organization',
+    label: 'Organigramm',
+    count: 0
+  })
 
   // Office sieht: Alle Tabs (readonly außer eigene Anträge)
   if (currentUser.value?.role === 'office') {
