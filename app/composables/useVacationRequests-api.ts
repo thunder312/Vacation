@@ -63,7 +63,7 @@ export const useVacationRequests = () => {
         
         if (level === 'teamlead') {
           request.teamleadApprovalDate = new Date().toISOString()
-          toast.success('Urlaubsantrag als Teamlead genehmigt')
+          toast.success('Urlaubsantrag als Teamleiter genehmigt')
         } else {
           request.managerApprovalDate = new Date().toISOString()
           toast.success('Urlaubsantrag als Manager genehmigt')

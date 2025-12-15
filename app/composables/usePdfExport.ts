@@ -223,7 +223,7 @@ export const usePdfExport = () => {
             doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
             doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
             doc.text(`Bei Manager ausstehend: ${teamleadApprovedCount}`, 14, finalY + 18)
-            doc.text(`Bei Teamlead ausstehend: ${pendingCount}`, 14, finalY + 24)
+            doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
             doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
             doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
 
