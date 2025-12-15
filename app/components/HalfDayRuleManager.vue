@@ -5,8 +5,8 @@
       Definieren Sie besondere Tage, die nur als halbe Urlaubstage zählen (z.B. Heiligabend, Silvester).
     </p>
 
-    <!-- Formular zum Hinzufügen -->
-    <div class="add-rule-form">
+    <!-- Formular zum Hinzufügen (nur für Manager) -->
+    <div v-if="isEditable" class="add-rule-form">
       <h3>Neuen Halbtag hinzufügen</h3>
       <form @submit.prevent="handleAddRule">
         <div class="form-row">
@@ -42,7 +42,12 @@
             <strong>{{ formatDate(rule.date) }}</strong>
             <span class="rule-description">{{ rule.description }}</span>
           </div>
-          <button @click="handleRemoveRule(rule.id)" class="delete-btn" title="Löschen">
+          <button 
+            v-if="isEditable"
+            @click="handleRemoveRule(rule.id)" 
+            class="delete-btn" 
+            title="Löschen"
+          >
             🗑️
           </button>
         </div>
@@ -76,8 +81,13 @@ const newDescription = ref('')
 
 const allRules = halfDayRules
 
+// Nur Manager kann bearbeiten
+const isEditable = computed(() => {
+  return currentUser.value?.role === 'manager'
+})
+
 const handleAddRule = async () => {
-  if (!currentUser.value) return
+  if (!currentUser.value || !isEditable.value) return
   
   const success = await addHalfDayRule(
     newDate.value,
@@ -91,6 +101,7 @@ const handleAddRule = async () => {
 }
 
 const handleRemoveRule = async (id: number) => {
+  if (!isEditable.value) return
   if (confirm('Möchten Sie diese Regelung wirklich löschen?')) {
     await removeHalfDayRule(id)
   }

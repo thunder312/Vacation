@@ -1,5 +1,5 @@
 // server/api/vacation-requests/index.post.ts
-import { execute } from '../../database/db'
+import { execute, queryOne } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,9 +24,40 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    console.log('✅ Validation passed, inserting into DB...')
+    console.log('✅ Validation passed, checking user role...')
+    
+    // Prüfe Rolle des Users
+    const user = queryOne<any>('SELECT role FROM users WHERE username = ?', [userId])
+    const isManager = user?.role === 'manager'
+    
+    console.log('🔍 User role:', user?.role, 'isManager:', isManager)
 
-    // Antrag erstellen
+    // Manager-Anträge sind automatisch genehmigt
+    if (isManager) {
+      const result = execute(`
+        INSERT INTO vacation_requests (
+          userId, displayName, startDate, endDate, reason, status,
+          teamleadApprovalDate, managerApprovalDate
+        )
+        VALUES (?, ?, ?, ?, ?, 'approved', datetime('now'), datetime('now'))
+      `, [userId, displayName, startDate, endDate, reason || null])
+      
+      console.log('✅ Manager request auto-approved, ID:', result.lastInsertRowid)
+
+      return {
+        id: result.lastInsertRowid,
+        userId,
+        displayName,
+        startDate,
+        endDate,
+        reason,
+        status: 'approved',
+        teamleadApprovalDate: new Date().toISOString(),
+        managerApprovalDate: new Date().toISOString()
+      }
+    }
+
+    // Normale Anträge (Employee, Teamlead, Office)
     const result = execute(`
       INSERT INTO vacation_requests (userId, displayName, startDate, endDate, reason, status)
       VALUES (?, ?, ?, ?, ?, 'pending')

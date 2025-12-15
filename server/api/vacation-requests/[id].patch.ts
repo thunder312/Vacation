@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     if (action === 'approve') {
       if (level === 'teamlead') {
-        // Teamlead-Genehmigung
+        // Teamleiter-Genehmigung
         execute(`
           UPDATE vacation_requests 
           SET status = 'teamlead_approved', 
@@ -42,13 +42,27 @@ export default defineEventHandler(async (event) => {
 
       } else if (level === 'manager') {
         // Manager-Genehmigung (finale)
-        execute(`
-          UPDATE vacation_requests 
-          SET status = 'approved', 
-              managerApprovalDate = datetime('now'),
-              updatedAt = datetime('now')
-          WHERE id = ?
-        `, [id])
+        // Wenn der Request noch 'pending' ist (z.B. Office-User), 
+        // setze auch teamleadApprovalDate = managerApprovalDate
+        if (request.status === 'pending') {
+          execute(`
+            UPDATE vacation_requests 
+            SET status = 'approved', 
+                teamleadApprovalDate = datetime('now'),
+                managerApprovalDate = datetime('now'),
+                updatedAt = datetime('now')
+            WHERE id = ?
+          `, [id])
+        } else {
+          // Normal: war schon teamlead_approved
+          execute(`
+            UPDATE vacation_requests 
+            SET status = 'approved', 
+                managerApprovalDate = datetime('now'),
+                updatedAt = datetime('now')
+            WHERE id = ?
+          `, [id])
+        }
 
         return { success: true, status: 'approved' }
       }
