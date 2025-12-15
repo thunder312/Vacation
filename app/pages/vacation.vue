@@ -266,6 +266,15 @@ const pendingTeamleadRequests = computed(() => {
     return pending.filter(r => teamMemberIds.includes(r.userId))
   }
   
+  // Office sieht alle Employee pending (readonly)
+  if (currentUser.value.role === 'office') {
+    const { orgNodes } = useOrganization()
+    return pending.filter(r => {
+      const user = orgNodes.value?.find(n => n.userId === r.userId)
+      return user?.role === 'employee'
+    })
+  }
+  
   return []
 })
 
@@ -273,8 +282,8 @@ const pendingManagerRequests = computed(() => {
   const requests = getAllRequests()
   const allReqs = requests.value || []
   
-  // Manager sieht:
-  // 1. Anträge mit status 'teamlead_approved' (normale Employee)
+  // Manager & Office sehen:
+  // 1. Anträge mit status 'teamlead_approved' (normale Employee nach Teamleiter-Genehmigung)
   // 2. Anträge mit status 'pending' von Office oder Teamleitern (die haben keinen Teamleiter)
   return allReqs.filter(r => {
     if (r.status === 'teamlead_approved') return true

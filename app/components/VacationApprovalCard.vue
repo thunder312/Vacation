@@ -2,7 +2,7 @@
   <div class="request-card approval">
     <div class="request-header">
       <div>
-        <strong>{{ request.user }}</strong>
+        <strong>{{ request.displayName || request.userId }}</strong>
         <span class="request-date">
           {{ formatDate(request.startDate) }} - {{ formatDate(request.endDate) }}
         </span>
@@ -24,7 +24,7 @@
       </small>
     </div>
 
-    <div class="approval-actions">
+    <div v-if="canApprove" class="approval-actions">
       <button @click="emit('approve', request.id, approvalLevel || 'teamlead')" class="approve-btn">
         ✓ Genehmigen
       </button>
@@ -39,12 +39,24 @@
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   request: VacationRequest
   approvalLevel?: 'teamlead' | 'manager'
-}>()
+  showActions?: boolean  // Buttons zeigen oder verstecken (für readonly)
+}>(), {
+  showActions: true  // Default: Buttons sind sichtbar
+})
 
+const { currentUser } = useAuth()
 const { halfDayRules } = useHalfDayRules()
+
+// Buttons nur zeigen wenn:
+// 1. showActions nicht explizit false ist UND
+// 2. User ist Teamleiter oder Manager (nicht Office!)
+const canApprove = computed(() => {
+  if (props.showActions === false) return false
+  return currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager'
+})
 
 const vacationDays = computed(() => {
   const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
