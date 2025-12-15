@@ -75,15 +75,17 @@
         <div v-if="!pendingTeamleadRequests || pendingTeamleadRequests.length === 0" class="empty-state">
           Keine ausstehenden Urlaubsanträge
         </div>
-        <VacationApprovalCard
-            v-for="request in pendingTeamleadRequests || []"
-            :key="request.id"
-            :request="request"
-            :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
-            approval-level="teamlead"
-            @approve="handleApprove"
-            @reject="handleReject"
-        />
+        <template v-else>
+          <VacationApprovalCard
+              v-for="request in pendingTeamleadRequests"
+              :key="request.id"
+              :request="request"
+              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+              approval-level="teamlead"
+              @approve="handleApprove"
+              @reject="handleReject"
+          />
+        </template>
       </div>
 
       <!-- Tab 3: Manager (nur für chef) -->
@@ -97,18 +99,20 @@
           </button>
         </div>
 
-        <div v-if="!pendingManagerRequests.value || pendingManagerRequests.value.length === 0" class="empty-state">
+        <template v-if="pendingManagerRequests && pendingManagerRequests.length > 0">
+          <VacationApprovalCard
+              v-for="request in pendingManagerRequests"
+              :key="request.id"
+              :request="request"
+              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+              approval-level="manager"
+              @approve="handleApprove"
+              @reject="handleReject"
+          />
+        </template>
+        <div v-else class="empty-state">
           Keine ausstehenden Urlaubsanträge für finale Genehmigung
         </div>
-        <VacationApprovalCard
-            v-for="request in pendingManagerRequests.value || []"
-            :key="request.id"
-            :request="request"
-            :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
-            approval-level="manager"
-            @approve="handleApprove"
-            @reject="handleReject"
-        />
       </div>
 
       <!-- Tab 4: Urlaubsregelung (nur für manager) -->
@@ -242,17 +246,28 @@ const approvedUserRequests = computed(() => {
 const pendingTeamleadRequests = computed(() => {
   if (!currentUser.value?.username) return []
   
-  // Manager sieht alle pending requests, Teamleads nur ihr Team
+  const allRequests = getAllRequests().value || []
+  const pending = allRequests.filter(r => r.status === 'pending')
+  
+  // Manager sieht alle pending requests
   if (currentUser.value.role === 'manager') {
-    return getPendingTeamleadRequests().value
-  } else if (currentUser.value.role === 'teamlead') {
-    return getPendingTeamleadRequests(currentUser.value.username).value
+    return pending
+  } 
+  
+  // Teamleads nur ihr Team
+  if (currentUser.value.role === 'teamlead') {
+    const { getTeamMembers } = useOrganization()
+    const teamMemberIds = getTeamMembers(currentUser.value.username).value?.map(m => m.userId) || []
+    return pending.filter(r => teamMemberIds.includes(r.userId))
   }
   
   return []
 })
 
-const pendingManagerRequests = getPendingManagerRequests()
+const pendingManagerRequests = computed(() => {
+  const requests = getAllRequests()
+  return requests.value?.filter(r => r.status === 'teamlead_approved') || []
+})
 
 const allTeamRequests = computed(() => {
   if (!currentUser.value?.username) return []
@@ -268,7 +283,7 @@ const visibleTabs = computed(() => {
     tabs.push({
       id: 'teamlead',
       label: 'Teamlead',
-      count: pendingTeamleadRequests.value?.length || 0
+      count: pendingTeamleadRequests.value.length
     })
   }
 
@@ -276,7 +291,7 @@ const visibleTabs = computed(() => {
     tabs.push({
       id: 'manager',
       label: 'Manager',
-      count: pendingManagerRequests.value?.length || 0
+      count: pendingManagerRequests.value.length
     })
     tabs.push({
       id: 'halftimes',
@@ -340,6 +355,7 @@ const handleExportTeamVacations = () => {
 }
 
 const handleExportAllVacations = () => {
-  exportAllVacations()
+  if (!currentUser.value?.username) return
+  exportAllVacations(currentUser.value.username)
 }
 </script>

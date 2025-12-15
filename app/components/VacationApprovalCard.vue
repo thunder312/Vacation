@@ -25,7 +25,7 @@
     </div>
 
     <div class="approval-actions">
-      <button @click="emit('approve', request.id)" class="approve-btn">
+      <button @click="emit('approve', request.id, approvalLevel || 'teamlead')" class="approve-btn">
         ✓ Genehmigen
       </button>
       <button @click="emit('reject', request.id)" class="reject-btn">
@@ -41,7 +41,7 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } f
 
 const props = defineProps<{
   request: VacationRequest
-  showTeamleadApproval?: boolean
+  approvalLevel?: 'teamlead' | 'manager'
 }>()
 
 const { halfDayRules } = useHalfDayRules()
@@ -52,7 +52,7 @@ const vacationDays = computed(() => {
 })
 
 const emit = defineEmits<{
-  approve: [id: number]
+  approve: [id: number, level: 'teamlead' | 'manager']
   reject: [id: number]
 }>()
 </script>
