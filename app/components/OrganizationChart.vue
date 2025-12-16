@@ -173,9 +173,9 @@ const allEmployees = getAllEmployees
 const selectedEmployee = ref('')
 const selectedTeamlead = ref('')
 
-// Manager-Nodes (admin + Stefan Schulz)
+// Manager-Nodes (nur Stefan Schulz, nicht admin)
 const managers = computed(() => {
-  return orgNodes.value?.filter(n => n.role === 'manager') || []
+  return orgNodes.value?.filter(n => n.role === 'manager' && n.userId !== 'admin') || []
 })
 
 // Office-User

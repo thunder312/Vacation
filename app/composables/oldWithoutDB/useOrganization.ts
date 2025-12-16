@@ -5,8 +5,7 @@ export const useOrganization = () => {
 
     // Organigramm-Struktur
     const orgNodes = ref<OrgNode[]>([
-        // Manager (Top)
-        { userId: 'admin', displayName: 'admin', role: 'manager' },
+        // Manager (Top) - admin ausgeblendet (reine Verwaltungsrolle)
         { userId: 'Schulz', displayName: 'Stefan Schulz', role: 'manager' },
         
         // Office (direkt unter Manager)

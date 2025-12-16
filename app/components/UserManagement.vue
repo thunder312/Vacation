@@ -17,6 +17,11 @@
           </div>
         </div>
 
+        <!-- Username Preview -->
+        <div v-if="previewUsername" class="username-preview">
+          <strong>Generierter Benutzername:</strong> {{ previewUsername }}
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label>Rolle *</label>
@@ -32,7 +37,7 @@
             <label>Teamleiter</label>
             <select v-model="newUser.teamleadId">
               <option value="">Keiner</option>
-              <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
+              <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
                 {{ tl.displayName }}
               </option>
             </select>
@@ -44,6 +49,17 @@
             <label>Urlaubstage pro Jahr *</label>
             <input v-model.number="newUser.vacationDays" type="number" min="0" max="50" required />
             <small>Standard: 30 Tage. Reduzieren bei Eintritt mitten im Jahr.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Passwort *</label>
+            <div class="password-field">
+              <input v-model="newUser.password" type="text" required />
+              <button type="button" @click="newUser.password = generatePassword()" class="btn-regenerate" title="Neues Passwort generieren">
+                🔄
+              </button>
+            </div>
+            <small>Sicheres Passwort - kann bearbeitet werden</small>
           </div>
         </div>
 
@@ -58,7 +74,7 @@
       <div class="filters">
         <label>
           <input type="checkbox" v-model="showInactive" />
-          Deaktivierte anzeigen
+          Deaktivierte anzeigen ({{ filteredUsers.length - activeUsers.length }})
         </label>
       </div>
 
@@ -66,82 +82,105 @@
         Keine Mitarbeiter gefunden
       </div>
 
-      <div v-for="user in filteredUsers" :key="user.username" class="user-card">
-        <div class="user-header">
-          <div class="user-info">
-            <strong>{{ user.displayName }}</strong>
-            <span class="user-role">{{ getRoleLabel(user.role) }}</span>
-            <span v-if="!user.isActive" class="inactive-badge">Deaktiviert</span>
-          </div>
-          <div class="user-actions">
-            <button 
-              v-if="user.isActive && user.role !== 'manager'" 
-              @click="startEdit(user)" 
-              class="btn-edit"
-              title="Bearbeiten"
-            >
-              ✏️
-            </button>
-            <button 
-              v-if="user.isActive && user.role !== 'manager'"
-              @click="toggleUserStatus(user.username, false)" 
-              class="btn-deactivate"
-              title="Deaktivieren"
-            >
-              🚫 Deaktivieren
-            </button>
-            <button 
-              v-if="!user.isActive"
-              @click="toggleUserStatus(user.username, true)" 
-              class="btn-activate"
-              title="Aktivieren"
-            >
-              ✅ Aktivieren
-            </button>
-          </div>
-        </div>
+      <!-- Kompakte Tabellenansicht -->
+      <table v-else class="users-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Rolle</th>
+            <th>Urlaubstage</th>
+            <th>Teamleiter</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in filteredUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
+            <!-- Bearbeiten-Modus -->
+            <template v-if="editingUser?.username === user.username">
+              <td colspan="7" class="edit-cell">
+                <div class="inline-edit-form">
+                  <div class="edit-group">
+                    <strong>{{ user.displayName }}</strong>
+                  </div>
+                  <div class="edit-group">
+                    <label>Rolle:</label>
+                    <select v-model="editingUser.role">
+                      <option value="employee">Mitarbeiter</option>
+                      <option value="teamlead">Teamleiter</option>
+                      <option value="office">Office</option>
+                    </select>
+                  </div>
+                  <div class="edit-group">
+                    <label>Urlaubstage:</label>
+                    <input v-model.number="editingUser.vacationDays" type="number" min="0" max="50" />
+                  </div>
+                  <div v-if="editingUser.role === 'employee'" class="edit-group">
+                    <label>Teamleiter:</label>
+                    <select v-model="editingUser.teamleadId">
+                      <option value="">Keiner</option>
+                      <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
+                        {{ tl.displayName }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="edit-actions">
+                    <button @click="saveEdit" class="btn-save">💾 Speichern</button>
+                    <button @click="cancelEdit" class="btn-cancel">❌ Abbrechen</button>
+                  </div>
+                </div>
+              </td>
+            </template>
 
-        <div v-if="editingUser?.username === user.username" class="edit-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Rolle</label>
-              <select v-model="editingUser.role">
-                <option value="employee">Mitarbeiter</option>
-                <option value="teamlead">Teamleiter</option>
-                <option value="office">Office</option>
-              </select>
-            </div>
-
-            <div v-if="editingUser.role === 'employee'" class="form-group">
-              <label>Teamleiter</label>
-              <select v-model="editingUser.teamleadId">
-                <option value="">Keiner</option>
-                <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
-                  {{ tl.displayName }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Urlaubstage pro Jahr</label>
-              <input v-model.number="editingUser.vacationDays" type="number" min="0" max="50" />
-            </div>
-          </div>
-
-          <div class="edit-actions">
-            <button @click="saveEdit" class="btn-primary">Speichern</button>
-            <button @click="cancelEdit" class="btn-secondary">Abbrechen</button>
-          </div>
-        </div>
-
-        <div v-else class="user-details">
-          <small>Username: {{ user.username }}</small>
-          <small>Urlaubstage: {{ user.vacationDays }} Tage/Jahr</small>
-          <small v-if="user.teamleadId">Teamleiter: {{ getTeamleadName(user.teamleadId) }}</small>
-        </div>
-      </div>
+            <!-- Normal-Ansicht -->
+            <template v-else>
+              <td>
+                <strong>{{ user.displayName }}</strong>
+                <span v-if="!user.isActive" class="inactive-badge-small">🚫</span>
+              </td>
+              <td class="username-cell">{{ user.username }}</td>
+              <td>
+                <span class="role-badge" :class="'role-' + user.role">
+                  {{ getRoleLabel(user.role) }}
+                </span>
+              </td>
+              <td class="center">{{ user.vacationDays }} Tage</td>
+              <td>{{ user.teamleadId ? getTeamleadName(user.teamleadId) : '—' }}</td>
+              <td class="center">
+                <span v-if="user.isActive" class="status-active">✓ Aktiv</span>
+                <span v-else class="status-inactive">○ Inaktiv</span>
+              </td>
+              <td class="actions-cell">
+                <button 
+                  v-if="user.isActive && user.role !== 'manager'" 
+                  @click="startEdit(user)" 
+                  class="btn-icon"
+                  title="Bearbeiten"
+                >
+                  ✏️
+                </button>
+                <button 
+                  v-if="user.isActive && user.role !== 'manager'"
+                  @click="toggleUserStatus(user.username, false)" 
+                  class="btn-icon btn-danger"
+                  title="Deaktivieren"
+                >
+                  🚫
+                </button>
+                <button 
+                  v-if="!user.isActive"
+                  @click="toggleUserStatus(user.username, true)" 
+                  class="btn-icon btn-success"
+                  title="Aktivieren"
+                >
+                  ✅
+                </button>
+              </td>
+            </template>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -155,11 +194,175 @@ const newUser = ref({
   firstName: '',
   role: '',
   teamleadId: '',
-  vacationDays: 30
+  vacationDays: 30,
+  password: ''  // Generiertes Passwort
 })
 
 const editingUser = ref<any>(null)
 const showInactive = ref(false)
+
+// Generiere sicheres Passwort
+const generatePassword = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*'
+  let password = ''
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
+}
+
+// Generiere Username-Preview (ohne DB-Check)
+const previewUsername = computed(() => {
+  if (!newUser.value.firstName || !newUser.value.lastName) {
+    return ''
+  }
+  // Einfache Preview - echter Username wird im Backend mit Konfliktprüfung generiert
+  const firstLower = newUser.value.firstName.toLowerCase()
+  const lastLower = newUser.value.lastName.toLowerCase()
+  return lastLower + ' (oder ' + firstLower.charAt(0) + lastLower + ' falls vergeben)'
+})
+
+// Initialisiere Passwort beim Laden
+onMounted(() => {
+  newUser.value.password = generatePassword()
+})
+
+// Generiere PDF-Login-Anleitung
+const generateLoginPDF = async (userInfo: any) => {
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF()
+  
+  // Firmen-Header
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+  
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+  
+  // Trennlinie
+  doc.setLineWidth(0.5)
+  doc.line(20, 35, 190, 35)
+  
+  // Benutzerinformationen
+  let y = 50
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Ihre Zugangsdaten:', 20, y)
+  
+  y += 15
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  
+  // Name
+  doc.setFont('helvetica', 'bold')
+  doc.text('Name:', 30, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text(userInfo.displayName, 80, y)
+  
+  y += 10
+  
+  // Username
+  doc.setFont('helvetica', 'bold')
+  doc.text('Benutzername:', 30, y)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(14)
+  doc.text(userInfo.username, 80, y)
+  doc.setFontSize(12)
+  
+  y += 10
+  
+  // Passwort
+  doc.setFont('helvetica', 'bold')
+  doc.text('Passwort:', 30, y)
+  doc.setFont('courier', 'normal')
+  doc.setFontSize(14)
+  doc.text(userInfo.password, 80, y)
+  doc.setFontSize(12)
+  
+  y += 15
+  
+  // Rolle
+  const roleLabels: Record<string, string> = {
+    employee: 'Mitarbeiter',
+    teamlead: 'Teamleiter',
+    office: 'Office',
+    manager: 'Manager'
+  }
+  
+  doc.setFont('helvetica', 'bold')
+  doc.text('Ihre Rolle:', 30, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text(roleLabels[userInfo.role] || userInfo.role, 80, y)
+  
+  y += 10
+  
+  // Urlaubstage
+  doc.setFont('helvetica', 'bold')
+  doc.text('Urlaubstage pro Jahr:', 30, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`${userInfo.vacationDays} Tage`, 80, y)
+  
+  // Teamleiter (falls vorhanden)
+  if (userInfo.teamleadId) {
+    y += 10
+    const teamlead = teamleads.value.find((tl: any) => tl.username === userInfo.teamleadId)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Ihr Teamleiter:', 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.text(teamlead?.displayName || userInfo.teamleadId, 80, y)
+  }
+  
+  // Anleitung
+  y += 25
+  doc.setLineWidth(0.5)
+  doc.line(20, y, 190, y)
+  y += 10
+  
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('So melden Sie sich an:', 20, y)
+  
+  y += 15
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  
+  const instructions = [
+    '1. Öffnen Sie die Urlaubsverwaltung im Browser',
+    '2. Geben Sie Ihren Benutzernamen ein',
+    '3. Geben Sie Ihr Passwort ein (bitte ändern Sie es nach der ersten Anmeldung)',
+    '4. Klicken Sie auf "Anmelden"'
+  ]
+  
+  instructions.forEach(instruction => {
+    doc.text(instruction, 30, y)
+    y += 8
+  })
+  
+  // Wichtiger Hinweis
+  y += 10
+  doc.setFillColor(255, 243, 205)
+  doc.rect(20, y - 5, 170, 20, 'F')
+  doc.setFont('helvetica', 'bold')
+  doc.text('⚠️  Wichtig:', 25, y + 2)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf und', 25, y + 9)
+  doc.text('ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+  
+  // Footer
+  doc.setFontSize(9)
+  doc.setTextColor(128, 128, 128)
+  doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 280, { align: 'center' })
+  
+  // PDF in neuem Tab öffnen
+  const pdfBlob = doc.output('blob')
+  const pdfUrl = URL.createObjectURL(pdfBlob)
+  window.open(pdfUrl, '_blank')
+  
+  // Optional: Cleanup nach 1 Minute
+  setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
+}
 
 // API Calls
 const fetchUsers = async () => {
@@ -177,14 +380,13 @@ const { data: users, refresh: refreshUsers } = await useAsyncData('users', fetch
 
 // Computed
 const activeUsers = computed(() => {
-  return (users.value || []).filter((u: any) => u.isActive)
+  return (users.value || []).filter((u: any) => u.isActive && u.username !== 'admin')
 })
 
 const filteredUsers = computed(() => {
-  if (showInactive.value) {
-    return users.value || []
-  }
-  return activeUsers.value
+  const filtered = showInactive.value ? (users.value || []) : activeUsers.value
+  // admin immer ausblenden
+  return filtered.filter((u: any) => u.username !== 'admin')
 })
 
 const teamleads = computed(() => {
@@ -209,30 +411,39 @@ const getTeamleadName = (teamleadId: string) => {
 
 const handleAddUser = async () => {
   try {
-    // Username aus Nachname generieren
-    const username = newUser.value.lastName.toLowerCase()
-
-    await $fetch('/api/users', {
+    const response = await $fetch('/api/users', {
       method: 'POST',
       body: {
-        username,
         firstName: newUser.value.firstName,
         lastName: newUser.value.lastName,
         role: newUser.value.role,
         vacationDays: newUser.value.vacationDays,
+        password: newUser.value.password,
         teamleadId: newUser.value.role === 'employee' ? newUser.value.teamleadId || null : null
       }
     })
 
-    toast.success('Mitarbeiter erfolgreich hinzugefügt')
+    // Zeige generierten Username in Toast
+    toast.success(response.message || 'Mitarbeiter erfolgreich hinzugefügt')
     
-    // Form zurücksetzen
+    // Generiere PDF-Login-Anleitung in neuem Tab
+    await generateLoginPDF({
+      username: response.username,
+      password: newUser.value.password,
+      displayName: `${newUser.value.firstName} ${newUser.value.lastName}`,
+      role: newUser.value.role,
+      vacationDays: newUser.value.vacationDays,
+      teamleadId: newUser.value.teamleadId
+    })
+    
+    // Form zurücksetzen + neues Passwort generieren
     newUser.value = {
       lastName: '',
       firstName: '',
       role: '',
       teamleadId: '',
-      vacationDays: 30
+      vacationDays: 30,
+      password: generatePassword()
     }
 
     await refreshUsers()
@@ -243,7 +454,10 @@ const handleAddUser = async () => {
 }
 
 const startEdit = (user: any) => {
-  editingUser.value = { ...user }
+  editingUser.value = { 
+    ...user,
+    teamleadId: user.teamleadId || ''
+  }
 }
 
 const cancelEdit = () => {
@@ -293,209 +507,3 @@ const toggleUserStatus = async (username: string, isActive: boolean) => {
   }
 }
 </script>
-
-<style scoped>
-.user-management {
-  padding: 20px;
-}
-
-.add-user-section {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-}
-
-.user-form {
-  margin-top: 15px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-size: 14px;
-}
-
-.form-group input,
-.form-group select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group small {
-  color: #666;
-  font-size: 12px;
-  margin-top: 3px;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-primary:hover {
-  background: #0056b3;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-.btn-secondary:hover {
-  background: #545b62;
-}
-
-.users-list {
-  margin-top: 30px;
-}
-
-.filters {
-  margin: 15px 0;
-}
-
-.filters label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.user-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 10px;
-}
-
-.user-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-info strong {
-  font-size: 16px;
-}
-
-.user-role {
-  background: #e9ecef;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.inactive-badge {
-  background: #dc3545;
-  color: white;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.user-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-edit {
-  background: #ffc107;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-edit:hover {
-  background: #e0a800;
-}
-
-.btn-deactivate {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.btn-deactivate:hover {
-  background: #c82333;
-}
-
-.btn-activate {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 5px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.btn-activate:hover {
-  background: #218838;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.user-details small {
-  color: #666;
-  font-size: 13px;
-}
-
-.edit-form {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-
-.edit-actions {
-  margin-top: 15px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #999;
-  font-style: italic;
-}
-</style>

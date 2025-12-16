@@ -22,45 +22,80 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Baue UPDATE Query dynamisch
-    const updates: string[] = []
-    const params: any[] = []
+    // UPDATE users Tabelle
+    const userUpdates: string[] = []
+    const userParams: any[] = []
 
     if (body.role !== undefined) {
-      updates.push('role = ?')
-      params.push(body.role)
+      userUpdates.push('role = ?')
+      userParams.push(body.role)
     }
 
     if (body.vacationDays !== undefined) {
-      updates.push('vacationDays = ?')
-      params.push(body.vacationDays)
-    }
-
-    if (body.teamleadId !== undefined) {
-      updates.push('teamleadId = ?')
-      params.push(body.teamleadId)
+      userUpdates.push('vacationDays = ?')
+      userParams.push(body.vacationDays)
     }
 
     if (body.isActive !== undefined) {
-      updates.push('isActive = ?')
-      params.push(body.isActive ? 1 : 0)
+      userUpdates.push('isActive = ?')
+      userParams.push(body.isActive ? 1 : 0)
     }
 
-    if (updates.length === 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Keine Änderungen angegeben'
-      })
+    if (userUpdates.length > 0) {
+      userUpdates.push('updatedAt = datetime("now")')
+      userParams.push(username)
+
+      execute(`
+        UPDATE users 
+        SET ${userUpdates.join(', ')}
+        WHERE username = ?
+      `, userParams)
     }
 
-    updates.push('updatedAt = datetime("now")')
-    params.push(username)
+    // UPDATE organization Tabelle (teamId)
+    if (body.teamleadId !== undefined) {
+      // teamleadId kann '' (leer), null oder ein Username sein
+      const teamId = body.teamleadId === '' ? null : body.teamleadId
+      
+      // Prüfe ob organization Eintrag existiert
+      const orgEntry = queryOne<any>('SELECT * FROM organization WHERE userId = ?', [username])
+      
+      if (orgEntry) {
+        // Update bestehenden Eintrag
+        execute(`
+          UPDATE organization 
+          SET teamId = ?, managerId = ?
+          WHERE userId = ?
+        `, [teamId, teamId, username])  // managerId = teamId für Employees
+      } else {
+        // Erstelle neuen Eintrag (sollte nicht vorkommen, aber zur Sicherheit)
+        execute(`
+          INSERT INTO organization (userId, teamId, managerId)
+          VALUES (?, ?, ?)
+        `, [username, teamId, teamId])
+      }
+    }
 
-    execute(`
-      UPDATE users 
-      SET ${updates.join(', ')}
-      WHERE username = ?
-    `, params)
+    // Rolle geändert? → Update organization.managerId
+    if (body.role !== undefined) {
+      const newRole = body.role
+      let managerId = null
+      
+      if (newRole === 'employee' && body.teamleadId) {
+        // Employee: managerId = teamleadId
+        managerId = body.teamleadId === '' ? null : body.teamleadId
+      } else if (newRole === 'teamlead' || newRole === 'office') {
+        // Teamleiter/Office: Unter Manager
+        managerId = 'Schulz'
+      }
+      // Manager: managerId = null (bereits default)
+      
+      execute(`
+        UPDATE organization 
+        SET managerId = ?
+        WHERE userId = ?
+      `, [managerId, username])
+    }
 
     return { success: true, message: 'Benutzer aktualisiert' }
 

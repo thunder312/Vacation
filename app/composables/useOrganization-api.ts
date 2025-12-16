@@ -13,7 +13,8 @@ export const useOrganization = () => {
     loading.value = true
     try {
       const data = await $fetch<OrgNode[]>('/api/organization')
-      orgNodes.value = data
+      // admin ausblenden (reine Verwaltungsrolle)
+      orgNodes.value = data.filter(node => node.userId !== 'admin')
     } catch (error) {
       console.error('Failed to fetch organization:', error)
       toast.error('Fehler beim Laden des Organigramms')
