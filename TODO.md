@@ -9,8 +9,8 @@
   - <del>Rename Teamlead in all texts to Teamleiter</del>
   - <del> company orga (1 boss, x teamleads, y associates) -> teamlead can only permit his teams' vacations</del>
   - Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".
-  - Manager can add new MA (with custom vacation days - default: 30)
-  - admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)
+  - <del>Manager can add new MA (with custom vacation days - default: 30)</del>
+  - <del>admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)</del>
   - <del>hide admin in Organigramm and everywhere</del>
   - Mitarbeiterverwaltung: 
     - deactivate doesn't work, 
@@ -20,6 +20,7 @@
     - reset PW for manager (admin)
   - Mitarbeiter needs to change their PW themselves
   - new Rolle: SysAdmin
+  - print organigramm landscape PDF
    
 ## optical
   - <del>css with fondsKonzept blue</del>
@@ -27,8 +28,13 @@
   - <del>pdf logo</del>
   - <del>pdf logo on all reports.</del>
   - Mitarbeiterverwaltung: retractable task blocks (new, edit)?
+  - PDF shall have page numbers (1/5)
+  - Alle Urlaube shall ordered by von-date, then bis-date and group by user.
 
-### DB
+## Code organization
+- all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.
+- FINAL Version of seed and scheme.
+
+## DB
   - <del>DB connection</del>
   - <del>database structure (users, roles, datasets)</del>
-  - 
