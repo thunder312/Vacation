@@ -11,14 +11,21 @@
   - Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".
   - Manager can add new MA (with custom vacation days - default: 30)
   - admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)
-  - hide admin in Organigramm
-  - 
+  - <del>hide admin in Organigramm and everywhere</del>
+  - Mitarbeiterverwaltung: 
+    - deactivate doesn't work, 
+    - edit doesn't work, 
+    - Organigramm needs to be refreshed automatically.
+    - PDF How-To for new users has optical problem in yellow block.
+    - reset PW for manager (admin)
+  - Mitarbeiter needs to change their PW themselves
    
 ### optical
   - <del>css with fondsKonzept blue</del>
   - <del>favicon</del>
   - <del>pdf logo</del>
-  - pdf logo on all reports.
+  - <del>pdf logo on all reports.</del>
+  - Mitarbeiterverwaltung: retractable task blocks (new, edit)?
 
   ## late doings
    ### business logic
