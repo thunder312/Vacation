@@ -1470,3 +1470,262 @@ button {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== USER MANAGEMENT ===== */
+.user-management {
+  padding: 20px;
+}
+
+.add-user-section {
+  background: var(--color-gray-50);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.user-form {
+  margin-top: 15px;
+}
+
+/* Username Preview */
+.username-preview {
+  background: var(--color-info-light);
+  border-left: 4px solid var(--color-info);
+  padding: 12px 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.username-preview strong {
+  color: var(--color-info-text);
+  margin-right: 8px;
+}
+
+/* Passwort-Feld mit Regenerate Button */
+.password-field {
+  display: flex;
+  gap: 8px;
+}
+
+.password-field input {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.btn-regenerate {
+  background: var(--color-info);
+  color: var(--color-white);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.btn-regenerate:hover {
+  background: var(--color-info-dark);
+}
+
+.btn-regenerate:active {
+  transform: scale(0.95);
+}
+
+/* Tabelle */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.users-table thead {
+  background: var(--color-gray-50);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.users-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-gray-700);
+}
+
+.users-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.users-table tbody tr:hover {
+  background: var(--color-gray-50);
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.inactive-row {
+  opacity: 0.6;
+  background: #f9f9f9;
+}
+
+.username-cell {
+  color: var(--color-gray-600);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.center {
+  text-align: center;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-employee {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-teamlead {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.role-office {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.role-manager {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-active {
+  color: var(--color-success);
+  font-weight: 500;
+}
+
+.status-inactive {
+  color: var(--color-gray-400);
+}
+
+.inactive-badge-small {
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-icon:hover {
+  background: #f0f0f0;
+}
+
+.btn-icon.btn-danger:hover {
+  background: var(--color-error-light);
+}
+
+.btn-icon.btn-success:hover {
+  background: var(--color-success-light);
+}
+
+/* Inline Edit Form */
+.edit-cell {
+  background: var(--color-gray-50);
+  padding: 15px !important;
+}
+
+.inline-edit-form {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.edit-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-group label {
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0;
+}
+
+.edit-group input,
+.edit-group select {
+  padding: 6px 10px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.edit-group input {
+  width: 80px;
+}
+
+.edit-group select {
+  min-width: 120px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn-save,
+.btn-cancel {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-save {
+  background: var(--color-success);
+  color: var(--color-white);
+}
+
+.btn-save:hover {
+  background: var(--color-success-dark);
+}
+
+.btn-cancel {
+  background: var(--color-gray-500);
+  color: var(--color-white);
+}
+
+.btn-cancel:hover {
+  background: var(--color-gray-600);
+}

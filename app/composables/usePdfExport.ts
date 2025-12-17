@@ -5,11 +5,11 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/u
 
 export const usePdfExport = () => {
     const toast = useToast()
-    const { getAllRules } = useHalfDayRules()
+    const { halfDayRules } = useHalfDayRules()
     const { getBalance } = useVacationBalance()
 
     // Halbtags-Daten für Berechnung
-    const getHalfDayDates = () => getAllRules.value.map(rule => rule.date)
+    const getHalfDayDates = () => (halfDayRules.value || []).map(rule => rule.date)
 
     // Logo als Base64 laden
     const addLogoToPdf = (doc: any) => {
@@ -21,11 +21,16 @@ export const usePdfExport = () => {
         }
     }
 
-    const exportMyApprovedVacations = (
-        approvedRequests: VacationRequest[],
-        username: string,
-        userId: string
-    ) => {
+    const exportMyApprovedVacations = (username: string) => {
+        // Hole approved requests für diesen User
+        const { getApprovedUserRequests } = useVacationRequests()
+        const approvedRequests = getApprovedUserRequests(username).value || []
+        
+        // Hole userId
+        const { orgNodes } = useOrganization()
+        const user = orgNodes.value?.find(n => n.userId === username)
+        const userId = user?.userId || username
+        
         if (!approvedRequests || approvedRequests.length === 0) {
             toast.warning('Keine genehmigten Urlaube vorhanden')
             return
@@ -92,10 +97,16 @@ export const usePdfExport = () => {
         }
     }
 
-    const exportTeamVacations = (
-        teamRequests: VacationRequest[],
-        teamleadName: string
-    ) => {
+    const exportTeamVacations = (username: string) => {
+        // Hole Team-Requests für diesen Teamlead
+        const { getAllTeamRequests } = useVacationRequests()
+        const teamRequests = getAllTeamRequests(username).value || []
+        
+        // Hole displayName
+        const { orgNodes } = useOrganization()
+        const user = orgNodes.value?.find(n => n.userId === username)
+        const teamleadName = user?.displayName || username
+        
         if (!teamRequests || teamRequests.length === 0) {
             toast.warning('Keine Team-Urlaube vorhanden')
             return
@@ -115,7 +126,7 @@ export const usePdfExport = () => {
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             const tableData = teamRequests.map(req => [
-                req.user,
+                req.displayName || req.userId,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
                 calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
@@ -149,10 +160,16 @@ export const usePdfExport = () => {
         }
     }
 
-    const exportAllVacations = (
-        allRequests: VacationRequest[],
-        managerName: string
-    ) => {
+    const exportAllVacations = (username: string) => {
+        // Hole alle Requests
+        const { getAllRequests } = useVacationRequests()
+        const allRequests = getAllRequests().value || []
+        
+        // Hole displayName
+        const { orgNodes } = useOrganization()
+        const user = orgNodes.value?.find(n => n.userId === username)
+        const managerName = user?.displayName || username || 'Unbekannt'
+        
         if (!allRequests || allRequests.length === 0) {
             toast.warning('Keine Urlaube vorhanden')
             return
@@ -172,7 +189,7 @@ export const usePdfExport = () => {
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             const tableData = allRequests.map(req => [
-                req.user,
+                req.displayName || req.userId,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
                 calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
@@ -206,7 +223,7 @@ export const usePdfExport = () => {
             doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
             doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
             doc.text(`Bei Manager ausstehend: ${teamleadApprovedCount}`, 14, finalY + 18)
-            doc.text(`Bei Teamlead ausstehend: ${pendingCount}`, 14, finalY + 24)
+            doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
             doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
             doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
 

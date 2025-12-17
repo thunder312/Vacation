@@ -59,13 +59,23 @@ export async function seedDatabase(): Promise<void> {
     ]
 
     const insertUser = db.prepare(`
-      INSERT INTO users (username, firstName, lastName, password, role)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO users (username, firstName, lastName, password, role, vacationDays, isActive)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
 
     for (const user of users) {
       const hashedPassword = await hashPassword(user.password)
-      insertUser.run(user.username, user.firstName, user.lastName, hashedPassword, user.role)
+      // admin braucht keine Urlaubstage
+      const vacationDays = user.username === 'admin' ? null : 30
+      insertUser.run(
+        user.username, 
+        user.firstName, 
+        user.lastName, 
+        hashedPassword, 
+        user.role,
+        vacationDays,
+        1    // isActive default
+      )
     }
     
     console.log(`   ✅ ${users.length} Benutzer erstellt`)

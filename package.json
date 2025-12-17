@@ -8,7 +8,6 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-
     "db:test": "tsx scripts/test-db.ts",
     "db:seed": "tsx scripts/seed-db.ts",
     "db:reset": "tsx scripts/reset-db.ts"
@@ -27,6 +26,7 @@
   "devDependencies": {
     "@nuxtjs/supabase": "^2.0.1",
     "@types/better-sqlite3": "^7.6.13",
-    "nuxt": "^4.2.2"
+    "nuxt": "^4.2.2",
+    "tsx": "^4.21.0"
   }
 }

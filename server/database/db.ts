@@ -50,7 +50,7 @@ export function closeDb(): void {
 export function query<T = any>(sql: string, params?: any[]): T[] {
   const database = getDb()
   const stmt = database.prepare(sql)
-  return stmt.all(params) as T[]
+  return params ? stmt.all(params) as T[] : stmt.all() as T[]
 }
 
 /**
@@ -59,7 +59,7 @@ export function query<T = any>(sql: string, params?: any[]): T[] {
 export function queryOne<T = any>(sql: string, params?: any[]): T | undefined {
   const database = getDb()
   const stmt = database.prepare(sql)
-  return stmt.get(params) as T | undefined
+  return params ? stmt.get(params) as T | undefined : stmt.get() as T | undefined
 }
 
 /**
@@ -68,7 +68,7 @@ export function queryOne<T = any>(sql: string, params?: any[]): T | undefined {
 export function execute(sql: string, params?: any[]): Database.RunResult {
   const database = getDb()
   const stmt = database.prepare(sql)
-  return stmt.run(params)
+  return params ? stmt.run(params) : stmt.run()
 }
 
 /**

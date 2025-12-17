@@ -2,7 +2,7 @@
   <div class="request-card approval">
     <div class="request-header">
       <div>
-        <strong>{{ request.user }}</strong>
+        <strong>{{ request.displayName || request.userId }}</strong>
         <span class="request-date">
           {{ formatDate(request.startDate) }} - {{ formatDate(request.endDate) }}
         </span>
@@ -24,8 +24,8 @@
       </small>
     </div>
 
-    <div class="approval-actions">
-      <button @click="emit('approve', request.id)" class="approve-btn">
+    <div v-if="canApprove" class="approval-actions">
+      <button @click="emit('approve', request.id, approvalLevel || 'teamlead')" class="approve-btn">
         ✓ Genehmigen
       </button>
       <button @click="emit('reject', request.id)" class="reject-btn">
@@ -39,20 +39,34 @@
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   request: VacationRequest
-  showTeamleadApproval?: boolean
-}>()
+  approvalLevel?: 'teamlead' | 'manager'
+  showActions?: boolean  // Buttons zeigen oder verstecken (für readonly)
+  showTeamleadApproval?: boolean  // Teamleiter-Genehmigung anzeigen
+}>(), {
+  showActions: true,  // Default: Buttons sind sichtbar
+  showTeamleadApproval: false  // Default: Nicht anzeigen
+})
 
-const { getAllRules } = useHalfDayRules()
+const { currentUser } = useAuth()
+const { halfDayRules } = useHalfDayRules()
+
+// Buttons nur zeigen wenn:
+// 1. showActions nicht explizit false ist UND
+// 2. User ist Teamleiter oder Manager (nicht Office!)
+const canApprove = computed(() => {
+  if (props.showActions === false) return false
+  return currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager'
+})
 
 const vacationDays = computed(() => {
-  const halfDayDates = getAllRules.value.map(rule => rule.date)
+  const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
   return calculateWorkdays(props.request.startDate, props.request.endDate, halfDayDates)
 })
 
 const emit = defineEmits<{
-  approve: [id: number]
+  approve: [id: number, level: 'teamlead' | 'manager']
   reject: [id: number]
 }>()
 </script>

@@ -1,69 +1,91 @@
+// composables/useVacationBalance.ts
 import type { VacationBalance } from '~/types/vacation'
 import { calculateWorkdays } from '~/utils/dateHelpers'
 
+const STANDARD_VACATION_DAYS = 30
+
 export const useVacationBalance = () => {
-    const { getAllRules } = useHalfDayRules()
-    const { getAllRequests } = useVacationRequests()
-    const { getCarryover } = useCarryover()
+  const { getAllRequests } = useVacationRequests()
+  const { getCarryover } = useCarryover()
+
+  // Berechnet genutzte Urlaubstage (nur genehmigte)
+  const calculateUsedDays = (userId: string): number => {
+    const allRequests = getAllRequests()
     
-    const STANDARD_VACATION_DAYS = 30
-    const currentYear = new Date().getFullYear()
-
-    // Berechnet die genutzten Urlaubstage für einen User
-    const calculateUsedDays = (userId: string): number => {
-        const halfDayDates = getAllRules.value.map(rule => rule.date)
-        const allRequests = getAllRequests.value
-        
-        // Sicherheitscheck falls requests noch nicht geladen sind
-        if (!allRequests || allRequests.length === 0) {
-            return 0
-        }
-        
-        // Nur approved requests zählen
-        const approvedRequests = allRequests.filter(
-            r => r.userId === userId && r.status === 'approved'
-        )
-
-        return approvedRequests.reduce((total, request) => {
-            return total + calculateWorkdays(request.startDate, request.endDate, halfDayDates)
-        }, 0)
+    // Null-Check: Wenn noch keine Daten geladen
+    if (!allRequests || !allRequests.value || allRequests.value.length === 0) {
+      return 0
     }
 
-    // Gibt das Urlaubskonto für einen User zurück
-    const getBalance = (userId: string): VacationBalance => {
-        const usedDays = calculateUsedDays(userId)
-        const standardDays = STANDARD_VACATION_DAYS
-        const carryoverDays = getCarryover(userId, currentYear)
-        const totalDays = standardDays + carryoverDays
-        const remainingDays = totalDays - usedDays
+    const approvedRequests = allRequests.value.filter(
+      r => r.userId === userId && r.status === 'approved'
+    )
 
-        return {
-            userId,
-            totalDays,
-            carryoverDays,
-            standardDays,
-            usedDays,
-            remainingDays,
-            year: currentYear
-        }
+    if (approvedRequests.length === 0) return 0
+
+    const { halfDayDates } = useHalfDayRules()
+
+    let totalDays = 0
+    for (const request of approvedRequests) {
+      const days = calculateWorkdays(
+        request.startDate,
+        request.endDate,
+        halfDayDates.value || []
+      )
+      totalDays += days
     }
 
-    // Computed für aktuellen User
-    const getCurrentUserBalance = (userId: string) => {
-        return computed(() => getBalance(userId))
-    }
+    return totalDays
+  }
 
-    // Prüft ob genug Urlaubstage verfügbar sind
-    const hasEnoughDays = (userId: string, requestedDays: number): boolean => {
-        const balance = getBalance(userId)
-        return balance.remainingDays >= requestedDays
-    }
+  // Urlaubskonto für einen User abrufen
+  const getBalance = (userId: string, year: number = new Date().getFullYear()): VacationBalance => {
+    const carryoverDays = getCarryover(userId, year).value
+    const totalDays = STANDARD_VACATION_DAYS + carryoverDays
+    const usedDays = calculateUsedDays(userId)
+    const remainingDays = totalDays - usedDays
 
     return {
-        getBalance,
-        getCurrentUserBalance,
-        calculateUsedDays,
-        hasEnoughDays,
-        STANDARD_VACATION_DAYS
+      userId,
+      year,
+      standardDays: STANDARD_VACATION_DAYS,
+      carryoverDays,
+      totalDays,
+      usedDays,
+      remainingDays
     }
+  }
+
+  // Computed für aktuellen User
+  const getCurrentUserBalance = (userId: string) => {
+    return computed(() => {
+      // Warte bis Daten geladen sind
+      const allRequests = getAllRequests()
+      if (!allRequests || !allRequests.value) {
+        return null
+      }
+
+      return getBalance(userId)
+    })
+  }
+
+  // Prüft ob Urlaubskonto im Minus ist
+  const isInDeficit = (userId: string): boolean => {
+    const balance = getBalance(userId)
+    return balance.remainingDays < 0
+  }
+
+  // Prüft ob Urlaubskonto fast aufgebraucht ist (< 5 Tage)
+  const isLowBalance = (userId: string): boolean => {
+    const balance = getBalance(userId)
+    return balance.remainingDays < 5 && balance.remainingDays >= 0
+  }
+
+  return {
+    getBalance,
+    getCurrentUserBalance,
+    isInDeficit,
+    isLowBalance,
+    STANDARD_VACATION_DAYS
+  }
 }

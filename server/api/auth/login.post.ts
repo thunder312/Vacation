@@ -1,6 +1,6 @@
 // server/api/auth/login.post.ts
 import bcrypt from 'bcrypt'
-import { queryOne } from '~/server/database/db'
+import { queryOne } from '../../database/db'
 
 interface User {
   id: number

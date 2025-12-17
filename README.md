@@ -266,21 +266,19 @@ PDFs enthalten:
 
 ## 🔮 Geplante Features
 
-- [ ] Datenbank-Integration (PostgreSQL/MySQL)
+- [ ] Datenbank-Integration (sqlLite)
 - [ ] E-Mail-Benachrichtigungen
 - [ ] Kalender-Ansicht
-- [ ] Excel-Import/Export
 - [ ] Urlaubsvertretung
 - [ ] Kommentarfunktion bei Ablehnung
-- [ ] Mobile App
 
 ## 📝 Lizenz
 
 Proprietary - TecKonzept GmbH
 
 ## 👨‍💻 Entwickler
-
-Entwickelt mit Claude (Anthropic) für TecKonzept
+- Daniel Ertl
+- Entwickelt mit Claude (Anthropic) für TecKonzept
 
 ---
 

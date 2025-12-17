@@ -1,5 +1,5 @@
-// server/api/half-day-rules/[id].delete.ts
-import { execute } from '~/server/database/db'
+// server/api/carryover/[id].delete.ts
+import { execute } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,15 +12,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    execute('DELETE FROM half_day_rules WHERE id = ?', [id])
+    execute('DELETE FROM carryover WHERE id = ?', [id])
 
     return { success: true }
 
   } catch (error) {
-    console.error('Error deleting half day rule:', error)
+    console.error('Error deleting carryover:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Löschen der Halbtags-Regelung'
+      message: 'Fehler beim Löschen der Übertragstage'
     })
   }
 })

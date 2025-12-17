@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 const emit = defineEmits<{
-  submit: [startDate: string, endDate: string, reason: string]
+  submit: [formData: { startDate: string; endDate: string; reason: string }]
 }>()
 
 const startDate = ref('')
@@ -33,7 +33,11 @@ const endDate = ref('')
 const reason = ref('')
 
 const handleSubmit = () => {
-  emit('submit', startDate.value, endDate.value, reason.value)
+  emit('submit', {
+    startDate: startDate.value,
+    endDate: endDate.value,
+    reason: reason.value
+  })
 
   // Formular zurücksetzen
   startDate.value = ''

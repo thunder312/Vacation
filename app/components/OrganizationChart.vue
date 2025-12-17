@@ -78,16 +78,16 @@
     <div class="teams-overview">
       <h3>Team-Übersicht</h3>
       <div class="teams-grid">
-        <div v-for="team in teams" :key="team.teamleadId" class="team-card">
+        <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
           <div class="team-header">
             <h4>👥 Team {{ team.teamleadName }}</h4>
-            <span class="team-count">{{ team.members.length }} Mitarbeiter</span>
+            <span class="team-count">{{ team.members?.length || 0 }} Mitarbeiter</span>
           </div>
           <div class="team-members">
-            <div v-if="team.members.length === 0" class="empty-team">
+            <div v-if="!team.members || team.members.length === 0" class="empty-team">
               Keine Mitarbeiter zugeordnet
             </div>
-            <div v-for="memberId in team.members" :key="memberId" class="member-item">
+            <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
               {{ getDisplayName(memberId) }}
               <button 
                 v-if="isEditable" 
@@ -104,7 +104,7 @@
     </div>
 
     <!-- Nicht zugeordnete Mitarbeiter (nur im Edit-Modus) -->
-    <div v-if="isEditable && unassignedEmployees.length > 0" class="unassigned-section">
+    <div v-if="isEditable && unassignedEmployees && unassignedEmployees.length > 0" class="unassigned-section">
       <h3>⚠️ Nicht zugeordnete Mitarbeiter</h3>
       <div class="unassigned-list">
         <div v-for="emp in unassignedEmployees" :key="emp.userId" class="unassigned-item">
@@ -173,33 +173,34 @@ const allEmployees = getAllEmployees
 const selectedEmployee = ref('')
 const selectedTeamlead = ref('')
 
-// Manager-Nodes (admin + Stefan Schulz)
+// Manager-Nodes (nur Stefan Schulz, nicht admin)
 const managers = computed(() => {
-  return orgNodes.value.filter(n => n.role === 'manager')
+  return orgNodes.value?.filter(n => n.role === 'manager' && n.userId !== 'admin') || []
 })
 
 // Office-User
 const officeUser = computed(() => {
-  return orgNodes.value.find(n => n.role === 'office')
+  return orgNodes.value?.find(n => n.role === 'office')
 })
 
 // Alle Teams mit Info
 const teams = computed(() => {
-  return teamleads.value.map(tl => ({
+  return teamleads.value?.map(tl => ({
     teamleadId: tl.userId,
     teamleadName: tl.displayName,
-    members: orgNodes.value.filter(n => n.teamId === tl.userId).map(n => n.userId)
-  }))
+    members: orgNodes.value?.filter(n => n.teamId === tl.userId).map(n => n.userId) || []
+  })) || []
 })
 
 // Mitarbeiter eines bestimmten Teams
 const getTeamEmployees = (teamleadId: string) => {
-  return orgNodes.value.filter(n => n.teamId === teamleadId)
+  return orgNodes.value?.filter(n => n.teamId === teamleadId) || []
 }
 
 // Anzahl Mitarbeiter im Team
 const getTeamMemberCount = (teamleadId: string) => {
-  return getTeamEmployees(teamleadId).length
+  const employees = getTeamEmployees(teamleadId)
+  return employees?.length || 0
 }
 
 // Nur Manager und Admin können bearbeiten
@@ -208,25 +209,25 @@ const isEditable = computed(() => {
 })
 
 const getDisplayName = (userId: string) => {
-  const node = orgNodes.value.find(n => n.userId === userId)
+  const node = orgNodes.value?.find(n => n.userId === userId)
   return node?.displayName || userId
 }
 
-const handleAssign = (userId: string, teamleadId: string) => {
-  assignToTeam(userId, teamleadId)
+const handleAssign = async (userId: string, teamleadId: string) => {
+  await assignToTeam(userId, teamleadId)
 }
 
-const handleRemove = (userId: string) => {
+const handleRemove = async (userId: string) => {
   if (confirm('Mitarbeiter aus Team entfernen?')) {
-    removeFromTeam(userId)
+    await removeFromTeam(userId)
   }
 }
 
-const handleAssignFromDropdown = (event: Event, userId: string) => {
+const handleAssignFromDropdown = async (event: Event, userId: string) => {
   const target = event.target as HTMLSelectElement
   const teamleadId = target.value
   if (teamleadId) {
-    assignToTeam(userId, teamleadId)
+    await assignToTeam(userId, teamleadId)
     target.value = ''
   }
 }

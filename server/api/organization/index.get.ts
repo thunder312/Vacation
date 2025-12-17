@@ -1,5 +1,5 @@
 // server/api/organization/index.get.ts
-import { query } from '~/server/database/db'
+import { query } from '../../database/db'
 
 interface OrgNode {
   userId: string

@@ -5,8 +5,8 @@
       Definieren Sie besondere Tage, die nur als halbe Urlaubstage zählen (z.B. Heiligabend, Silvester).
     </p>
 
-    <!-- Formular zum Hinzufügen -->
-    <div class="add-rule-form">
+    <!-- Formular zum Hinzufügen (nur für Manager) -->
+    <div v-if="isEditable" class="add-rule-form">
       <h3>Neuen Halbtag hinzufügen</h3>
       <form @submit.prevent="handleAddRule">
         <div class="form-row">
@@ -30,19 +30,24 @@
 
     <!-- Liste der Regelungen -->
     <div class="rules-list">
-      <h3>Definierte Halbtage ({{ allRules.length }})</h3>
+      <h3>Definierte Halbtage ({{ allRules?.length || 0 }})</h3>
       
-      <div v-if="allRules.length === 0" class="empty-state">
+      <div v-if="!allRules || allRules.length === 0" class="empty-state">
         Noch keine Halbtags-Regelungen definiert
       </div>
 
-      <div v-for="rule in allRules" :key="rule.id" class="rule-card">
+      <div v-for="rule in allRules || []" :key="rule.id" class="rule-card">
         <div class="rule-header">
           <div>
             <strong>{{ formatDate(rule.date) }}</strong>
             <span class="rule-description">{{ rule.description }}</span>
           </div>
-          <button @click="handleRemoveRule(rule.id)" class="delete-btn" title="Löschen">
+          <button 
+            v-if="isEditable"
+            @click="handleRemoveRule(rule.id)" 
+            class="delete-btn" 
+            title="Löschen"
+          >
             🗑️
           </button>
         </div>
@@ -68,21 +73,25 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/dateHelpers'
 
-const { addRule, removeRule, getAllRules } = useHalfDayRules()
+const { addHalfDayRule, removeHalfDayRule, halfDayRules } = useHalfDayRules()
 const { currentUser } = useAuth()
 
 const newDate = ref('')
 const newDescription = ref('')
 
-const allRules = getAllRules
+const allRules = halfDayRules
 
-const handleAddRule = () => {
-  if (!currentUser.value) return
+// Nur Manager kann bearbeiten
+const isEditable = computed(() => {
+  return currentUser.value?.role === 'manager'
+})
+
+const handleAddRule = async () => {
+  if (!currentUser.value || !isEditable.value) return
   
-  const success = addRule(
+  const success = await addHalfDayRule(
     newDate.value,
-    newDescription.value,
-    currentUser.value.displayName
+    newDescription.value
   )
 
   if (success) {
@@ -91,9 +100,10 @@ const handleAddRule = () => {
   }
 }
 
-const handleRemoveRule = (id: number) => {
+const handleRemoveRule = async (id: number) => {
+  if (!isEditable.value) return
   if (confirm('Möchten Sie diese Regelung wirklich löschen?')) {
-    removeRule(id)
+    await removeHalfDayRule(id)
   }
 }
 </script>

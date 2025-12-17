@@ -1,5 +1,5 @@
 // server/api/carryover/index.get.ts
-import { query } from '~/server/database/db'
+import { query } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   try {
