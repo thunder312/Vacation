@@ -13,11 +13,13 @@
   - <del>admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)</del>
   - <del>hide admin in Organigramm and everywhere</del>
   - Mitarbeiterverwaltung: 
-    - deactivate doesn't work, 
-    - edit doesn't work, 
-    - Organigramm needs to be refreshed automatically.
+    - <del>deactivate doesn't work,</del> 
+    - <del>edit doesn't work,</del> 
+    - <del>Organigramm needs to be refreshed automatically.</del>
+    - Mitarbeiterverwaltung shall be refreshed by Origanigramm changes
     - PDF How-To for new users has optical problem in yellow block.
     - reset PW for manager (admin)
+    - admin/manager shall be able to reactivate users
   - Mitarbeiter needs to change their PW themselves
   - new Rolle: SysAdmin
   - print organigramm landscape PDF
