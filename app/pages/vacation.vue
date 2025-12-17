@@ -195,6 +195,13 @@ const toast = useToast()
 
 const { currentTheme, toggleTheme, initTheme } = useTheme()
 
+// Organigramm neu laden wenn Tab gewechselt wird
+watch(activeTab, (newTab) => {
+  if (newTab === 'organization') {
+    fetchOrganization()
+  }
+})
+
 // Urlaubskonto des aktuellen Users
 const { getCurrentUserBalance } = useVacationBalance()
 const userBalance = computed(() => {

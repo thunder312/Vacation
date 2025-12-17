@@ -6,6 +6,9 @@ export default defineEventHandler(async (event) => {
     const username = getRouterParam(event, 'username')
     const body = await readBody(event)
 
+    console.log('🔧 PATCH /api/users/' + username)
+    console.log('📝 Body:', body)
+
     if (!username) {
       throw createError({
         statusCode: 400,
@@ -22,6 +25,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    console.log('✓ User gefunden:', user.username)
+
     // UPDATE users Tabelle
     const userUpdates: string[] = []
     const userParams: any[] = []
@@ -29,50 +34,53 @@ export default defineEventHandler(async (event) => {
     if (body.role !== undefined) {
       userUpdates.push('role = ?')
       userParams.push(body.role)
+      console.log('  → Update role:', body.role)
     }
 
     if (body.vacationDays !== undefined) {
       userUpdates.push('vacationDays = ?')
       userParams.push(body.vacationDays)
+      console.log('  → Update vacationDays:', body.vacationDays)
     }
 
     if (body.isActive !== undefined) {
       userUpdates.push('isActive = ?')
       userParams.push(body.isActive ? 1 : 0)
+      console.log('  → Update isActive:', body.isActive)
     }
 
     if (userUpdates.length > 0) {
-      userUpdates.push('updatedAt = datetime("now")')
+      userUpdates.push("updatedAt = datetime('now')")
       userParams.push(username)
 
-      execute(`
-        UPDATE users 
-        SET ${userUpdates.join(', ')}
-        WHERE username = ?
-      `, userParams)
+      const sql = `UPDATE users SET ${userUpdates.join(', ')} WHERE username = ?`
+      console.log('📊 SQL:', sql)
+      console.log('📊 Params:', userParams)
+
+      execute(sql, userParams)
+      console.log('✓ users table updated')
     }
 
     // UPDATE organization Tabelle (teamId)
     if (body.teamleadId !== undefined) {
-      // teamleadId kann '' (leer), null oder ein Username sein
       const teamId = body.teamleadId === '' ? null : body.teamleadId
+      console.log('  → Update teamleadId:', teamId)
       
-      // Prüfe ob organization Eintrag existiert
       const orgEntry = queryOne<any>('SELECT * FROM organization WHERE userId = ?', [username])
       
       if (orgEntry) {
-        // Update bestehenden Eintrag
         execute(`
           UPDATE organization 
           SET teamId = ?, managerId = ?
           WHERE userId = ?
-        `, [teamId, teamId, username])  // managerId = teamId für Employees
+        `, [teamId, teamId, username])
+        console.log('✓ organization table updated')
       } else {
-        // Erstelle neuen Eintrag (sollte nicht vorkommen, aber zur Sicherheit)
         execute(`
           INSERT INTO organization (userId, teamId, managerId)
           VALUES (?, ?, ?)
         `, [username, teamId, teamId])
+        console.log('✓ organization entry created')
       }
     }
 
@@ -82,28 +90,29 @@ export default defineEventHandler(async (event) => {
       let managerId = null
       
       if (newRole === 'employee' && body.teamleadId) {
-        // Employee: managerId = teamleadId
         managerId = body.teamleadId === '' ? null : body.teamleadId
       } else if (newRole === 'teamlead' || newRole === 'office') {
-        // Teamleiter/Office: Unter Manager
         managerId = 'Schulz'
       }
-      // Manager: managerId = null (bereits default)
+      
+      console.log('  → Update managerId:', managerId)
       
       execute(`
         UPDATE organization 
         SET managerId = ?
         WHERE userId = ?
       `, [managerId, username])
+      console.log('✓ organization managerId updated')
     }
 
+    console.log('✅ Update completed successfully')
     return { success: true, message: 'Benutzer aktualisiert' }
 
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    console.error('Error updating user:', error)
+    console.error('❌ Error updating user:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Aktualisieren des Benutzers'

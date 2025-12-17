@@ -163,8 +163,14 @@ const {
   getUnassignedEmployees,
   getTeamleads,
   getAllEmployees,
-  orgNodes
+  orgNodes,
+  fetchOrganization
 } = useOrganization()
+
+// Daten beim Mounting laden
+onMounted(() => {
+  fetchOrganization()
+})
 
 const unassignedEmployees = getUnassignedEmployees
 const teamleads = getTeamleads
