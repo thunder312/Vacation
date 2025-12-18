@@ -1639,19 +1639,44 @@ button {
   cursor: pointer;
   font-size: 16px;
   border-radius: 4px;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .btn-icon:hover {
   background: #f0f0f0;
 }
 
-.btn-icon.btn-danger:hover {
+.btn-icon.btn-danger {
   background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.btn-icon.btn-danger:hover {
+  background: var(--color-error);
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-icon.btn-success {
+  background: var(--color-success-light);
+  color: var(--color-success);
 }
 
 .btn-icon.btn-success:hover {
-  background: var(--color-success-light);
+  background: var(--color-success);
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-icon.btn-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.btn-icon.btn-warning:hover {
+  background: #ffc107;
+  color: white;
+  transform: scale(1.1);
 }
 
 /* Inline Edit Form */

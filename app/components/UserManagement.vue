@@ -160,6 +160,14 @@
                 >
                   ✏️
                 </button>
+                <button
+                  v-if="user.role !== 'manager'"
+                  @click="resetPassword(user)"
+                  class="btn-icon btn-warning"
+                  title="Passwort zurücksetzen"
+                >
+                  🔑
+                </button>
                 <button 
                   v-if="user.isActive && user.role !== 'manager'"
                   @click="toggleUserStatus(user.username, false)" 
@@ -235,11 +243,21 @@ const generateLoginPDF = async (userInfo: any) => {
   // Firmen-Header
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+  
+  if (userInfo.isReset) {
+    doc.text('Passwort zurückgesetzt', 105, 20, { align: 'center' })
+  } else {
+    doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+  }
   
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')
-  doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+  
+  if (userInfo.isReset) {
+    doc.text('Neue Login-Informationen', 105, 30, { align: 'center' })
+  } else {
+    doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+  }
   
   // Trennlinie
   doc.setLineWidth(0.5)
@@ -249,7 +267,12 @@ const generateLoginPDF = async (userInfo: any) => {
   let y = 50
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text('Ihre Zugangsdaten:', 20, y)
+  
+  if (userInfo.isReset) {
+    doc.text('Ihre neuen Zugangsdaten:', 20, y)
+  } else {
+    doc.text('Ihre Zugangsdaten:', 20, y)
+  }
   
   y += 15
   doc.setFontSize(12)
@@ -347,13 +370,22 @@ const generateLoginPDF = async (userInfo: any) => {
   doc.setFont('helvetica', 'bold')
   doc.text('⚠️  Wichtig:', 25, y + 2)
   doc.setFont('helvetica', 'normal')
-  doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf und', 25, y + 9)
-  doc.text('ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+  
+  if (userInfo.isReset) {
+    doc.text('Ihr Passwort wurde zurückgesetzt. Bitte ändern Sie es', 25, y + 9)
+    doc.text('nach der ersten Anmeldung!', 25, y + 16)
+  } else {
+    doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf und', 25, y + 9)
+    doc.text('ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+  }
   
   // Footer
   doc.setFontSize(9)
   doc.setTextColor(128, 128, 128)
-  doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 280, { align: 'center' })
+  const footerText = userInfo.isReset 
+    ? 'Passwort zurückgesetzt am: ' + new Date().toLocaleDateString('de-DE')
+    : 'Erstellt am: ' + new Date().toLocaleDateString('de-DE')
+  doc.text(footerText, 105, 280, { align: 'center' })
   
   // PDF in neuem Tab öffnen
   const pdfBlob = doc.output('blob')
@@ -522,6 +554,40 @@ const toggleUserStatus = async (username: string, isActive: boolean) => {
   } catch (error: any) {
     console.error('Fehler:', error)
     toast.error(error.data?.message || `Fehler beim ${action}`)
+  }
+}
+
+const resetPassword = async (user: any) => {
+  if (!confirm(`Möchten Sie das Passwort für ${user.displayName} wirklich zurücksetzen?`)) {
+    return
+  }
+
+  try {
+    // Neues sicheres Passwort generieren
+    const newPassword = generatePassword()
+
+    // Passwort zurücksetzen
+    await $fetch(`/api/users/${user.username}/reset-password`, {
+      method: 'POST',
+      body: { password: newPassword }
+    })
+
+    toast.success(`Passwort für ${user.displayName} zurückgesetzt`)
+
+    // PDF mit neuen Login-Daten generieren
+    await generateLoginPDF({
+      username: user.username,
+      password: newPassword,
+      displayName: user.displayName,
+      role: user.role,
+      vacationDays: user.vacationDays,
+      teamleadId: user.teamleadId,
+      isReset: true  // Kennzeichnung dass es ein Reset ist
+    })
+
+  } catch (error: any) {
+    console.error('Fehler beim Passwort-Reset:', error)
+    toast.error(error.data?.message || 'Fehler beim Zurücksetzen des Passworts')
   }
 }
 </script>
