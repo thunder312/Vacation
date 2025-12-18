@@ -21,6 +21,24 @@ export const usePdfExport = () => {
         }
     }
 
+    // Seitenzahlen hinzufügen
+    const addPageNumbers = (doc: any) => {
+        const pageCount = doc.internal.getNumberOfPages()
+        
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i)
+            doc.setFontSize(9)
+            doc.setTextColor(128, 128, 128)
+            
+            const pageText = `Seite ${i}/${pageCount}`
+            const pageWidth = doc.internal.pageSize.getWidth()
+            const textWidth = doc.getTextWidth(pageText)
+            
+            // Zentriert am unteren Rand
+            doc.text(pageText, (pageWidth - textWidth) / 2, doc.internal.pageSize.getHeight() - 10)
+        }
+    }
+
     const exportMyApprovedVacations = (username: string) => {
         // Hole approved requests für diesen User
         const { getApprovedUserRequests } = useVacationRequests()
@@ -63,7 +81,12 @@ export const usePdfExport = () => {
                 doc.text(`Gesamt: ${balance.totalDays} Tage | Genommen: ${balance.usedDays} Tage | Verbleibend: ${balance.remainingDays} Tage`, 14, 51)
             }
 
-            const tableData = approvedRequests.map(req => [
+            // Nach Startdatum sortieren
+            const sortedRequests = [...approvedRequests].sort((a, b) => 
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            )
+
+            const tableData = sortedRequests.map(req => [
                 formatDate(req.startDate),
                 formatDate(req.endDate),
                 calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()).toString(),
@@ -88,8 +111,14 @@ export const usePdfExport = () => {
             doc.setFontSize(11)
             doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
 
-            const filename = `Urlaube_${username}_${new Date().toISOString().split('T')[0]}.pdf`
-            doc.save(filename)
+            // Seitenzahlen hinzufügen
+            addPageNumbers(doc)
+
+            // PDF in neuem Tab öffnen
+            const pdfBlob = doc.output('blob')
+            const pdfUrl = URL.createObjectURL(pdfBlob)
+            window.open(pdfUrl, '_blank')
+
             toast.success('PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler beim PDF-Export:', error)
@@ -125,7 +154,19 @@ export const usePdfExport = () => {
             doc.text(`Teamlead: ${teamleadName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
-            const tableData = teamRequests.map(req => [
+            // Sortieren: Erst nach Mitarbeiter, dann nach Startdatum
+            const sortedRequests = [...teamRequests].sort((a, b) => {
+                // Erst nach displayName/userId sortieren
+                const nameA = (a.displayName || a.userId).toLowerCase()
+                const nameB = (b.displayName || b.userId).toLowerCase()
+                if (nameA !== nameB) {
+                    return nameA.localeCompare(nameB)
+                }
+                // Dann nach Startdatum
+                return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            })
+
+            const tableData = sortedRequests.map(req => [
                 req.displayName || req.userId,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
@@ -152,7 +193,14 @@ export const usePdfExport = () => {
             doc.text(`Genehmigt: ${approvedCount}`, 14, finalY + 6)
             doc.text(`Ausstehend: ${pendingCount}`, 14, finalY + 12)
 
-            doc.save(`Team_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
+            // Seitenzahlen hinzufügen
+            addPageNumbers(doc)
+
+            // PDF in neuem Tab öffnen
+            const pdfBlob = doc.output('blob')
+            const pdfUrl = URL.createObjectURL(pdfBlob)
+            window.open(pdfUrl, '_blank')
+
             toast.success('Team-PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler:', error)
@@ -188,7 +236,19 @@ export const usePdfExport = () => {
             doc.text(`Erstellt von: ${managerName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
-            const tableData = allRequests.map(req => [
+            // Sortieren: Erst nach Mitarbeiter, dann nach Startdatum
+            const sortedRequests = [...allRequests].sort((a, b) => {
+                // Erst nach displayName/userId sortieren
+                const nameA = (a.displayName || a.userId).toLowerCase()
+                const nameB = (b.displayName || b.userId).toLowerCase()
+                if (nameA !== nameB) {
+                    return nameA.localeCompare(nameB)
+                }
+                // Dann nach Startdatum
+                return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            })
+
+            const tableData = sortedRequests.map(req => [
                 req.displayName || req.userId,
                 formatDate(req.startDate),
                 formatDate(req.endDate),
@@ -235,7 +295,14 @@ export const usePdfExport = () => {
                 doc.text(`Abgesagte Urlaubstage gesamt: ${totalCancelledDays}`, 14, finalY + 48)
             }
 
-            doc.save(`Alle_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
+            // Seitenzahlen hinzufügen
+            addPageNumbers(doc)
+
+            // PDF in neuem Tab öffnen
+            const pdfBlob = doc.output('blob')
+            const pdfUrl = URL.createObjectURL(pdfBlob)
+            window.open(pdfUrl, '_blank')
+
             toast.success('Urlaubs-PDF erfolgreich erstellt!')
         } catch (error) {
             console.error('Fehler:', error)
