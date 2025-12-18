@@ -21,7 +21,8 @@
     - <del>reset PW for manager (admin)</del>
     - <del>admin/manager shall be able to reactivate users
   - <del>Mitarbeiter needs to change their PW themselves</del>
-  - new Rolle: SysAdmin
+  - <del>new Rolle: SysAdmin</del>
+  - !!!! neue Rolle SysAdmin hat Mitarbeiter-Zuordnung und Organigramm zewrestört !!!!!
   - print organigramm landscape PDF
    
 ## optical
@@ -30,8 +31,8 @@
   - <del>pdf logo</del>
   - <del>pdf logo on all reports.</del>
   - Mitarbeiterverwaltung: retractable task blocks (new, edit)?
-  - PDF shall have page numbers (1/5)
-  - Alle Urlaube shall ordered by von-date, then bis-date and group by user.
+  - <del>PDF shall have page numbers (1/5)</del>
+  - <del>Alle Urlaube shall ordered by von-date, then bis-date and group by user.</del>
 
 ## Code organization
 - all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.

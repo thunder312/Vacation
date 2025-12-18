@@ -91,7 +91,8 @@ export default defineEventHandler(async (event) => {
       
       if (newRole === 'employee' && body.teamleadId) {
         managerId = body.teamleadId === '' ? null : body.teamleadId
-      } else if (newRole === 'teamlead' || newRole === 'office') {
+      } else if (newRole === 'teamlead' || newRole === 'office' || newRole === 'sysadmin') {
+        // Teamleiter, Office und System-Admin direkt unter Manager
         managerId = 'Schulz'
       }
       

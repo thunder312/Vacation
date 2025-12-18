@@ -1898,6 +1898,11 @@ button {
   color: #7b1fa2;
 }
 
+.role-sysadmin {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
 .role-manager {
   background: #ffebee;
   color: #c62828;

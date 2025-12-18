@@ -535,15 +535,15 @@ const pendingManagerRequests = computed(() => {
   
   // Manager & Office sehen:
   // 1. Anträge mit status 'teamlead_approved' (normale Employee nach Teamleiter-Genehmigung)
-  // 2. Anträge mit status 'pending' von Office oder Teamleitern (die haben keinen Teamleiter)
+  // 2. Anträge mit status 'pending' von Office, Teamleitern oder SysAdmin (die haben keinen Teamleiter)
   return allReqs.filter(r => {
     if (r.status === 'teamlead_approved') return true
     
-    // Office & Teamleiter-Anträge (pending) direkt zum Manager
+    // Office, Teamleiter & SysAdmin-Anträge (pending) direkt zum Manager
     if (r.status === 'pending') {
       const { orgNodes } = useOrganization()
       const user = orgNodes.value?.find(n => n.userId === r.userId)
-      return user?.role === 'office' || user?.role === 'teamlead'
+      return user?.role === 'office' || user?.role === 'teamlead' || user?.role === 'sysadmin'
     }
     
     return false

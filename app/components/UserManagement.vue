@@ -30,6 +30,7 @@
               <option value="employee">Mitarbeiter</option>
               <option value="teamlead">Teamleiter</option>
               <option value="office">Office</option>
+              <option value="sysadmin">System-Admin</option>
             </select>
           </div>
 
@@ -110,6 +111,7 @@
                       <option value="employee">Mitarbeiter</option>
                       <option value="teamlead">Teamleiter</option>
                       <option value="office">Office</option>
+                      <option value="sysadmin">System-Admin</option>
                     </select>
                   </div>
                   <div class="edit-group">
@@ -448,7 +450,8 @@ const getRoleLabel = (role: string) => {
     employee: 'Mitarbeiter',
     teamlead: 'Teamleiter',
     office: 'Office',
-    manager: 'Manager'
+    manager: 'Manager',
+    sysadmin: 'System-Admin'
   }
   return labels[role] || role
 }

@@ -15,7 +15,7 @@ export function initSchema(): void {
       firstName TEXT,
       lastName TEXT,
       password TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('employee', 'teamlead', 'manager', 'office')),
+      role TEXT NOT NULL CHECK(role IN ('employee', 'teamlead', 'manager', 'office', 'sysadmin')),
       vacationDays INTEGER DEFAULT 30,
       isActive INTEGER DEFAULT 1,
       createdAt TEXT DEFAULT (datetime('now')),
