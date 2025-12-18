@@ -82,6 +82,41 @@
       </div>
     </div>
 
+    <!-- Urlaub absagen Modal -->
+    <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Urlaub absagen</h2>
+          <button @click="closeCancelModal" class="modal-close">✕</button>
+        </div>
+        
+        <div class="modal-body">
+          <p><strong>Achtung:</strong> Der genehmigte Urlaub wird abgesagt und die Urlaubstage werden dem Mitarbeiter zurückgebucht.</p>
+          
+          <form @submit.prevent="confirmCancelRequest" class="cancel-form">
+            <div class="form-group">
+              <label>Grund für die Absage (optional)</label>
+              <textarea 
+                v-model="cancellationReason" 
+                rows="4"
+                placeholder="z.B. Dringender Kundentermin, Projektverschiebung..."
+              ></textarea>
+              <small>Dieser Grund wird dem Mitarbeiter angezeigt.</small>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="button" @click="closeCancelModal" class="btn-secondary">
+                Abbrechen
+              </button>
+              <button type="submit" class="btn-danger">
+                Urlaub absagen
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div class="tabs">
       <button
           v-for="tab in visibleTabs"
@@ -180,10 +215,27 @@
               approval-level="manager"
               @approve="handleApprove"
               @reject="handleReject"
+              @cancel="handleCancelRequest"
           />
         </template>
         <div v-else class="empty-state">
           Keine ausstehenden Urlaubsanträge für finale Genehmigung
+        </div>
+
+        <!-- Genehmigte Urlaube (können abgesagt werden) -->
+        <h2 style="margin-top: 40px;">Genehmigte Urlaube</h2>
+        <template v-if="approvedRequests && approvedRequests.length > 0">
+          <VacationApprovalCard
+              v-for="request in approvedRequests"
+              :key="request.id"
+              :request="request"
+              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+              :show-actions="true"
+              @cancel="handleCancelRequest"
+          />
+        </template>
+        <div v-else class="empty-state">
+          Keine genehmigten Urlaube
         </div>
       </div>
 
@@ -245,6 +297,7 @@ const {
   submitRequest,
   approveRequest,
   rejectRequest,
+  cancelRequest,
   getUserRequests,
   getApprovedUserRequests,
   getPendingTeamleadRequests,
@@ -281,6 +334,34 @@ const passwordForm = ref({
   confirmPassword: ''
 })
 const passwordError = ref('')
+
+// Urlaub absagen Modal
+const showCancelModal = ref(false)
+const cancelRequestId = ref<number | null>(null)
+const cancellationReason = ref('')
+
+const handleCancelRequest = (requestId: number) => {
+  cancelRequestId.value = requestId
+  cancellationReason.value = ''
+  showCancelModal.value = true
+}
+
+const closeCancelModal = () => {
+  showCancelModal.value = false
+  cancelRequestId.value = null
+  cancellationReason.value = ''
+}
+
+const confirmCancelRequest = async () => {
+  if (cancelRequestId.value === null) return
+
+  const success = await cancelRequest(cancelRequestId.value, cancellationReason.value || undefined)
+  
+  if (success) {
+    closeCancelModal()
+    await fetchRequests()  // Liste neu laden
+  }
+}
 
 const openPasswordModal = () => {
   showUserMenu.value = false
@@ -467,6 +548,15 @@ const pendingManagerRequests = computed(() => {
     
     return false
   })
+})
+
+// Genehmigte Urlaube (für Absagen-Funktion)
+const approvedRequests = computed(() => {
+  const requests = getAllRequests()
+  const allReqs = requests.value || []
+  
+  return allReqs.filter(r => r.status === 'approved')
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
 })
 
 const allTeamRequests = computed(() => {

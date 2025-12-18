@@ -32,6 +32,13 @@
         ✗ Ablehnen
       </button>
     </div>
+
+    <!-- Absagen Button für genehmigte Urlaube (nur Manager) -->
+    <div v-if="canCancel" class="approval-actions">
+      <button @click="emit('cancel', request.id)" class="cancel-btn">
+        🚫 Urlaub absagen
+      </button>
+    </div>
   </div>
 </template>
 
@@ -60,6 +67,12 @@ const canApprove = computed(() => {
   return currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager'
 })
 
+// Absagen-Button nur für Manager bei genehmigten Urlauben
+const canCancel = computed(() => {
+  if (props.showActions === false) return false
+  return currentUser.value?.role === 'manager' && props.request.status === 'approved'
+})
+
 const vacationDays = computed(() => {
   const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
   return calculateWorkdays(props.request.startDate, props.request.endDate, halfDayDates)
@@ -68,5 +81,6 @@ const vacationDays = computed(() => {
 const emit = defineEmits<{
   approve: [id: number, level: 'teamlead' | 'manager']
   reject: [id: number]
+  cancel: [id: number]
 }>()
 </script>

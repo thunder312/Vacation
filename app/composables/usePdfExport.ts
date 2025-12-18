@@ -211,8 +211,12 @@ export const usePdfExport = () => {
             const teamleadApprovedCount = allRequests.filter(r => r.status === 'teamlead_approved').length
             const pendingCount = allRequests.filter(r => r.status === 'pending').length
             const rejectedCount = allRequests.filter(r => r.status === 'rejected').length
+            const cancelledCount = allRequests.filter(r => r.status === 'cancelled').length
             const totalApprovedDays = allRequests
                 .filter(r => r.status === 'approved')
+                .reduce((sum, req) => sum + calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()), 0)
+            const totalCancelledDays = allRequests
+                .filter(r => r.status === 'cancelled')
                 .reduce((sum, req) => sum + calculateWorkdays(req.startDate, req.endDate, getHalfDayDates()), 0)
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
@@ -225,7 +229,11 @@ export const usePdfExport = () => {
             doc.text(`Bei Manager ausstehend: ${teamleadApprovedCount}`, 14, finalY + 18)
             doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
             doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
-            doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 36)
+            doc.text(`Abgesagt: ${cancelledCount}`, 14, finalY + 36)
+            doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 42)
+            if (totalCancelledDays > 0) {
+                doc.text(`Abgesagte Urlaubstage gesamt: ${totalCancelledDays}`, 14, finalY + 48)
+            }
 
             doc.save(`Alle_Urlaube_${new Date().toISOString().split('T')[0]}.pdf`)
             toast.success('Urlaubs-PDF erfolgreich erstellt!')

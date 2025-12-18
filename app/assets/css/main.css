@@ -583,6 +583,73 @@ button {
   background: var(--color-primary-dark);
 }
 
+.btn-danger {
+  background: var(--color-error);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Cancel Button (Urlaub absagen) */
+.cancel-btn {
+  background: var(--color-error-light);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: var(--color-error);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Cancel Form */
+.cancel-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.cancel-form textarea:hover {
+  border-color: #9ca3af;
+}
+
+.cancel-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body p {
+  margin-bottom: 20px;
+  color: var(--color-text-secondary);
+}
+
 /* ===== TABS ===== */
 .tabs {
     display: flex;
@@ -809,6 +876,12 @@ button {
 .status.rejected {
     background: var(--status-rejected-bg);
     color: var(--status-rejected-text);
+}
+
+.status.cancelled {
+    background: #fef2f2;
+    color: #991b1b;
+    text-decoration: line-through;
 }
 
 /* ===== INDEX PAGE ===== */

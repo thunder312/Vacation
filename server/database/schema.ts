@@ -36,7 +36,7 @@ export function initSchema(): void {
       startDate TEXT NOT NULL,
       endDate TEXT NOT NULL,
       reason TEXT,
-      status TEXT NOT NULL CHECK(status IN ('pending', 'teamlead_approved', 'approved', 'rejected')),
+      status TEXT NOT NULL CHECK(status IN ('pending', 'teamlead_approved', 'approved', 'rejected', 'cancelled')),
       teamleadApprovalDate TEXT,
       managerApprovalDate TEXT,
       createdAt TEXT DEFAULT (datetime('now')),
