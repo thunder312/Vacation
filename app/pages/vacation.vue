@@ -6,7 +6,79 @@
       <h1>Urlaubsantrags-System</h1>
       <div class="user-info">
         <span>Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
-        <button @click="handleLogout" class="logout-btn">Abmelden</button>
+        
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown">
+          <button @click="toggleUserMenu" class="user-menu-btn">
+            👤 {{ currentUser?.username }} ▼
+          </button>
+          
+          <div v-if="showUserMenu" class="dropdown-menu">
+            <button @click="openPasswordModal" class="dropdown-item">
+              🔑 Passwort ändern
+            </button>
+            <button @click="handleLogout" class="dropdown-item logout">
+              🚪 Abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passwort ändern Modal -->
+    <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Passwort ändern</h2>
+          <button @click="closePasswordModal" class="modal-close">✕</button>
+        </div>
+        
+        <form @submit.prevent="handleChangePassword" class="password-form">
+          <div class="form-group">
+            <label>Altes Passwort *</label>
+            <input 
+              v-model="passwordForm.oldPassword" 
+              type="password" 
+              required 
+              autocomplete="current-password"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Neues Passwort * (min. 8 Zeichen)</label>
+            <input 
+              v-model="passwordForm.newPassword" 
+              type="password" 
+              required 
+              minlength="8"
+              autocomplete="new-password"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Neues Passwort bestätigen *</label>
+            <input 
+              v-model="passwordForm.confirmPassword" 
+              type="password" 
+              required 
+              minlength="8"
+              autocomplete="new-password"
+            />
+          </div>
+          
+          <div v-if="passwordError" class="error-message">
+            {{ passwordError }}
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" @click="closePasswordModal" class="btn-secondary">
+              Abbrechen
+            </button>
+            <button type="submit" class="btn-primary">
+              Passwort ändern
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -194,6 +266,83 @@ const {
 const toast = useToast()
 
 const { currentTheme, toggleTheme, initTheme } = useTheme()
+
+// User Menu State
+const showUserMenu = ref(false)
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+// Passwort ändern Modal
+const showPasswordModal = ref(false)
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+const passwordError = ref('')
+
+const openPasswordModal = () => {
+  showUserMenu.value = false
+  showPasswordModal.value = true
+  passwordError.value = ''
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+}
+
+const closePasswordModal = () => {
+  showPasswordModal.value = false
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  passwordError.value = ''
+}
+
+const handleChangePassword = async () => {
+  passwordError.value = ''
+  
+  // Validierung
+  if (passwordForm.value.newPassword.length < 8) {
+    passwordError.value = 'Neues Passwort muss mindestens 8 Zeichen lang sein'
+    return
+  }
+  
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = 'Passwörter stimmen nicht überein'
+    return
+  }
+  
+  try {
+    await $fetch('/api/auth/change-password', {
+      method: 'POST',
+      body: {
+        oldPassword: passwordForm.value.oldPassword,
+        newPassword: passwordForm.value.newPassword
+      }
+    })
+    
+    toast.success('Passwort erfolgreich geändert')
+    closePasswordModal()
+  } catch (error: any) {
+    console.error('Passwort-Änderung fehlgeschlagen:', error)
+    passwordError.value = error.data?.message || 'Fehler beim Ändern des Passworts'
+  }
+}
+
+// Click outside to close menu
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.user-dropdown')) {
+      showUserMenu.value = false
+    }
+  })
+})
 
 // Timestamp für letzte Änderung in User-Management
 const usersLastUpdated = useState<number>('usersLastUpdated', () => 0)

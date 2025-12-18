@@ -17,10 +17,10 @@
     - <del>edit doesn't work,</del> 
     - <del>Organigramm needs to be refreshed automatically.</del>
     - <del>Mitarbeiterverwaltung shall be refreshed by Origanigramm changes.</dev>
-    - PDF How-To for new users has optical problem in yellow block.
+    - <del>PDF How-To for new users has optical problem in yellow block.</dev>
     - <del>reset PW for manager (admin)</del>
     - <del>admin/manager shall be able to reactivate users
-  - Mitarbeiter needs to change their PW themselves
+  - <del>Mitarbeiter needs to change their PW themselves</del>
   - new Rolle: SysAdmin
   - print organigramm landscape PDF
    
