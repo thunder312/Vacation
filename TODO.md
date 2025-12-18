@@ -8,7 +8,7 @@
   - <del>Teamlead proposals only need to granted by manager</del>
   - <del>Rename Teamlead in all texts to Teamleiter</del>
   - <del> company orga (1 boss, x teamleads, y associates) -> teamlead can only permit his teams' vacations</del>
-  - Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".
+  - <del>Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".</del>
   - <del>Manager can add new MA (with custom vacation days - default: 30)</del>
   - <del>admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)</del>
   - <del>hide admin in Organigramm and everywhere</del>
