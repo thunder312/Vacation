@@ -378,6 +378,15 @@ const fetchUsers = async () => {
 
 const { data: users, refresh: refreshUsers } = await useAsyncData('users', fetchUsers)
 
+// Timestamps für Cross-Tab-Aktualisierung
+const usersLastUpdated = useState<number>('usersLastUpdated', () => 0)
+const orgLastUpdated = useState<number>('orgLastUpdated', () => 0)
+
+// User-Liste neu laden wenn Organigramm geändert wurde
+watch(orgLastUpdated, () => {
+  refreshUsers()
+})
+
 // Computed
 const activeUsers = computed(() => {
   return (users.value || []).filter((u: any) => u.isActive && u.username !== 'admin')
@@ -447,6 +456,9 @@ const handleAddUser = async () => {
     }
 
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler beim Hinzufügen:', error)
     toast.error(error.data?.message || 'Fehler beim Hinzufügen des Mitarbeiters')
@@ -480,6 +492,9 @@ const saveEdit = async () => {
     toast.success('Mitarbeiter aktualisiert')
     editingUser.value = null
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler beim Aktualisieren:', error)
     toast.error(error.data?.message || 'Fehler beim Aktualisieren')
@@ -501,6 +516,9 @@ const toggleUserStatus = async (username: string, isActive: boolean) => {
 
     toast.success(`Mitarbeiter ${isActive ? 'aktiviert' : 'deaktiviert'}`)
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler:', error)
     toast.error(error.data?.message || `Fehler beim ${action}`)

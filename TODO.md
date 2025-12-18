@@ -16,7 +16,7 @@
     - <del>deactivate doesn't work,</del> 
     - <del>edit doesn't work,</del> 
     - <del>Organigramm needs to be refreshed automatically.</del>
-    - Mitarbeiterverwaltung shall be refreshed by Origanigramm changes
+    - <del>Mitarbeiterverwaltung shall be refreshed by Origanigramm changes.</dev>
     - PDF How-To for new users has optical problem in yellow block.
     - reset PW for manager (admin)
     - admin/manager shall be able to reactivate users

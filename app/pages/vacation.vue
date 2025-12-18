@@ -195,12 +195,21 @@ const toast = useToast()
 
 const { currentTheme, toggleTheme, initTheme } = useTheme()
 
-// Organigramm neu laden wenn Tab gewechselt wird
-watch(activeTab, (newTab) => {
+// Timestamp für letzte Änderung in User-Management
+const usersLastUpdated = useState<number>('usersLastUpdated', () => 0)
+
+// Timestamp für letzte Änderung im Organigramm
+const orgLastUpdated = useState<number>('orgLastUpdated', () => 0)
+
+// Organigramm neu laden wenn Tab gewechselt wird ODER User-Management geändert wurde
+watch([activeTab, usersLastUpdated], ([newTab, lastUpdate]) => {
   if (newTab === 'organization') {
     fetchOrganization()
   }
 })
+
+// User-Management neu laden wenn zum Tab gewechselt wird ODER Organigramm geändert wurde
+// (wird in UserManagement.vue implementiert)
 
 // Urlaubskonto des aktuellen Users
 const { getCurrentUserBalance } = useVacationBalance()
