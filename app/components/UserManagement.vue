@@ -238,7 +238,15 @@ onMounted(() => {
 // Generiere PDF-Login-Anleitung
 const generateLoginPDF = async (userInfo: any) => {
   const { jsPDF } = await import('jspdf')
-  const doc = new jsPDF()
+  
+  // PDF mit UTF-8 Support erstellen
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    putOnlyUsedFonts: true,
+    compress: true
+  })
   
   // Firmen-Header
   doc.setFontSize(20)
@@ -366,17 +374,17 @@ const generateLoginPDF = async (userInfo: any) => {
   // Wichtiger Hinweis
   y += 10
   doc.setFillColor(255, 243, 205)
-  doc.rect(20, y - 5, 170, 20, 'F')
+  doc.rect(20, y - 5, 170, 25, 'F')  // Höhe von 20 auf 25 erhöht
   doc.setFont('helvetica', 'bold')
-  doc.text('⚠️  Wichtig:', 25, y + 2)
+  doc.text('WICHTIG:', 25, y + 2)
   doc.setFont('helvetica', 'normal')
   
   if (userInfo.isReset) {
-    doc.text('Ihr Passwort wurde zurückgesetzt. Bitte ändern Sie es', 25, y + 9)
-    doc.text('nach der ersten Anmeldung!', 25, y + 16)
+    doc.text('Ihr Passwort wurde zurückgesetzt.', 25, y + 9)
+    doc.text('Bitte ändern Sie es nach der ersten Anmeldung!', 25, y + 16)
   } else {
-    doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf und', 25, y + 9)
-    doc.text('ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+    doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf', 25, y + 9)
+    doc.text('und ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
   }
   
   // Footer
