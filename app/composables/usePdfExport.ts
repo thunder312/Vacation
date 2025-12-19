@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/utils/dateHelpers'
+import { branding, getPdfHeader } from '~/config/branding'
 
 export const usePdfExport = () => {
     const toast = useToast()
@@ -13,9 +14,10 @@ export const usePdfExport = () => {
 
     // Logo als Base64 laden
     const addLogoToPdf = (doc: any) => {
+        const pdfHeader = getPdfHeader()
         try {
-            // Logo oben rechts einfügen (40x40px)
-            doc.addImage('/Logo_TecKonzept_noBg_blue.png', 'PNG', 170, 10, 30, 30)
+            // Logo oben rechts einfügen
+            doc.addImage(pdfHeader.logo, 'PNG', 170, 10, pdfHeader.logoWidth, pdfHeader.logoHeight)
         } catch (error) {
             console.warn('Logo konnte nicht geladen werden:', error)
         }
@@ -230,7 +232,7 @@ export const usePdfExport = () => {
             addLogoToPdf(doc)
 
             doc.setFontSize(18)
-            doc.text('Urlaubsübersicht - TecKonzept', 14, 20)
+            doc.text(`Urlaubsübersicht - ${branding.company.name}`, 14, 20)
 
             doc.setFontSize(11)
             doc.text(`Erstellt von: ${managerName}`, 14, 30)

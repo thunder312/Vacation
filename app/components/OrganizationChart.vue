@@ -182,6 +182,7 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import html2canvas from 'html2canvas'
+import { branding, getPdfHeader } from '~/config/branding'
 
 const toast = useToast()
 const { currentUser } = useAuth()
@@ -323,15 +324,16 @@ const exportOrgChart = async () => {
     const yOffset = 50
     
     // Logo
+    const pdfHeader = getPdfHeader()
     try {
-      doc.addImage('/Logo_TecKonzept_noBg_blue.png', 'PNG', pdfWidth - 50, 10, 30, 30)
+      doc.addImage(pdfHeader.logo, 'PNG', pdfWidth - 50, 10, pdfHeader.logoWidth, pdfHeader.logoHeight)
     } catch (error) {
       console.warn('Logo konnte nicht geladen werden')
     }
     
     // Titel
     doc.setFontSize(18)
-    doc.text('Organigramm - TecKonzept', 20, 25)
+    doc.text(`Organigramm - ${branding.company.name}`, 20, 25)
     
     doc.setFontSize(11)
     doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 35)
@@ -364,14 +366,15 @@ const exportTeamOverview = () => {
     const doc = new jsPDF({ orientation: 'landscape', format: 'a4' })
     
     // Logo
+    const pdfHeader = getPdfHeader()
     try {
-      doc.addImage('/Logo_TecKonzept_noBg_blue.png', 'PNG', 260, 10, 30, 30)
+      doc.addImage(pdfHeader.logo, 'PNG', 260, 10, pdfHeader.logoWidth, pdfHeader.logoHeight)
     } catch (error) {
       console.warn('Logo konnte nicht geladen werden')
     }
     
     doc.setFontSize(18)
-    doc.text('Teamübersicht - TecKonzept', 14, 20)
+    doc.text(`Teamübersicht - ${branding.company.name}`, 14, 20)
     
     doc.setFontSize(11)
     doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 28)

@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-wrapper">
-      <img src="/Logo_TecKonzept_noBg.png" alt="TecKonzept logo" class="login-logo" />
+      <img :src="branding.logo.main" :alt="`${branding.company.name} logo`" class="login-logo" />
       <div class="login-box">
         <h1>Login</h1>
         <form @submit.prevent="handleLogin">
@@ -12,7 +12,7 @@
                 v-model="username"
                 type="text"
                 :class="{ error: hasError }"
-                placeholder="Nachname (oder admin/office)"
+                placeholder="Benutzername eingeben"
                 required
             />
           </div>
@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { branding } from '~/config/branding'
+
 const { login } = useAuth()
 
 const username = ref('')
