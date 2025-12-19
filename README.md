@@ -1,4 +1,4 @@
-# 🏖️ Urlaubsantrags-System - TecKonzept
+# 🏖️ Urlaubsantrags-System
 
 Ein vollständiges Urlaubsverwaltungssystem mit mehrstufigem Genehmigungsprozess, Organigramm und PDF-Export.
 
@@ -27,6 +27,7 @@ Ein vollständiges Urlaubsverwaltungssystem mit mehrstufigem Genehmigungsprozess
 - **Teamlead**: Erste Genehmigungsstufe für Team-Mitglieder
 - **Manager**: Finale Genehmigung, Verwaltungsfunktionen
 - **Office**: Nur-Lese-Zugriff auf alle Anträge
+- **Sys-Admin**: Wie Employee, aber ohne Teamleiter
 - **Admin**: Vollzugriff auf alle Funktionen
 
 ### 📊 Verwaltungsfunktionen (Manager/Admin)
@@ -241,7 +242,7 @@ Theme-Wechsel über Button in der Tab-Leiste (☀️ / 💼)
 PDFs enthalten:
 - **Urlaubskonto-Info**: Gesamt, Übertrag, Genommen, Verbleibend
 - **Urlaubsliste**: Alle genehmigten Urlaube mit Daten
-- **Logo**: TecKonzept Logo (falls vorhanden unter `/public/Logo_TecKonzept_noBg_blue.png`)
+- **Logo**: Logo (falls vorhanden unter `/public/Logo_[xyz]_noBg.png`)
 - **Statistiken**: Gesamt-Urlaubstage
 
 ## 🔐 Sicherheit
@@ -266,8 +267,7 @@ PDFs enthalten:
 
 
 ## 📝 Lizenz
-
-Proprietary
+- Proprietary
 
 ## 👨‍💻 Entwickler
 - Daniel Ertl
