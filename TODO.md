@@ -22,8 +22,8 @@
     - <del>admin/manager shall be able to reactivate users
   - <del>Mitarbeiter needs to change their PW themselves</del>
   - <del>new Rolle: SysAdmin</del>
-  - !!!! neue Rolle SysAdmin hat Mitarbeiter-Zuordnung und Organigramm zewrestört !!!!!
-  - print organigramm landscape PDF
+  - <del>!!!! neue Rolle SysAdmin hat Mitarbeiter-Zuordnung und Organigramm zerstört !!!!!</dev>
+  - <del>print organigramm landscape PDF</del>
    
 ## optical
   - <del>css with fondsKonzept blue</del>
