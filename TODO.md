@@ -30,12 +30,12 @@
   - <del>favicon</del>
   - <del>pdf logo</del>
   - <del>pdf logo on all reports.</del>
-  - Mitarbeiterverwaltung: retractable task blocks (new, edit)?
+  - <del>Mitarbeiterverwaltung: retractable task blocks (new, edit)?</del>
   - <del>PDF shall have page numbers (1/5)</del>
   - <del>Alle Urlaube shall ordered by von-date, then bis-date and group by user.</del>
 
 ## Code organization
-- all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.
+- <del>all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.</del>
 - FINAL Version of seed and scheme.
 
 ## DB
