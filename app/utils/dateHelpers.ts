@@ -46,7 +46,8 @@ export const getStatusText = (status: string): string => {
         pending: 'Ausstehend',
         teamlead_approved: 'Teamlead genehmigt',
         approved: 'Genehmigt',
-        rejected: 'Abgelehnt'
+        rejected: 'Abgelehnt',
+        cancelled: 'Abgesagt'
     }
     return statusMap[status] || status
 }
@@ -56,7 +57,8 @@ export const getStatusTextWithIcon = (status: string): string => {
         pending: 'Ausstehend',
         teamlead_approved: 'Teamlead ✓',
         approved: 'Genehmigt ✓✓',
-        rejected: 'Abgelehnt'
+        rejected: 'Abgelehnt',
+        cancelled: '🚫 Abgesagt'
     }
     return statusMap[status] || status
 }

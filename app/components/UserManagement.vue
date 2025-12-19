@@ -30,6 +30,7 @@
               <option value="employee">Mitarbeiter</option>
               <option value="teamlead">Teamleiter</option>
               <option value="office">Office</option>
+              <option value="sysadmin">System-Admin</option>
             </select>
           </div>
 
@@ -69,34 +70,80 @@
 
     <!-- Bestehende Mitarbeiter -->
     <div class="users-list">
-      <h3>Bestehende Mitarbeiter ({{ activeUsers.length }})</h3>
+      <div class="section-header" @click="toggleUsersSection">
+        <h3>
+          <span class="toggle-icon">{{ showUsersSection ? '▼' : '▶' }}</span>
+          Bestehende Mitarbeiter ({{ activeUsers.length }})
+        </h3>
+      </div>
       
-      <div class="filters">
-        <label>
-          <input type="checkbox" v-model="showInactive" />
-          Deaktivierte anzeigen ({{ filteredUsers.length - activeUsers.length }})
-        </label>
-      </div>
+      <div v-show="showUsersSection" class="users-section-content">
+        <div class="filters-row">
+          <div class="search-filter">
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              placeholder="🔍 Nach Vor- oder Nachname suchen..."
+              class="search-input"
+            />
+          </div>
+          <div class="checkbox-filter">
+            <label>
+              <input type="checkbox" v-model="showInactive" />
+              Deaktivierte anzeigen ({{ inactiveUsersCount }})
+            </label>
+          </div>
+        </div>
 
-      <div v-if="filteredUsers.length === 0" class="empty-state">
-        Keine Mitarbeiter gefunden
-      </div>
+        <div v-if="filteredAndSearchedUsers.length === 0" class="empty-state">
+          Keine Mitarbeiter gefunden
+        </div>
 
-      <!-- Kompakte Tabellenansicht -->
-      <table v-else class="users-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Rolle</th>
-            <th>Urlaubstage</th>
-            <th>Teamleiter</th>
-            <th>Status</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="user in filteredUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
+        <!-- Kompakte Tabellenansicht -->
+        <table v-else class="users-table">
+          <thead>
+            <tr>
+              <th @click="sortBy('displayName')" class="sortable">
+                Name 
+                <span class="sort-indicator" :class="{ active: sortColumn === 'displayName' }">
+                  {{ sortColumn === 'displayName' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('username')" class="sortable">
+                Username
+                <span class="sort-indicator" :class="{ active: sortColumn === 'username' }">
+                  {{ sortColumn === 'username' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('role')" class="sortable">
+                Rolle
+                <span class="sort-indicator" :class="{ active: sortColumn === 'role' }">
+                  {{ sortColumn === 'role' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('vacationDays')" class="sortable">
+                Urlaubstage
+                <span class="sort-indicator" :class="{ active: sortColumn === 'vacationDays' }">
+                  {{ sortColumn === 'vacationDays' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('teamleadId')" class="sortable">
+                Teamleiter
+                <span class="sort-indicator" :class="{ active: sortColumn === 'teamleadId' }">
+                  {{ sortColumn === 'teamleadId' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('isActive')" class="sortable">
+                Status
+                <span class="sort-indicator" :class="{ active: sortColumn === 'isActive' }">
+                  {{ sortColumn === 'isActive' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in filteredAndSearchedUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
             <!-- Bearbeiten-Modus -->
             <template v-if="editingUser?.username === user.username">
               <td colspan="7" class="edit-cell">
@@ -110,6 +157,7 @@
                       <option value="employee">Mitarbeiter</option>
                       <option value="teamlead">Teamleiter</option>
                       <option value="office">Office</option>
+                      <option value="sysadmin">System-Admin</option>
                     </select>
                   </div>
                   <div class="edit-group">
@@ -160,6 +208,14 @@
                 >
                   ✏️
                 </button>
+                <button
+                  v-if="user.role !== 'manager'"
+                  @click="resetPassword(user)"
+                  class="btn-icon btn-warning"
+                  title="Passwort zurücksetzen"
+                >
+                  🔑
+                </button>
                 <button 
                   v-if="user.isActive && user.role !== 'manager'"
                   @click="toggleUserStatus(user.username, false)" 
@@ -181,6 +237,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </template>
@@ -200,6 +257,23 @@ const newUser = ref({
 
 const editingUser = ref<any>(null)
 const showInactive = ref(false)
+const showUsersSection = ref(false)  // Standardmäßig eingeklappt
+const searchQuery = ref('')
+const sortColumn = ref<string>('displayName')
+const sortDirection = ref<'asc' | 'desc'>('asc')
+
+const toggleUsersSection = () => {
+  showUsersSection.value = !showUsersSection.value
+}
+
+const sortBy = (column: string) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortColumn.value = column
+    sortDirection.value = 'asc'
+  }
+}
 
 // Generiere sicheres Passwort
 const generatePassword = () => {
@@ -230,16 +304,34 @@ onMounted(() => {
 // Generiere PDF-Login-Anleitung
 const generateLoginPDF = async (userInfo: any) => {
   const { jsPDF } = await import('jspdf')
-  const doc = new jsPDF()
+  
+  // PDF mit UTF-8 Support erstellen
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    putOnlyUsedFonts: true,
+    compress: true
+  })
   
   // Firmen-Header
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+  
+  if (userInfo.isReset) {
+    doc.text('Passwort zurückgesetzt', 105, 20, { align: 'center' })
+  } else {
+    doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+  }
   
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')
-  doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+  
+  if (userInfo.isReset) {
+    doc.text('Neue Login-Informationen', 105, 30, { align: 'center' })
+  } else {
+    doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+  }
   
   // Trennlinie
   doc.setLineWidth(0.5)
@@ -249,7 +341,12 @@ const generateLoginPDF = async (userInfo: any) => {
   let y = 50
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text('Ihre Zugangsdaten:', 20, y)
+  
+  if (userInfo.isReset) {
+    doc.text('Ihre neuen Zugangsdaten:', 20, y)
+  } else {
+    doc.text('Ihre Zugangsdaten:', 20, y)
+  }
   
   y += 15
   doc.setFontSize(12)
@@ -343,17 +440,26 @@ const generateLoginPDF = async (userInfo: any) => {
   // Wichtiger Hinweis
   y += 10
   doc.setFillColor(255, 243, 205)
-  doc.rect(20, y - 5, 170, 20, 'F')
+  doc.rect(20, y - 5, 170, 25, 'F')  // Höhe von 20 auf 25 erhöht
   doc.setFont('helvetica', 'bold')
-  doc.text('⚠️  Wichtig:', 25, y + 2)
+  doc.text('WICHTIG:', 25, y + 2)
   doc.setFont('helvetica', 'normal')
-  doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf und', 25, y + 9)
-  doc.text('ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+  
+  if (userInfo.isReset) {
+    doc.text('Ihr Passwort wurde zurückgesetzt.', 25, y + 9)
+    doc.text('Bitte ändern Sie es nach der ersten Anmeldung!', 25, y + 16)
+  } else {
+    doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf', 25, y + 9)
+    doc.text('und ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+  }
   
   // Footer
   doc.setFontSize(9)
   doc.setTextColor(128, 128, 128)
-  doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 280, { align: 'center' })
+  const footerText = userInfo.isReset 
+    ? 'Passwort zurückgesetzt am: ' + new Date().toLocaleDateString('de-DE')
+    : 'Erstellt am: ' + new Date().toLocaleDateString('de-DE')
+  doc.text(footerText, 105, 280, { align: 'center' })
   
   // PDF in neuem Tab öffnen
   const pdfBlob = doc.output('blob')
@@ -378,6 +484,15 @@ const fetchUsers = async () => {
 
 const { data: users, refresh: refreshUsers } = await useAsyncData('users', fetchUsers)
 
+// Timestamps für Cross-Tab-Aktualisierung
+const usersLastUpdated = useState<number>('usersLastUpdated', () => 0)
+const orgLastUpdated = useState<number>('orgLastUpdated', () => 0)
+
+// User-Liste neu laden wenn Organigramm geändert wurde
+watch(orgLastUpdated, () => {
+  refreshUsers()
+})
+
 // Computed
 const activeUsers = computed(() => {
   return (users.value || []).filter((u: any) => u.isActive && u.username !== 'admin')
@@ -387,6 +502,67 @@ const filteredUsers = computed(() => {
   const filtered = showInactive.value ? (users.value || []) : activeUsers.value
   // admin immer ausblenden
   return filtered.filter((u: any) => u.username !== 'admin')
+})
+
+const inactiveUsersCount = computed(() => {
+  return (users.value || []).filter((u: any) => !u.isActive && u.username !== 'admin').length
+})
+
+const filteredAndSearchedUsers = computed(() => {
+  let result = [...filteredUsers.value]
+  
+  // Suche nach Vor- oder Nachname
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter((u: any) => {
+      const firstName = (u.firstName || '').toLowerCase()
+      const lastName = (u.lastName || '').toLowerCase()
+      const displayName = (u.displayName || '').toLowerCase()
+      return firstName.includes(query) || lastName.includes(query) || displayName.includes(query)
+    })
+  }
+  
+  // Sortierung
+  result.sort((a: any, b: any) => {
+    let aVal: any
+    let bVal: any
+    
+    switch (sortColumn.value) {
+      case 'displayName':
+        aVal = (a.displayName || '').toLowerCase()
+        bVal = (b.displayName || '').toLowerCase()
+        break
+      case 'username':
+        aVal = (a.username || '').toLowerCase()
+        bVal = (b.username || '').toLowerCase()
+        break
+      case 'role':
+        aVal = a.role || ''
+        bVal = b.role || ''
+        break
+      case 'vacationDays':
+        aVal = a.vacationDays || 0
+        bVal = b.vacationDays || 0
+        break
+      case 'teamleadId':
+        // Sortiere nach Teamleiter-Name
+        aVal = a.teamleadId ? getTeamleadName(a.teamleadId).toLowerCase() : 'zzz'
+        bVal = b.teamleadId ? getTeamleadName(b.teamleadId).toLowerCase() : 'zzz'
+        break
+      case 'isActive':
+        aVal = a.isActive ? 1 : 0
+        bVal = b.isActive ? 1 : 0
+        break
+      default:
+        return 0
+    }
+    
+    if (aVal < bVal) return sortDirection.value === 'asc' ? -1 : 1
+    if (aVal > bVal) return sortDirection.value === 'asc' ? 1 : -1
+    return 0
+  })
+  
+  return result
 })
 
 const teamleads = computed(() => {
@@ -399,7 +575,8 @@ const getRoleLabel = (role: string) => {
     employee: 'Mitarbeiter',
     teamlead: 'Teamleiter',
     office: 'Office',
-    manager: 'Manager'
+    manager: 'Manager',
+    sysadmin: 'System-Admin'
   }
   return labels[role] || role
 }
@@ -447,6 +624,9 @@ const handleAddUser = async () => {
     }
 
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler beim Hinzufügen:', error)
     toast.error(error.data?.message || 'Fehler beim Hinzufügen des Mitarbeiters')
@@ -480,6 +660,9 @@ const saveEdit = async () => {
     toast.success('Mitarbeiter aktualisiert')
     editingUser.value = null
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler beim Aktualisieren:', error)
     toast.error(error.data?.message || 'Fehler beim Aktualisieren')
@@ -501,9 +684,46 @@ const toggleUserStatus = async (username: string, isActive: boolean) => {
 
     toast.success(`Mitarbeiter ${isActive ? 'aktiviert' : 'deaktiviert'}`)
     await refreshUsers()
+    
+    // Trigger Organigramm Update
+    usersLastUpdated.value = Date.now()
   } catch (error: any) {
     console.error('Fehler:', error)
     toast.error(error.data?.message || `Fehler beim ${action}`)
+  }
+}
+
+const resetPassword = async (user: any) => {
+  if (!confirm(`Möchten Sie das Passwort für ${user.displayName} wirklich zurücksetzen?`)) {
+    return
+  }
+
+  try {
+    // Neues sicheres Passwort generieren
+    const newPassword = generatePassword()
+
+    // Passwort zurücksetzen
+    await $fetch(`/api/users/${user.username}/reset-password`, {
+      method: 'POST',
+      body: { password: newPassword }
+    })
+
+    toast.success(`Passwort für ${user.displayName} zurückgesetzt`)
+
+    // PDF mit neuen Login-Daten generieren
+    await generateLoginPDF({
+      username: user.username,
+      password: newPassword,
+      displayName: user.displayName,
+      role: user.role,
+      vacationDays: user.vacationDays,
+      teamleadId: user.teamleadId,
+      isReset: true  // Kennzeichnung dass es ein Reset ist
+    })
+
+  } catch (error: any) {
+    console.error('Fehler beim Passwort-Reset:', error)
+    toast.error(error.data?.message || 'Fehler beim Zurücksetzen des Passworts')
   }
 }
 </script>

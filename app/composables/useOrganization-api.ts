@@ -52,6 +52,11 @@ export const useOrganization = () => {
       }
 
       toast.success(`${node?.displayName || userId} wurde Team ${teamleadId} zugeordnet`)
+      
+      // Trigger User-Management Update
+      const orgLastUpdated = useState<number>('orgLastUpdated')
+      orgLastUpdated.value = Date.now()
+      
       return true
     } catch (error) {
       console.error('Failed to assign to team:', error)
@@ -76,6 +81,11 @@ export const useOrganization = () => {
       }
 
       toast.success(`${node?.displayName || userId} wurde aus dem Team entfernt`)
+      
+      // Trigger User-Management Update
+      const orgLastUpdated = useState<number>('orgLastUpdated')
+      orgLastUpdated.value = Date.now()
+      
       return true
     } catch (error) {
       console.error('Failed to remove from team:', error)

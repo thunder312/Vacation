@@ -8,31 +8,39 @@
   - <del>Teamlead proposals only need to granted by manager</del>
   - <del>Rename Teamlead in all texts to Teamleiter</del>
   - <del> company orga (1 boss, x teamleads, y associates) -> teamlead can only permit his teams' vacations</del>
-  - Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".
+  - <del>Manager can re-book granted vacations. -> Customer gets back his days the state for  the dataset is "abgesagt".</del>
   - <del>Manager can add new MA (with custom vacation days - default: 30)</del>
   - <del>admin/manager shall be able to deactivate users by date which left company (not shown anywhere anymore like team...)</del>
   - <del>hide admin in Organigramm and everywhere</del>
   - Mitarbeiterverwaltung: 
-    - deactivate doesn't work, 
-    - edit doesn't work, 
-    - Organigramm needs to be refreshed automatically.
-    - PDF How-To for new users has optical problem in yellow block.
-    - reset PW for manager (admin)
-  - Mitarbeiter needs to change their PW themselves
-  - new Rolle: SysAdmin
-  - print organigramm landscape PDF
+    - <del>deactivate doesn't work,</del> 
+    - <del>edit doesn't work,</del> 
+    - <del>Organigramm needs to be refreshed automatically.</del>
+    - <del>Mitarbeiterverwaltung shall be refreshed by Origanigramm changes.</dev>
+    - <del>PDF How-To for new users has optical problem in yellow block.</dev>
+    - <del>reset PW for manager (admin)</del>
+    - <del>admin/manager shall be able to reactivate users
+  - <del>Mitarbeiter needs to change their PW themselves</del>
+  - <del>new Rolle: SysAdmin</del>
+  - <del>!!!! neue Rolle SysAdmin hat Mitarbeiter-Zuordnung und Organigramm zerstört !!!!!</dev>
+  - <del>print organigramm landscape PDF</del>
    
 ## optical
   - <del>css with fondsKonzept blue</del>
   - <del>favicon</del>
   - <del>pdf logo</del>
   - <del>pdf logo on all reports.</del>
-  - Mitarbeiterverwaltung: retractable task blocks (new, edit)?
-  - PDF shall have page numbers (1/5)
-  - Alle Urlaube shall ordered by von-date, then bis-date and group by user.
+  - <del>Mitarbeiterverwaltung: retractable task blocks (new, edit)?</del>
+  - <del>PDF shall have page numbers (1/5)</del>
+  - <del>Alle Urlaube shall ordered by von-date, then bis-date and group by user.</del>
+  - Finish about modal
+  - Create Manual deutsch/englisch
+  - Pflichtenhelft/Lastenheft???
+  - dummy company for gitHub
 
 ## Code organization
-- all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.
+- <del>all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.</del>
+- 
 - FINAL Version of seed and scheme.
 
 ## DB

@@ -6,7 +6,114 @@
       <h1>Urlaubsantrags-System</h1>
       <div class="user-info">
         <span>Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
-        <button @click="handleLogout" class="logout-btn">Abmelden</button>
+        
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown">
+          <button @click="toggleUserMenu" class="user-menu-btn">
+            👤 {{ currentUser?.username }} ▼
+          </button>
+          
+          <div v-if="showUserMenu" class="dropdown-menu">
+            <button @click="openPasswordModal" class="dropdown-item">
+              🔑 Passwort ändern
+            </button>
+            <button @click="handleLogout" class="dropdown-item logout">
+              🚪 Abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passwort ändern Modal -->
+    <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Passwort ändern</h2>
+          <button @click="closePasswordModal" class="modal-close">✕</button>
+        </div>
+        
+        <form @submit.prevent="handleChangePassword" class="password-form">
+          <div class="form-group">
+            <label>Altes Passwort *</label>
+            <input 
+              v-model="passwordForm.oldPassword" 
+              type="password" 
+              required 
+              autocomplete="current-password"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Neues Passwort * (min. 8 Zeichen)</label>
+            <input 
+              v-model="passwordForm.newPassword" 
+              type="password" 
+              required 
+              minlength="8"
+              autocomplete="new-password"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Neues Passwort bestätigen *</label>
+            <input 
+              v-model="passwordForm.confirmPassword" 
+              type="password" 
+              required 
+              minlength="8"
+              autocomplete="new-password"
+            />
+          </div>
+          
+          <div v-if="passwordError" class="error-message">
+            {{ passwordError }}
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" @click="closePasswordModal" class="btn-secondary">
+              Abbrechen
+            </button>
+            <button type="submit" class="btn-primary">
+              Passwort ändern
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Urlaub absagen Modal -->
+    <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Urlaub absagen</h2>
+          <button @click="closeCancelModal" class="modal-close">✕</button>
+        </div>
+        
+        <div class="modal-body">
+          <p><strong>Achtung:</strong> Der genehmigte Urlaub wird abgesagt und die Urlaubstage werden dem Mitarbeiter zurückgebucht.</p>
+          
+          <form @submit.prevent="confirmCancelRequest" class="cancel-form">
+            <div class="form-group">
+              <label>Grund für die Absage (optional)</label>
+              <textarea 
+                v-model="cancellationReason" 
+                rows="4"
+                placeholder="z.B. Dringender Kundentermin, Projektverschiebung..."
+              ></textarea>
+              <small>Dieser Grund wird dem Mitarbeiter angezeigt.</small>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="button" @click="closeCancelModal" class="btn-secondary">
+                Abbrechen
+              </button>
+              <button type="submit" class="btn-danger">
+                Urlaub absagen
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -108,10 +215,27 @@
               approval-level="manager"
               @approve="handleApprove"
               @reject="handleReject"
+              @cancel="handleCancelRequest"
           />
         </template>
         <div v-else class="empty-state">
           Keine ausstehenden Urlaubsanträge für finale Genehmigung
+        </div>
+
+        <!-- Genehmigte Urlaube (können abgesagt werden) -->
+        <h2 style="margin-top: 40px;">Genehmigte Urlaube</h2>
+        <template v-if="approvedRequests && approvedRequests.length > 0">
+          <VacationApprovalCard
+              v-for="request in approvedRequests"
+              :key="request.id"
+              :request="request"
+              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
+              :show-actions="true"
+              @cancel="handleCancelRequest"
+          />
+        </template>
+        <div v-else class="empty-state">
+          Keine genehmigten Urlaube
         </div>
       </div>
 
@@ -173,6 +297,7 @@ const {
   submitRequest,
   approveRequest,
   rejectRequest,
+  cancelRequest,
   getUserRequests,
   getApprovedUserRequests,
   getPendingTeamleadRequests,
@@ -194,6 +319,127 @@ const {
 const toast = useToast()
 
 const { currentTheme, toggleTheme, initTheme } = useTheme()
+
+// User Menu State
+const showUserMenu = ref(false)
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+// Passwort ändern Modal
+const showPasswordModal = ref(false)
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+const passwordError = ref('')
+
+// Urlaub absagen Modal
+const showCancelModal = ref(false)
+const cancelRequestId = ref<number | null>(null)
+const cancellationReason = ref('')
+
+const handleCancelRequest = (requestId: number) => {
+  cancelRequestId.value = requestId
+  cancellationReason.value = ''
+  showCancelModal.value = true
+}
+
+const closeCancelModal = () => {
+  showCancelModal.value = false
+  cancelRequestId.value = null
+  cancellationReason.value = ''
+}
+
+const confirmCancelRequest = async () => {
+  if (cancelRequestId.value === null) return
+
+  const success = await cancelRequest(cancelRequestId.value, cancellationReason.value || undefined)
+  
+  if (success) {
+    closeCancelModal()
+    await fetchRequests()  // Liste neu laden
+  }
+}
+
+const openPasswordModal = () => {
+  showUserMenu.value = false
+  showPasswordModal.value = true
+  passwordError.value = ''
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+}
+
+const closePasswordModal = () => {
+  showPasswordModal.value = false
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  passwordError.value = ''
+}
+
+const handleChangePassword = async () => {
+  passwordError.value = ''
+  
+  // Validierung
+  if (passwordForm.value.newPassword.length < 8) {
+    passwordError.value = 'Neues Passwort muss mindestens 8 Zeichen lang sein'
+    return
+  }
+  
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = 'Passwörter stimmen nicht überein'
+    return
+  }
+  
+  try {
+    await $fetch('/api/auth/change-password', {
+      method: 'POST',
+      body: {
+        oldPassword: passwordForm.value.oldPassword,
+        newPassword: passwordForm.value.newPassword
+      }
+    })
+    
+    toast.success('Passwort erfolgreich geändert')
+    closePasswordModal()
+  } catch (error: any) {
+    console.error('Passwort-Änderung fehlgeschlagen:', error)
+    passwordError.value = error.data?.message || 'Fehler beim Ändern des Passworts'
+  }
+}
+
+// Click outside to close menu
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.user-dropdown')) {
+      showUserMenu.value = false
+    }
+  })
+})
+
+// Timestamp für letzte Änderung in User-Management
+const usersLastUpdated = useState<number>('usersLastUpdated', () => 0)
+
+// Timestamp für letzte Änderung im Organigramm
+const orgLastUpdated = useState<number>('orgLastUpdated', () => 0)
+
+// Organigramm neu laden wenn Tab gewechselt wird ODER User-Management geändert wurde
+watch([activeTab, usersLastUpdated], ([newTab, lastUpdate]) => {
+  if (newTab === 'organization') {
+    fetchOrganization()
+  }
+})
+
+// User-Management neu laden wenn zum Tab gewechselt wird ODER Organigramm geändert wurde
+// (wird in UserManagement.vue implementiert)
 
 // Urlaubskonto des aktuellen Users
 const { getCurrentUserBalance } = useVacationBalance()
@@ -289,19 +535,28 @@ const pendingManagerRequests = computed(() => {
   
   // Manager & Office sehen:
   // 1. Anträge mit status 'teamlead_approved' (normale Employee nach Teamleiter-Genehmigung)
-  // 2. Anträge mit status 'pending' von Office oder Teamleitern (die haben keinen Teamleiter)
+  // 2. Anträge mit status 'pending' von Office, Teamleitern oder SysAdmin (die haben keinen Teamleiter)
   return allReqs.filter(r => {
     if (r.status === 'teamlead_approved') return true
     
-    // Office & Teamleiter-Anträge (pending) direkt zum Manager
+    // Office, Teamleiter & SysAdmin-Anträge (pending) direkt zum Manager
     if (r.status === 'pending') {
       const { orgNodes } = useOrganization()
       const user = orgNodes.value?.find(n => n.userId === r.userId)
-      return user?.role === 'office' || user?.role === 'teamlead'
+      return user?.role === 'office' || user?.role === 'teamlead' || user?.role === 'sysadmin'
     }
     
     return false
   })
+})
+
+// Genehmigte Urlaube (für Absagen-Funktion)
+const approvedRequests = computed(() => {
+  const requests = getAllRequests()
+  const allReqs = requests.value || []
+  
+  return allReqs.filter(r => r.status === 'approved')
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
 })
 
 const allTeamRequests = computed(() => {

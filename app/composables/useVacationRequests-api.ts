@@ -101,6 +101,32 @@ export const useVacationRequests = () => {
     }
   }
 
+  // Genehmigten Urlaub absagen (nur Manager)
+  const cancelRequest = async (id: number, cancellationReason?: string) => {
+    try {
+      const response = await $fetch<any>(`/api/vacation/${id}/cancel`, {
+        method: 'POST',
+        body: { cancellationReason }
+      })
+
+      // Lokale Liste aktualisieren
+      const request = requests.value.find(r => r.id === id)
+      if (request) {
+        request.status = 'cancelled'
+        if (cancellationReason) {
+          request.reason = `${request.reason}\n\n[ABGESAGT] ${cancellationReason}`
+        }
+      }
+
+      toast.success(response.message || 'Urlaub abgesagt')
+      return true
+    } catch (error: any) {
+      console.error('Failed to cancel request:', error)
+      toast.error(error.data?.message || 'Fehler beim Absagen des Urlaubs')
+      return false
+    }
+  }
+
   // Computed Properties
   const getUserRequests = (userId: string) => {
     return computed(() => requests.value.filter(r => r.userId === userId))
@@ -148,6 +174,7 @@ export const useVacationRequests = () => {
     submitRequest,
     approveRequest,
     rejectRequest,
+    cancelRequest,
     getUserRequests,
     getApprovedUserRequests,
     getPendingTeamleadRequests,
