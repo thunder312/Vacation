@@ -259,26 +259,19 @@ PDFs enthalten:
 ## 🐛 Bekannte Einschränkungen
 
 - Mock-Daten (keine echte Datenbank)
-- Passwörter im Klartext
 - Keine E-Mail-Benachrichtigungen
 - Feiertags-Berechnung nur für Bayern
-- Kein Rollback bei Ablehnung
 
 ## 🔮 Geplante Features
 
-- [ ] Datenbank-Integration (sqlLite)
-- [ ] E-Mail-Benachrichtigungen
-- [ ] Kalender-Ansicht
-- [ ] Urlaubsvertretung
-- [ ] Kommentarfunktion bei Ablehnung
 
 ## 📝 Lizenz
 
-Proprietary - TecKonzept GmbH
+Proprietary
 
 ## 👨‍💻 Entwickler
 - Daniel Ertl
-- Entwickelt mit Claude (Anthropic) für TecKonzept
+- Entwickelt mit Claude (Anthropic)
 
 ---
 
