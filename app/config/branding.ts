@@ -11,9 +11,9 @@ export const branding = {
    * Firmenname
    */
   company: {
-    name: 'TecKonzept',
-    fullName: 'TecKonzept GmbH',
-    website: 'https://www.teckonzept.de'
+    name: 'Chaos Org.',
+    fullName: 'Chaos Organization',
+    website: 'https://chaos.org'
   },
 
   /**
@@ -22,10 +22,10 @@ export const branding = {
    */
   logo: {
     // Hauptlogo (mit transparentem Hintergrund)
-    main: '/Logo_TecKonzept_noBg.png',
+    main: '/Logo_ChaosOrg_noBg_yellow.png',
     
-    // Logo für PDFs (blau/dunkel)
-    pdf: '/Logo_TecKonzept_noBg_blue.png',
+    // Logo für PDFs (orange/dunkel)
+    pdf: '/Logo_ChaosOrg_noBg_yellow.png',
     
     // Favicon
     favicon: '/favicon.ico',
@@ -39,13 +39,13 @@ export const branding = {
    * Kontaktinformationen
    */
   contact: {
-    email: 'info@teckonzept.de',
-    phone: '+49 123 456789',
+    email: 'info@chaos.org',
+    phone: '+01 123 456789',
     address: {
-      street: 'Musterstraße 123',
+      street: 'Endless-Boulevard 123',
       zip: '12345',
-      city: 'Musterstadt',
-      country: 'Deutschland'
+      city: 'Generictown',
+      country: ''
     }
   },
 
@@ -53,10 +53,10 @@ export const branding = {
    * Anwendungsinformationen
    */
   app: {
-    name: 'Urlaubsverwaltung',
-    fullName: 'TecKonzept Urlaubsverwaltungssystem',
+    name: 'Vacation Org',
+    fullName: 'Vacation Organizer',
     version: '1.0.0',
-    description: 'Modernes Urlaubsverwaltungssystem'
+    description: 'A modern company vacation organizer'
   },
 
   /**
@@ -101,8 +101,8 @@ export const getFormattedAddress = () => {
  * 
  * // Firma A
  * export const branding = {
- *   company: { name: 'TecKonzept' },
- *   logo: { main: '/Logo_TecKonzept.png' }
+ *   company: { name: 'Chaos Org' },
+ *   logo: { main: '/Logo_ChaosOrg.png' }
  * }
  * 
  * // Firma B
