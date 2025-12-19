@@ -36,6 +36,17 @@
           </div>
         </div>
 
+        <!-- System-Admin -->
+        <div v-if="sysadminUser" class="org-node sysadmin">
+          <div class="node-header">
+            <div class="node-icon">🔧</div>
+            <div class="node-info">
+              <div class="node-name">{{ sysadminUser.displayName }}</div>
+              <div class="node-role">System-Admin</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Teamleads -->
         <div v-for="teamlead in teamleads" :key="teamlead.userId" class="teamlead-container">
           <div class="org-node teamlead">
@@ -187,6 +198,10 @@ const managers = computed(() => {
 // Office-User
 const officeUser = computed(() => {
   return orgNodes.value?.find(n => n.role === 'office')
+})
+
+const sysadminUser = computed(() => {
+  return orgNodes.value?.find(n => n.role === 'sysadmin')
 })
 
 // Alle Teams mit Info

@@ -70,34 +70,80 @@
 
     <!-- Bestehende Mitarbeiter -->
     <div class="users-list">
-      <h3>Bestehende Mitarbeiter ({{ activeUsers.length }})</h3>
+      <div class="section-header" @click="toggleUsersSection">
+        <h3>
+          <span class="toggle-icon">{{ showUsersSection ? '▼' : '▶' }}</span>
+          Bestehende Mitarbeiter ({{ activeUsers.length }})
+        </h3>
+      </div>
       
-      <div class="filters">
-        <label>
-          <input type="checkbox" v-model="showInactive" />
-          Deaktivierte anzeigen ({{ filteredUsers.length - activeUsers.length }})
-        </label>
-      </div>
+      <div v-show="showUsersSection" class="users-section-content">
+        <div class="filters-row">
+          <div class="search-filter">
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              placeholder="🔍 Nach Vor- oder Nachname suchen..."
+              class="search-input"
+            />
+          </div>
+          <div class="checkbox-filter">
+            <label>
+              <input type="checkbox" v-model="showInactive" />
+              Deaktivierte anzeigen ({{ inactiveUsersCount }})
+            </label>
+          </div>
+        </div>
 
-      <div v-if="filteredUsers.length === 0" class="empty-state">
-        Keine Mitarbeiter gefunden
-      </div>
+        <div v-if="filteredAndSearchedUsers.length === 0" class="empty-state">
+          Keine Mitarbeiter gefunden
+        </div>
 
-      <!-- Kompakte Tabellenansicht -->
-      <table v-else class="users-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Rolle</th>
-            <th>Urlaubstage</th>
-            <th>Teamleiter</th>
-            <th>Status</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="user in filteredUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
+        <!-- Kompakte Tabellenansicht -->
+        <table v-else class="users-table">
+          <thead>
+            <tr>
+              <th @click="sortBy('displayName')" class="sortable">
+                Name 
+                <span class="sort-indicator" :class="{ active: sortColumn === 'displayName' }">
+                  {{ sortColumn === 'displayName' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('username')" class="sortable">
+                Username
+                <span class="sort-indicator" :class="{ active: sortColumn === 'username' }">
+                  {{ sortColumn === 'username' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('role')" class="sortable">
+                Rolle
+                <span class="sort-indicator" :class="{ active: sortColumn === 'role' }">
+                  {{ sortColumn === 'role' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('vacationDays')" class="sortable">
+                Urlaubstage
+                <span class="sort-indicator" :class="{ active: sortColumn === 'vacationDays' }">
+                  {{ sortColumn === 'vacationDays' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('teamleadId')" class="sortable">
+                Teamleiter
+                <span class="sort-indicator" :class="{ active: sortColumn === 'teamleadId' }">
+                  {{ sortColumn === 'teamleadId' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th @click="sortBy('isActive')" class="sortable">
+                Status
+                <span class="sort-indicator" :class="{ active: sortColumn === 'isActive' }">
+                  {{ sortColumn === 'isActive' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
+                </span>
+              </th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in filteredAndSearchedUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
             <!-- Bearbeiten-Modus -->
             <template v-if="editingUser?.username === user.username">
               <td colspan="7" class="edit-cell">
@@ -191,6 +237,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 </template>
@@ -210,6 +257,23 @@ const newUser = ref({
 
 const editingUser = ref<any>(null)
 const showInactive = ref(false)
+const showUsersSection = ref(false)  // Standardmäßig eingeklappt
+const searchQuery = ref('')
+const sortColumn = ref<string>('displayName')
+const sortDirection = ref<'asc' | 'desc'>('asc')
+
+const toggleUsersSection = () => {
+  showUsersSection.value = !showUsersSection.value
+}
+
+const sortBy = (column: string) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortColumn.value = column
+    sortDirection.value = 'asc'
+  }
+}
 
 // Generiere sicheres Passwort
 const generatePassword = () => {
@@ -438,6 +502,67 @@ const filteredUsers = computed(() => {
   const filtered = showInactive.value ? (users.value || []) : activeUsers.value
   // admin immer ausblenden
   return filtered.filter((u: any) => u.username !== 'admin')
+})
+
+const inactiveUsersCount = computed(() => {
+  return (users.value || []).filter((u: any) => !u.isActive && u.username !== 'admin').length
+})
+
+const filteredAndSearchedUsers = computed(() => {
+  let result = [...filteredUsers.value]
+  
+  // Suche nach Vor- oder Nachname
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter((u: any) => {
+      const firstName = (u.firstName || '').toLowerCase()
+      const lastName = (u.lastName || '').toLowerCase()
+      const displayName = (u.displayName || '').toLowerCase()
+      return firstName.includes(query) || lastName.includes(query) || displayName.includes(query)
+    })
+  }
+  
+  // Sortierung
+  result.sort((a: any, b: any) => {
+    let aVal: any
+    let bVal: any
+    
+    switch (sortColumn.value) {
+      case 'displayName':
+        aVal = (a.displayName || '').toLowerCase()
+        bVal = (b.displayName || '').toLowerCase()
+        break
+      case 'username':
+        aVal = (a.username || '').toLowerCase()
+        bVal = (b.username || '').toLowerCase()
+        break
+      case 'role':
+        aVal = a.role || ''
+        bVal = b.role || ''
+        break
+      case 'vacationDays':
+        aVal = a.vacationDays || 0
+        bVal = b.vacationDays || 0
+        break
+      case 'teamleadId':
+        // Sortiere nach Teamleiter-Name
+        aVal = a.teamleadId ? getTeamleadName(a.teamleadId).toLowerCase() : 'zzz'
+        bVal = b.teamleadId ? getTeamleadName(b.teamleadId).toLowerCase() : 'zzz'
+        break
+      case 'isActive':
+        aVal = a.isActive ? 1 : 0
+        bVal = b.isActive ? 1 : 0
+        break
+      default:
+        return 0
+    }
+    
+    if (aVal < bVal) return sortDirection.value === 'asc' ? -1 : 1
+    if (aVal > bVal) return sortDirection.value === 'asc' ? 1 : -1
+    return 0
+  })
+  
+  return result
 })
 
 const teamleads = computed(() => {

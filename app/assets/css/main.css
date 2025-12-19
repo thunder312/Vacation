@@ -1509,6 +1509,13 @@ button {
     max-width: 100px;
 }
 
+.org-node.sysadmin {
+    background: #e0f2f1;
+    border-color: #00695c;
+    min-width: 100px;
+    max-width: 100px;
+}
+
 .node-header {
     display: flex;
     flex-direction: column;
@@ -2048,4 +2055,107 @@ button {
 
 .btn-cancel:hover {
   background: var(--color-gray-600);
+}
+
+/* User Management - Einklappbarer Bereich */
+.section-header {
+  cursor: pointer;
+  user-select: none;
+  padding: 10px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.section-header:hover {
+  background: var(--color-gray-50);
+}
+
+.toggle-icon {
+  display: inline-block;
+  width: 20px;
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+.users-section-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Filter und Suche */
+.filters-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-filter {
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.search-input:hover {
+  border-color: #9ca3af;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.checkbox-filter label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Sortierbare Spalten */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.sortable:hover {
+  background: var(--color-gray-50);
+}
+
+.sort-indicator {
+  font-size: 10px;
+  margin-left: 5px;
+  color: #d1d5db;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.sort-indicator.active {
+  color: var(--color-primary);
+  opacity: 1;
+  font-weight: bold;
 }
