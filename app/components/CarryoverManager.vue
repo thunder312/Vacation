@@ -11,7 +11,7 @@
       <form @submit.prevent="handleSetCarryover">
         <div class="form-row">
           <div class="form-group">
-            <label>Mitarbeiter (Nachname)</label>
+            <label>{{ t('roles.employee')}} ({{ t('users. {{ t('users.lastName') }}') }})</label>
             <input 
               v-model="newUserId" 
               type="text" 
@@ -20,7 +20,7 @@
             />
           </div>
           <div class="form-group">
-            <label>Übertrag ({{ t('common.days') }})</label>
+            <label>{{ t('vacation.carryover') }} ({{ t('common.days') }})</label>
             <input 
               v-model.number="newDays" 
               type="number" 

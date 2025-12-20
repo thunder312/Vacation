@@ -94,7 +94,7 @@
     <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Urlaub absagen</h2>
+          <h2> {{ t('vacation.cancel') }}</h2>
           <button @click="closeCancelModal" class="modal-close">✕</button>
         </div>
         
@@ -103,7 +103,7 @@
           
           <form @submit.prevent="confirmCancelRequest" class="cancel-form">
             <div class="form-group">
-              <label>Grund für die Absage (optional)</label>
+              <label> {{ t('vacation.cancelReason') }} (optional)</label>
               <textarea 
                 v-model="cancellationReason" 
                 rows="4"
@@ -117,7 +117,7 @@
                 {{ t('common.cancel') }}
               </button>
               <button type="submit" class="btn-danger">
-                Urlaub absagen
+                 {{ t('vacation.cancel') }}
               </button>
             </div>
           </form>
@@ -178,12 +178,12 @@
 
       <!-- Tab 2: Teamleiter (nur für teamleiter und chef) -->
       <div v-show="activeTab === 'teamlead'" class="tab-content">
-        <h2>Urlaubsanträge zur Genehmigung (Teamleiter)</h2>
+        <h2>Urlaubsanträge zur Genehmigung ( {{ t('users.teamlead') }})</h2>
 
         <div class="pdf-export-section">
           <h3>Team-Urlaube exportieren</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
-            📄 Team-PDF exportieren
+            📄  {{ t('vacation.exportTeamPdf') }}
           </button>
         </div>
 
@@ -210,7 +210,7 @@
         <div class="pdf-export-section">
           <h3>Alle Urlaube exportieren</h3>
           <button @click="handleExportAllVacations" class="btn-pdf">
-            📄 Alle Urlaube als PDF exportieren
+            📄  {{ t('vacation.exportAllPdf') }}
           </button>
         </div>
 
@@ -604,7 +604,7 @@ const visibleTabs = computed(() => {
     })
     tabs.push({
       id: 'carryover',
-      label: 'Übertrag',
+      label: t('vacation.carryover'),
       count: 0
     })
     tabs.push({
@@ -629,7 +629,7 @@ const visibleTabs = computed(() => {
       { id: 'teamlead', label: 'Teamleiter-Ansicht', count: 0 },
       { id: 'manager', label: 'Manager-Ansicht', count: 0 },
       { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
-      { id: 'carryover', label: 'Übertrag', count: 0 },
+      { id: 'carryover', label: t('vacation.carryover'), count: 0 },
       { id: 'organization', label: t('nav.organization'), count: 0 }
     ]
   }

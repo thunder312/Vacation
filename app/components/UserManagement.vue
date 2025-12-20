@@ -4,38 +4,38 @@
 
     <!-- Neuen Mitarbeiter hinzufügen -->
     <div class="add-user-section">
-      <h3>Neuen Mitarbeiter hinzufügen</h3>
+      <h3>t('users.addUser')</h3>
       <form @submit.prevent="handleAddUser" class="user-form">
         <div class="form-row">
           <div class="form-group">
-            <label>Nachname *</label>
+            <label> {{ t('users.lastName') }} *</label>
             <input v-model="newUser.lastName" type="text" required />
           </div>
           <div class="form-group">
-            <label>Vorname *</label>
+            <label> {{ t('users.firstName') }} *</label>
             <input v-model="newUser.firstName" type="text" required />
           </div>
         </div>
 
         <!-- Username Preview -->
         <div v-if="previewUsername" class="username-preview">
-          <strong>Generierter Benutzername:</strong> {{ previewUsername }}
+          <strong>{{ t('users.generated') }}  {{ t('users.username') }}:</strong> {{ previewUsername }}
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Rolle *</label>
+            <label> {{ t('users.role') }} *</label>
             <select v-model="newUser.role" required>
-              <option value="">Bitte wählen...</option>
+              <option value=""> {{ t('users.roleSelect') }}</option>
               <option value="employee">{{ t('roles.employee') }}</option>
-              <option value="teamlead">Teamleiter</option>
+              <option value="teamlead"> {{ t('users.teamlead') }}</option>
               <option value="office">Office</option>
               <option value="sysadmin">System-Admin</option>
             </select>
           </div>
 
           <div v-if="newUser.role === 'employee'" class="form-group">
-            <label>Teamleiter</label>
+            <label> {{ t('users.teamlead') }}</label>
             <select v-model="newUser.teamleadId">
               <option value="">Keiner</option>
               <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
@@ -64,7 +64,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary">Mitarbeiter hinzufügen</button>
+        <button type="submit" class="btn-primary"> {{ t('users.addUser') }}</button>
       </form>
     </div>
 
@@ -116,7 +116,7 @@
                 </span>
               </th>
               <th @click="sortBy('role')" class="sortable">
-                Rolle
+                 {{ t('users.role') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'role' }">
                   {{ sortColumn === 'role' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
@@ -128,7 +128,7 @@
                 </span>
               </th>
               <th @click="sortBy('teamleadId')" class="sortable">
-                Teamleiter
+                 {{ t('users.teamlead') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'teamleadId' }">
                   {{ sortColumn === 'teamleadId' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
@@ -152,10 +152,10 @@
                     <strong>{{ user.displayName }}</strong>
                   </div>
                   <div class="edit-group">
-                    <label>Rolle:</label>
+                    <label> {{ t('users.role') }}:</label>
                     <select v-model="editingUser.role">
                       <option value="employee">{{ t('roles.employee') }}</option>
-                      <option value="teamlead">Teamleiter</option>
+                      <option value="teamlead"> {{ t('users.teamlead') }}</option>
                       <option value="office">Office</option>
                       <option value="sysadmin">System-Admin</option>
                     </select>
@@ -165,7 +165,7 @@
                     <input v-model.number="editingUser.vacationDays" type="number" min="0" max="50" />
                   </div>
                   <div v-if="editingUser.role === 'employee'" class="edit-group">
-                    <label>Teamleiter:</label>
+                    <label> {{ t('users.teamlead') }}:</label>
                     <select v-model="editingUser.teamleadId">
                       <option value="">Keiner</option>
                       <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
@@ -196,7 +196,7 @@
               <td class="center">{{ user.vacationDays }} {{ t('common.days') }}</td>
               <td>{{ user.teamleadId ? getTeamleadName(user.teamleadId) : '—' }}</td>
               <td class="center">
-                <span v-if="user.isActive" class="status-active">✓ Aktiv</span>
+                <span v-if="user.isActive" class="status-active">✓ {{ t('status.active') }}</span>
                 <span v-else class="status-inactive">○ Inaktiv</span>
               </td>
               <td class="actions-cell">
@@ -363,7 +363,7 @@ const generateLoginPDF = async (userInfo: any) => {
   
   // Username
   doc.setFont('helvetica', 'bold')
-  doc.text('Benutzername:', 30, y)
+  doc.text( t('users.username') + ':', 30, y)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(14)
   doc.text(userInfo.username, 80, y)
@@ -407,7 +407,7 @@ const generateLoginPDF = async (userInfo: any) => {
     y += 10
     const teamlead = teamleads.value.find((tl: any) => tl.username === userInfo.teamleadId)
     doc.setFont('helvetica', 'bold')
-    doc.text('Ihr Teamleiter:', 30, y)
+    doc.text(Ihr  {{ t('users.yourTeamlead') }} + ':', 30, y)
     doc.setFont('helvetica', 'normal')
     doc.text(teamlead?.displayName || userInfo.teamleadId, 80, y)
   }

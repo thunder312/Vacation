@@ -78,10 +78,10 @@ export const usePdfExport = () => {
             doc.setFont('arial', 'normal')
             
             if (balance.carryoverDays > 0) {
-                doc.text(`Standard: ${balance.standardDays} {{ t('common.days') }} | Übertrag: ${balance.carryoverDays} {{ t('common.days') }} | Gesamt: ${balance.totalDays} {{ t('common.days') }}`, 14, 51)
+                doc.text(`{{ t('vacation.standard') }}: ${balance.standardDays} {{ t('common.days') }} | {{ t('vacation.carryover') }}: ${balance.carryoverDays} {{ t('common.days') }} | {{ t('vacation.totalDays') }}: ${balance.totalDays} {{ t('common.days') }}`, 14, 51)
                 doc.text(`Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 57)
             } else {
-                doc.text(`Gesamt: ${balance.totalDays} {{ t('common.days') }} | Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 51)
+                doc.text(`{{ t('vacation.totalDays') }}: ${balance.totalDays} {{ t('common.days') }} | Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 51)
             }
 
             // Nach Startdatum sortieren
@@ -122,7 +122,7 @@ export const usePdfExport = () => {
             const pdfUrl = URL.createObjectURL(pdfBlob)
             window.open(pdfUrl, '_blank')
 
-            toast.success('PDF erfolgreich erstellt!')
+            toast.success( t('vacation.pdfCreated'))
         } catch (error) {
             console.error('Fehler beim PDF-Export:', error)
             toast.error('Fehler beim PDF-Export')

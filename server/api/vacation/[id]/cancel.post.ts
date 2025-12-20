@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: `Urlaub abgesagt. ${daysToRefund} Tage zurückgebucht.`,
+      message: ` t('vacation.requestCancelled'). ${daysToRefund} Tage zurückgebucht.`,
       daysRefunded: daysToRefund
     }
 

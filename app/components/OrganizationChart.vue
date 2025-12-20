@@ -66,7 +66,7 @@
               <div class="node-icon">👥</div>
               <div class="node-info">
                 <div class="node-name">{{ teamlead.displayName }}</div>
-                <div class="node-role">Teamleiter</div>
+                <div class="node-role"> {{ t('users.teamlead') }}</div>
               </div>
             </div>
             <div class="node-actions">
@@ -157,9 +157,9 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Teamleiter</label>
+            <label> {{ t('users.teamlead') }}</label>
             <select v-model="selectedTeamlead">
-              <option value="">Teamleiter wählen...</option>
+              <option value=""> {{ t('users.teamleadSelect') }} wählen...</option>
               <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
                 {{ tl.displayName }}
               </option>
@@ -404,7 +404,7 @@ const exportTeamOverview = () => {
       
       autoTable(doc, {
         startY: currentY,
-        head: [['Name', 'Username', 'Rolle']],
+        head: [[t('users.name'), t('users.username'), t('users.role')]],
         body: teamData,
         theme: 'grid',
         headStyles: { fillColor: [102, 126, 234] },
@@ -440,7 +440,7 @@ const exportTeamOverview = () => {
       
       autoTable(doc, {
         startY: currentY,
-        head: [['Name', 'Username', 'Rolle']],
+        head: [[t('users.name'), t('users.username'), t('users.role')]],
         body: unassignedData,
         theme: 'grid',
         headStyles: { fillColor: [239, 68, 68] },

@@ -53,7 +53,7 @@ export const icons = {
    * Status-Icons
    */
   status: {
-    active: '✓',        // Aktiv
+    active: '✓',        // {{ t('status.active') }}
     inactive: '○',      // Inaktiv
     approved: '✓✓',     // Vollständig genehmigt
     pending: '⏳',      // Ausstehend

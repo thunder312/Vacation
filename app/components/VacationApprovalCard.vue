@@ -26,17 +26,17 @@
 
     <div v-if="canApprove" class="approval-actions">
       <button @click="emit('approve', request.id, approvalLevel || 'teamlead')" class="approve-btn">
-        ✓ Genehmigen
+        ✓ {{ t('vacation.approve') }}
       </button>
       <button @click="emit('reject', request.id)" class="reject-btn">
-        ✗ Ablehnen
+        ✗  {{ t('vacation.reject') }}
       </button>
     </div>
 
     <!-- Absagen Button für genehmigte Urlaube (nur Manager) -->
     <div v-if="canCancel" class="approval-actions">
       <button @click="emit('cancel', request.id)" class="cancel-btn">
-        🚫 Urlaub absagen
+        🚫  {{ t('vacation.cancel') }}
       </button>
     </div>
   </div>

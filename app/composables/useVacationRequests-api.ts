@@ -38,7 +38,7 @@ export const useVacationRequests = () => {
 
       // Lokale Liste aktualisieren
       requests.value.push(newRequest)
-      toast.success('Urlaubsantrag erfolgreich eingereicht')
+      toast.success(' {{ t('vacation.requestSubmitted') }}')
       
       return newRequest
     } catch (error) {
@@ -92,7 +92,7 @@ export const useVacationRequests = () => {
         request.status = 'rejected'
       }
 
-      toast.success('Urlaubsantrag abgelehnt')
+      toast.success( t('vacation.requestRejected'))
       return true
     } catch (error) {
       console.error('Failed to reject request:', error)

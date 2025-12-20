@@ -136,11 +136,15 @@ export const de = {
     // Formular
     firstName: 'Vorname',
     lastName: 'Nachname',
+      generated: 'Generierter',
     username: 'Benutzername',
     role: 'Rolle',
+      yourRole: 'Ihre Rolle',
     roleSelect: 'Bitte wählen...',
     teamlead: 'Teamleiter',
     teamleadSelect: 'Teamleiter wählen...',
+      yourTeamlead: 'Ihr Teamleiter',
+      // ########################################
     password: 'Passwort',
     vacationDays: 'Urlaubstage',
     vacationDaysPerYear: 'Urlaubstage pro Jahr',

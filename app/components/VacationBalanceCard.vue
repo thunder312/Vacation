@@ -9,7 +9,7 @@
 
     <div class="balance-overview">
       <div class="balance-item total">
-        <div class="balance-label">Gesamt</div>
+        <div class="balance-label">{{ t('vacation.totalDays') }}</div>
         <div class="balance-value">{{ balance.totalDays }}</div>
         <div class="balance-unit">{{ t('common.days') }}</div>
         <div v-if="balance.carryoverDays > 0" class="balance-breakdown">

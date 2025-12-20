@@ -43,21 +43,21 @@ export const calculateWorkdays = (start: string, end: string, halfDayDates: stri
 
 export const getStatusText = (status: string): string => {
     const statusMap: Record<string, string> = {
-        pending: 'Ausstehend',
-        teamlead_approved: 'Teamlead genehmigt',
-        approved: 'Genehmigt',
-        rejected: 'Abgelehnt',
-        cancelled: 'Abgesagt'
+        pending: t('status.pending'),
+        teamlead_approved: t('status.teamleadApproved'),
+        approved: t('status.approved'),
+        rejected: t('status.rejected'),
+        cancelled: t('status.cancelled')
     }
     return statusMap[status] || status
 }
 
 export const getStatusTextWithIcon = (status: string): string => {
     const statusMap: Record<string, string> = {
-        pending: 'Ausstehend',
+        pending: t('status.pending'),
         teamlead_approved: 'Teamlead ✓',
         approved: 'Genehmigt ✓✓',
-        rejected: 'Abgelehnt',
+        rejected: t('status.rejected'),
         cancelled: '🚫 Abgesagt'
     }
     return statusMap[status] || status

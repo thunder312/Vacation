@@ -7,7 +7,7 @@
 
     <!-- Formular zum Hinzufügen (nur für Manager) -->
     <div v-if="isEditable" class="add-rule-form">
-      <h3>Neuen Halbtag hinzufügen</h3>
+      <h3>{{ t('vacation.addHalfDay') }}</h3>
       <form @submit.prevent="handleAddRule">
         <div class="form-row">
           <div class="form-group">
@@ -15,7 +15,7 @@
             <input v-model="newDate" type="date" required />
           </div>
           <div class="form-group">
-            <label>Beschreibung</label>
+            <label>t('vacation.halfDayDescription')</label>
             <input 
               v-model="newDescription" 
               type="text" 
