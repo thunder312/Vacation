@@ -10,11 +10,6 @@
         <!-- Language Switcher -->
         <LanguageSwitcher />
         
-        <!-- About Button -->
-        <button @click="showAbout = true" class="header-btn about-btn" title="Über diese Software">
-          ℹ️
-        </button>
-        
         <!-- User Dropdown Menu -->
         <div class="user-dropdown">
           <button @click="toggleUserMenu" class="user-menu-btn">
@@ -25,8 +20,11 @@
             <button @click="openPasswordModal" class="dropdown-item">
               🔑 Passwort ändern
             </button>
+            <button @click="openAboutModal" class="dropdown-item">
+              ℹ️ Über
+            </button>
             <button @click="handleLogout" class="dropdown-item logout">
-              🚪 {{ t('nav.logout') }}
+              🚪 Abmelden
             </button>
           </div>
         </div>
@@ -338,6 +336,11 @@ const showUserMenu = ref(false)
 const showAbout = ref(false)
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
+}
+
+const openAboutModal = () => {
+  showUserMenu.value = false
+  showAbout.value = true
 }
 
 // Passwort ändern Modal

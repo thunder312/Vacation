@@ -334,7 +334,7 @@ const exportOrgChart = async () => {
     
     // Titel
     doc.setFontSize(18)
-    doc.text(`{{ t('nav.organization') }} - ${branding.company.name}`, 20, 25)
+    doc.text(t('nav.organization')  + `- ${branding.company.name}`, 20, 25)
     
     doc.setFontSize(11)
     doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 35)

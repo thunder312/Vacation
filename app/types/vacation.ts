@@ -10,7 +10,7 @@ export interface VacationRequest {
     managerApprovalDate?: string
 }
 
-export type UserRole = 'employee' | 'teamlead' | 'manager' | 'office'
+export type UserRole = 'employee' | 'teamlead' | 'manager' | 'office' | 'sysadmin'
 
 export interface User {
     username: string // Nachname (Login-Name) oder admin/office
