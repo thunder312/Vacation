@@ -52,6 +52,7 @@ export interface OrgNode {
     role: UserRole
     managerId?: string // ID des Vorgesetzten
     teamId?: string // ID des Teamleiters (für employees)
+    username: string
 }
 
 export interface Team {

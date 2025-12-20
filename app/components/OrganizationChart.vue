@@ -159,7 +159,7 @@
           <div class="form-group">
             <label> {{ t('users.teamlead') }}</label>
             <select v-model="selectedTeamlead">
-              <option value=""> {{ t('users.teamleadSelect') }} wählen...</option>
+              <option value=""> {{ t('users.teamleadSelect') }}</option>
               <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
                 {{ tl.displayName }}
               </option>
@@ -251,10 +251,6 @@ const isEditable = computed(() => {
 const getDisplayName = (userId: string) => {
   const node = orgNodes.value?.find(n => n.userId === userId)
   return node?.displayName || userId
-}
-
-const handleAssign = async (userId: string, teamleadId: string) => {
-  await assignToTeam(userId, teamleadId)
 }
 
 const handleRemove = async (userId: string) => {
@@ -450,7 +446,7 @@ const exportTeamOverview = () => {
     }
     
     // Seitenzahlen
-    const pageCount = doc.internal.getNumberOfPages()
+    const pageCount = (doc as any).internal.getNumberOfPages()
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i)
       doc.setFontSize(9)

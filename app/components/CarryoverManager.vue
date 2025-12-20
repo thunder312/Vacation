@@ -11,7 +11,7 @@
       <form @submit.prevent="handleSetCarryover">
         <div class="form-row">
           <div class="form-group">
-            <label>{{ t('roles.employee') }} + ': ' + {{ t('users.lastName') }})</label>
+            <label>{{ t('roles.employee') }} - {{ t('users.lastName') }}</label>
             <input 
               v-model="newUserId" 
               type="text" 
