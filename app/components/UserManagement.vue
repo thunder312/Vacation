@@ -73,7 +73,7 @@
       <div class="section-header" @click="toggleUsersSection">
         <h3>
           <span class="toggle-icon">{{ showUsersSection ? '▼' : '▶' }}</span>
-          Bestehende Mitarbeiter ({{ activeUsers.length }})
+          Bestehende Mitarbeiter bearbeiten ({{ activeUsers.length }})
         </h3>
       </div>
       
@@ -241,7 +241,9 @@
     </div>
 
     <!-- Jahreswechsel Panel -->
-    <!--YearTransitionPanel /-->
+    <div class="users-list">
+      <YearTransitionPanel />
+    </div>
   </div>
 </template>
 
