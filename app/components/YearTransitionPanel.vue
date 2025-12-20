@@ -226,7 +226,7 @@
                 </button>
                 <button 
                   v-if="!user.isActive"
-                  @click="toggleUserStatus(user.username, true)"
+                  @click="toggleUserStatus(user.username, true)" 
                   class="btn-icon btn-success"
                   title="Aktivieren"
                 >
@@ -241,13 +241,12 @@
     </div>
 
     <!-- Jahreswechsel Panel -->
-    <!--YearTransitionPanel /-->
+    <YearTransitionPanel />
   </div>
 </template>
 
 <script setup lang="ts">
 const toast = useToast()
-const { t } = useI18n()
 
 // State
 const newUser = ref({

@@ -15,7 +15,7 @@
 
       <div class="form-group">
         <label>Grund / Bemerkung</label>
-        <textarea v-model="reason" rows="3" placeholder="{{ t('common.optional') }}"></textarea>
+        <textarea v-model="reason" rows="3" :placeholder="t('common.optional')"></textarea>
       </div>
 
       <button type="submit" class="submit-btn">Antrag einreichen</button>
