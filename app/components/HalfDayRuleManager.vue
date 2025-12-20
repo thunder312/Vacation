@@ -46,7 +46,7 @@
             v-if="isEditable"
             @click="handleRemoveRule(rule.id)" 
             class="delete-btn" 
-            title="Löschen"
+            title="{{ t('common.delete') }}"
           >
             🗑️
           </button>

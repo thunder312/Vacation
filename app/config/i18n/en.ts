@@ -258,5 +258,17 @@ export const en: Translation = {
     logoutMessage: 'Do you really want to logout?',
     resetPasswordTitle: 'Reset Password',
     resetPasswordMessage: 'Reset password for {name}?'
+  },
+
+  // About Dialog
+  about: {
+    title: '{appName}',
+    version: 'Version {version}',
+    developedBy: 'Developed by',
+    leadDeveloper: 'Lead Developer',
+    aiAssistant: 'AI Assistant by Anthropic',
+    techStack: 'Technology Stack',
+    copyright: '© {year} {company}',
+    madeWith: 'Made with ❤️ in Germany'
   }
 }

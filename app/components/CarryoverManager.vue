@@ -61,7 +61,7 @@
             v-if="isEditable"
             @click="handleRemoveCarryover(carryover.userId, carryover.year)" 
             class="delete-btn" 
-            title="Löschen"
+            title="{{ t('common.delete') }}"
           >
             🗑️
           </button>

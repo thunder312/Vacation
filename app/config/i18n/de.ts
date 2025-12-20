@@ -46,7 +46,7 @@ export const de = {
 
   // Login
   login: {
-    title: 'Login',
+    title: 'Anmelden',
     username: 'Benutzername',
     password: 'Passwort',
     usernamePlaceholder: 'Benutzername eingeben',
@@ -256,6 +256,18 @@ export const de = {
     logoutMessage: 'Möchten Sie sich wirklich abmelden?',
     resetPasswordTitle: 'Passwort zurücksetzen',
     resetPasswordMessage: 'Passwort für {name} zurücksetzen?'
+  },
+
+  // About Dialog
+  about: {
+    title: '{appName}',
+    version: 'Version {version}',
+    developedBy: 'Entwickelt von',
+    leadDeveloper: 'Lead Developer',
+    aiAssistant: 'AI Assistant by Anthropic',
+    techStack: 'Technologie-Stack',
+    copyright: '© {year} {company}',
+    madeWith: 'Erstellt mit ❤️ in Deutschland'
   }
 }
 

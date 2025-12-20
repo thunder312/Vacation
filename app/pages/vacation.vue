@@ -33,9 +33,6 @@
       </div>
     </div>
 
-    <!-- About Modal -->
-    <AboutModal v-model="showAbout" />
-
     <!-- Passwort ändern Modal -->
     <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
       <div class="modal-content">
@@ -83,7 +80,7 @@
           
           <div class="modal-actions">
             <button type="button" @click="closePasswordModal" class="btn-secondary">
-              Abbrechen
+              {{ t('common.cancel') }}
             </button>
             <button type="submit" class="btn-primary">
               Passwort ändern
@@ -117,7 +114,7 @@
             
             <div class="modal-actions">
               <button type="button" @click="closeCancelModal" class="btn-secondary">
-                Abbrechen
+                {{ t('common.cancel') }}
               </button>
               <button type="submit" class="btn-danger">
                 Urlaub absagen
@@ -284,6 +281,9 @@
         />
       </div>
     </div>
+
+    <!-- About Modal -->
+    <AboutModal v-model="showAbout" />
   </div>
 </template>
 

@@ -1,12 +1,24 @@
+<!-- BEISPIEL: login.vue mit i18n -->
+
 <template>
   <div class="login-container">
     <div class="login-wrapper">
       <img :src="branding.logo.main" :alt="`${branding.company.name} logo`" class="login-logo" />
       <div class="login-box">
+        <!-- VORHER: Hardcoded -->
+        <!-- <h1>Login</h1> -->
+        
+        <!-- NACHHER: Mit i18n -->
         <h1>{{ t('login.title') }}</h1>
+        
         <form @submit.prevent="handleLogin">
           <div class="form-group">
+            <!-- VORHER: -->
+            <!-- <label for="username">Benutzername</label> -->
+            
+            <!-- NACHHER: -->
             <label for="username">{{ t('login.username') }}</label>
+            
             <input
                 id="username"
                 v-model="username"
@@ -29,13 +41,9 @@
             />
           </div>
 
-          <button type="submit" class="btn-primary" :disabled="pending">
+          <button type="submit" :disabled="pending" class="btn-primary">
             {{ pending ? t('common.loading') : t('login.loginButton') }}
           </button>
-
-          <p v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </p>
         </form>
       </div>
     </div>
@@ -44,8 +52,7 @@
 
 <script setup lang="ts">
 import { branding } from '~/config/branding'
-const { t } = useI18n()
-const { login } = useAuth()
+const { t } = useI18n()  // ← WICHTIG: i18n verwenden
 
 const username = ref('')
 const password = ref('')
@@ -55,24 +62,25 @@ const pending = ref(false)
 
 const handleLogin = async () => {
   pending.value = true
-  hasError.value = false
-  errorMessage.value = ''
-
-  try {
-    const success = await login(username.value, password.value)
-    
-    if (success) {
-      await navigateTo('/vacation', { replace: true })
-    } else {
-      hasError.value = true
-      errorMessage.value = 'Benutzername oder Passwort falsch'
-    }
-  } catch (err) {
-    hasError.value = true
-    errorMessage.value = 'Ein Fehler ist aufgetreten'
-    console.error('Login error:', err)
-  } finally {
-    pending.value = false
-  }
+  // ... login logic
 }
 </script>
+
+<!-- 
+ERGEBNIS:
+
+Wenn Sprache = DE:
+- Login
+- Benutzername
+- Benutzername eingeben
+
+Wenn Sprache = EN:
+- Login
+- Username
+- Enter username
+
+Wenn Sprache = PT-BR:
+- Login
+- Nome de usuário
+- Digite o nome de usuário
+-->

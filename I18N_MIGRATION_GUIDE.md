@@ -35,7 +35,7 @@ app/
 ```vue
 <template>
   <h1>Urlaubsverwaltung</h1>
-  <button>Speichern</button>
+  <button>{{ t('save') }}</button>
   <p>{{ user.vacationDays }} Tage</p>
 </template>
 ```

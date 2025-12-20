@@ -174,8 +174,8 @@
                     </select>
                   </div>
                   <div class="edit-actions">
-                    <button @click="saveEdit" class="btn-save">💾 Speichern</button>
-                    <button @click="cancelEdit" class="btn-cancel">❌ Abbrechen</button>
+                    <button @click="saveEdit" class="btn-save">💾 {{ t('save') }}</button>
+                    <button @click="cancelEdit" class="btn-cancel">❌ {{ t('common.cancel') }}</button>
                   </div>
                 </div>
               </td>

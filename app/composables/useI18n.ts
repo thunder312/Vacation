@@ -1,17 +1,35 @@
 // app/composables/useI18n.ts
 import { de } from '~/config/i18n/de'
 import { en } from '~/config/i18n/en'
+import { ptBr } from '~/config/i18n/pt-br'
 
-type Locale = 'de' | 'en'
+type Locale = 'de' | 'en' | 'pt-br'
 
-const translations = { de, en }
+const translations = { de, en, 'pt-br': ptBr }
 
 /**
  * i18n Composable für mehrsprachige Unterstützung
  */
 export const useI18n = () => {
-  // Aktuelle Sprache (reactive)
-  const locale = useState<Locale>('locale', () => 'de')
+  // Aktuelle Sprache (reactive, global state)
+  const locale = useState<Locale>('app-locale', () => {
+    // Initial von localStorage laden
+    if (import.meta.client) {
+      const saved = localStorage.getItem('app-locale') as Locale
+      if (saved && (saved === 'de' || saved === 'en' || saved === 'pt-br')) {
+        return saved
+      }
+    }
+    return 'de'
+  })
+  
+  // Watch für automatisches Speichern bei Änderung (nur client-side)
+  if (import.meta.client) {
+    watchEffect(() => {
+      localStorage.setItem('app-locale', locale.value)
+      console.log('✅ Language changed to:', locale.value)
+    })
+  }
   
   /**
    * Übersetzung holen
@@ -45,11 +63,8 @@ export const useI18n = () => {
    * Sprache wechseln
    */
   const setLocale = (newLocale: Locale) => {
+    console.log('🌍 Switching language to:', newLocale)
     locale.value = newLocale
-    // Sprache in localStorage speichern
-    if (process.client) {
-      localStorage.setItem('locale', newLocale)
-    }
   }
   
   /**
@@ -57,27 +72,15 @@ export const useI18n = () => {
    */
   const availableLocales: { code: Locale; name: string; flag: string }[] = [
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'en', name: 'English', flag: '🇬🇧' }
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'pt-br', name: 'Português (BR)', flag: '🇧🇷' }
   ]
-  
-  /**
-   * Sprache beim Start laden
-   */
-  const initLocale = () => {
-    if (process.client) {
-      const savedLocale = localStorage.getItem('locale') as Locale
-      if (savedLocale && (savedLocale === 'de' || savedLocale === 'en')) {
-        locale.value = savedLocale
-      }
-    }
-  }
   
   return {
     t,
     locale: readonly(locale),
     setLocale,
-    availableLocales,
-    initLocale
+    availableLocales
   }
 }
 
