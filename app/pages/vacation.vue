@@ -26,7 +26,7 @@
               🔑 Passwort ändern
             </button>
             <button @click="handleLogout" class="dropdown-item logout">
-              🚪 Abmelden
+              🚪 {{ t('nav.logout') }}
             </button>
           </div>
         </div>
@@ -291,6 +291,8 @@
 import { calculateWorkdays } from '~/utils/dateHelpers'
 
 // KEINE Middleware - Auth-Check ist in onMounted
+
+const { t } = useI18n()
 
 // Auth
 const { currentUser, isAuthenticated, logout, initAuth } = useAuth()
@@ -584,7 +586,7 @@ const visibleTabs = computed(() => {
   if (currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager') {
     tabs.push({
       id: 'teamlead',
-      label: 'Teamleiter',
+      label: t('roles.teamlead'),
       count: pendingTeamleadRequests.value.length
     })
   }
@@ -592,7 +594,7 @@ const visibleTabs = computed(() => {
   if (currentUser.value?.role === 'manager') {
     tabs.push({
       id: 'manager',
-      label: 'Manager',
+      label: t('roles.manager'),
       count: pendingManagerRequests.value.length
     })
     tabs.push({
@@ -615,7 +617,7 @@ const visibleTabs = computed(() => {
   // Organigramm für alle (readonly für nicht-Manager)
   tabs.push({
     id: 'organization',
-    label: 'Organigramm',
+    label: t('nav.organization'),
     count: 0
   })
 
@@ -628,7 +630,7 @@ const visibleTabs = computed(() => {
       { id: 'manager', label: 'Manager-Ansicht', count: 0 },
       { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
       { id: 'carryover', label: 'Übertrag', count: 0 },
-      { id: 'organization', label: 'Organigramm', count: 0 }
+      { id: 'organization', label: t('nav.organization'), count: 0 }
     ]
   }
 

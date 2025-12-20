@@ -11,7 +11,7 @@
       <form @submit.prevent="handleAddRule">
         <div class="form-row">
           <div class="form-group">
-            <label>Datum</label>
+            <label>{{ t('common.date') }}</label>
             <input v-model="newDate" type="date" required />
           </div>
           <div class="form-group">
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/dateHelpers'
 
+const { t } = useI18n()
 const { addHalfDayRule, removeHalfDayRule, halfDayRules } = useHalfDayRules()
 const { currentUser } = useAuth()
 

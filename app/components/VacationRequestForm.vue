@@ -4,18 +4,18 @@
     <form @submit.prevent="handleSubmit" class="request-form">
       <div class="form-row">
         <div class="form-group">
-          <label>Von</label>
+          <label>{{ t('common.from') }}</label>
           <input v-model="startDate" type="date" required />
         </div>
         <div class="form-group">
-          <label>Bis</label>
+          <label>{{ t('common.to') }}</label>
           <input v-model="endDate" type="date" required />
         </div>
       </div>
 
       <div class="form-group">
         <label>Grund / Bemerkung</label>
-        <textarea v-model="reason" rows="3" placeholder="Optional"></textarea>
+        <textarea v-model="reason" rows="3" placeholder="{{ t('common.optional') }}"></textarea>
       </div>
 
       <button type="submit" class="submit-btn">Antrag einreichen</button>
@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const emit = defineEmits<{
   submit: [formData: { startDate: string; endDate: string; reason: string }]
 }>()

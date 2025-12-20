@@ -11,7 +11,7 @@
         </div>
       </div>
       <div v-if="node.role === 'teamlead' && editable" class="node-actions">
-        <small>{{ childCount }} Mitarbeiter</small>
+        <small>{{ childCount }} {{ t('roles.employee') }}</small>
       </div>
     </div>
 
@@ -57,10 +57,10 @@ const roleIcon = computed(() => {
 
 const roleLabel = computed(() => {
   switch (props.node.role) {
-    case 'manager': return 'Manager'
-    case 'teamlead': return 'Teamleiter'
-    case 'employee': return 'Mitarbeiter'
-    case 'office': return 'Office'
+    case 'manager': return {{ t('roles.manager') }}
+    case 'teamlead': return {{ t('roles.teamlead') }}
+    case 'employee': return {{ t('roles.employee') }}
+    case 'office': return {{ t('roles.office') }}
     default: return props.node.role
   }
 })

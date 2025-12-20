@@ -28,6 +28,6 @@ halfDays.forEach(h => console.log(`  - ${h.date}: ${h.description}`))
 // Carryover
 const carryover = db.prepare('SELECT userId, year, carryoverDays FROM carryover').all()
 console.log('\n📊 CARRYOVER:', carryover.length)
-carryover.forEach(c => console.log(`  - ${c.userId} (${c.year}): ${c.carryoverDays} Tage`))
+carryover.forEach(c => console.log(`  - ${c.userId} (${c.year}): ${c.carryoverDays} {{ t('common.days') }}`))
 
 console.log('\n✅ Fertig!\n')

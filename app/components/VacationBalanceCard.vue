@@ -11,7 +11,7 @@
       <div class="balance-item total">
         <div class="balance-label">Gesamt</div>
         <div class="balance-value">{{ balance.totalDays }}</div>
-        <div class="balance-unit">Tage</div>
+        <div class="balance-unit">{{ t('common.days') }}</div>
         <div v-if="balance.carryoverDays > 0" class="balance-breakdown">
           {{ balance.standardDays }} + {{ balance.carryoverDays }}
         </div>
@@ -22,7 +22,7 @@
       <div class="balance-item used">
         <div class="balance-label">Genommen</div>
         <div class="balance-value">{{ balance.usedDays }}</div>
-        <div class="balance-unit">Tage</div>
+        <div class="balance-unit">{{ t('common.days') }}</div>
       </div>
 
       <div class="balance-separator">=</div>
@@ -30,7 +30,7 @@
       <div class="balance-item remaining" :class="{ warning: balance.remainingDays < 5, critical: balance.remainingDays < 0 }">
         <div class="balance-label">Verbleibend</div>
         <div class="balance-value">{{ balance.remainingDays }}</div>
-        <div class="balance-unit">Tage</div>
+        <div class="balance-unit">{{ t('common.days') }}</div>
       </div>
     </div>
 
@@ -59,6 +59,8 @@
 
 <script setup lang="ts">
 import type { VacationBalance } from '~/types/vacation'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   balance: VacationBalance

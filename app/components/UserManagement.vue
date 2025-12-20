@@ -27,7 +27,7 @@
             <label>Rolle *</label>
             <select v-model="newUser.role" required>
               <option value="">Bitte wählen...</option>
-              <option value="employee">Mitarbeiter</option>
+              <option value="employee">{{ t('roles.employee') }}</option>
               <option value="teamlead">Teamleiter</option>
               <option value="office">Office</option>
               <option value="sysadmin">System-Admin</option>
@@ -73,7 +73,7 @@
       <div class="section-header" @click="toggleUsersSection">
         <h3>
           <span class="toggle-icon">{{ showUsersSection ? '▼' : '▶' }}</span>
-          Bestehende Mitarbeiter ({{ activeUsers.length }})
+          Bestehende {{ t('roles.employee') }} ({{ activeUsers.length }})
         </h3>
       </div>
       
@@ -139,7 +139,7 @@
                   {{ sortColumn === 'isActive' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
-              <th>Aktionen</th>
+              <th>{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -154,7 +154,7 @@
                   <div class="edit-group">
                     <label>Rolle:</label>
                     <select v-model="editingUser.role">
-                      <option value="employee">Mitarbeiter</option>
+                      <option value="employee">{{ t('roles.employee') }}</option>
                       <option value="teamlead">Teamleiter</option>
                       <option value="office">Office</option>
                       <option value="sysadmin">System-Admin</option>
@@ -193,7 +193,7 @@
                   {{ getRoleLabel(user.role) }}
                 </span>
               </td>
-              <td class="center">{{ user.vacationDays }} Tage</td>
+              <td class="center">{{ user.vacationDays }} {{ t('common.days') }}</td>
               <td>{{ user.teamleadId ? getTeamleadName(user.teamleadId) : '—' }}</td>
               <td class="center">
                 <span v-if="user.isActive" class="status-active">✓ Aktiv</span>
@@ -204,7 +204,7 @@
                   v-if="user.isActive && user.role !== 'manager'" 
                   @click="startEdit(user)" 
                   class="btn-icon"
-                  title="Bearbeiten"
+                  title="{{ t('common.edit') }}"
                 >
                   ✏️
                 </button>
@@ -244,6 +244,7 @@
 
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 
 // State
 const newUser = ref({
@@ -382,10 +383,10 @@ const generateLoginPDF = async (userInfo: any) => {
   
   // Rolle
   const roleLabels: Record<string, string> = {
-    employee: 'Mitarbeiter',
-    teamlead: 'Teamleiter',
-    office: 'Office',
-    manager: 'Manager'
+    employee: t('roles.employee'),
+    teamlead: t('roles.teamlead') ,
+    office:  t('roles.office'),
+    manager: t('roles.manager')
   }
   
   doc.setFont('helvetica', 'bold')
@@ -399,7 +400,7 @@ const generateLoginPDF = async (userInfo: any) => {
   doc.setFont('helvetica', 'bold')
   doc.text('Urlaubstage pro Jahr:', 30, y)
   doc.setFont('helvetica', 'normal')
-  doc.text(`${userInfo.vacationDays} Tage`, 80, y)
+  doc.text(`${userInfo.vacationDays} {{ t('common.days') }}`, 80, y)
   
   // Teamleiter (falls vorhanden)
   if (userInfo.teamleadId) {
@@ -572,11 +573,11 @@ const teamleads = computed(() => {
 // Methods
 const getRoleLabel = (role: string) => {
   const labels: Record<string, string> = {
-    employee: 'Mitarbeiter',
-    teamlead: 'Teamleiter',
-    office: 'Office',
-    manager: 'Manager',
-    sysadmin: 'System-Admin'
+    employee: t('roles.employee'),
+    teamlead: t('roles.teamlead'),
+    office: t('roles.office'),
+    manager: t('roles.manager'),
+    sysadmin: t('roles.sysadmin')
   }
   return labels[role] || role
 }

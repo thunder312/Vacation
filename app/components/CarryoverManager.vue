@@ -20,7 +20,7 @@
             />
           </div>
           <div class="form-group">
-            <label>Übertrag (Tage)</label>
+            <label>Übertrag ({{ t('common.days') }})</label>
             <input 
               v-model.number="newDays" 
               type="number" 
@@ -55,7 +55,7 @@
         <div class="carryover-header">
           <div>
             <strong>{{ getDisplayName(carryover.userId) }}</strong>
-            <span class="carryover-days">{{ carryover.carryoverDays }} Tage</span>
+            <span class="carryover-days">{{ carryover.carryoverDays }} {{ t('common.days') }}</span>
           </div>
           <button 
             v-if="isEditable"
@@ -94,6 +94,7 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/dateHelpers'
 
+const { t } = useI18n()
 const { currentUser } = useAuth()
 const { setCarryover, removeCarryover, carryovers, isCarryoverExpiringSoon } = useCarryover()
 const { orgNodes } = useOrganization()

@@ -5,6 +5,7 @@ import { formatDate, calculateDays, calculateWorkdays, getStatusText } from '~/u
 import { branding, getPdfHeader } from '~/config/branding'
 
 export const usePdfExport = () => {
+    const { t } = useI18n()
     const toast = useToast()
     const { halfDayRules } = useHalfDayRules()
     const { getBalance } = useVacationBalance()
@@ -67,7 +68,7 @@ export const usePdfExport = () => {
             doc.text('Meine genehmigten Urlaube', 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Mitarbeiter: ${username}`, 14, 30)
+            doc.text(`{{ t('roles.employee') }}: ${username}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
             
             // Urlaubskonto-Info
@@ -77,10 +78,10 @@ export const usePdfExport = () => {
             doc.setFont('arial', 'normal')
             
             if (balance.carryoverDays > 0) {
-                doc.text(`Standard: ${balance.standardDays} Tage | Übertrag: ${balance.carryoverDays} Tage | Gesamt: ${balance.totalDays} Tage`, 14, 51)
-                doc.text(`Genommen: ${balance.usedDays} Tage | Verbleibend: ${balance.remainingDays} Tage`, 14, 57)
+                doc.text(`Standard: ${balance.standardDays} {{ t('common.days') }} | Übertrag: ${balance.carryoverDays} {{ t('common.days') }} | Gesamt: ${balance.totalDays} {{ t('common.days') }}`, 14, 51)
+                doc.text(`Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 57)
             } else {
-                doc.text(`Gesamt: ${balance.totalDays} Tage | Genommen: ${balance.usedDays} Tage | Verbleibend: ${balance.remainingDays} Tage`, 14, 51)
+                doc.text(`Gesamt: ${balance.totalDays} {{ t('common.days') }} | Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 51)
             }
 
             // Nach Startdatum sortieren
@@ -98,7 +99,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: balance.carryoverDays > 0 ? 63 : 57,
-                head: [['Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
+                head: [[t('common.from'), t('common.to'), 'Urlaubstage', t('common.reason'), t('common.status')]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -179,7 +180,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Mitarbeiter', 'Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
+                head: [[t('roles.employee'), t('common.from'), t('common.to') , 'Urlaubstage', t('common.reason'), t('common.status') ]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -238,7 +239,7 @@ export const usePdfExport = () => {
             doc.text(`Erstellt von: ${managerName}`, 14, 30)
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
-            // Sortieren: Erst nach Mitarbeiter, dann nach Startdatum
+            // Sortieren: Erst nach {{ t('roles.employee') }}, dann nach Startdatum
             const sortedRequests = [...allRequests].sort((a, b) => {
                 // Erst nach displayName/userId sortieren
                 const nameA = (a.displayName || a.userId).toLowerCase()
@@ -261,7 +262,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Mitarbeiter', 'Von', 'Bis', 'Urlaubstage', 'Grund', 'Status']],
+                head: [[t('roles.employee'), t('common.from'), t('common.to'), 'Urlaubstage', t('common.reason'), t('common.status')]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },

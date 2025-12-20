@@ -2,7 +2,7 @@
   <div class="organization-chart">
     <div class="chart-header">
       <div>
-        <h2>Organigramm</h2>
+        <h2>{{ t('nav.organization') }}</h2>
         <p class="description">
           Überblick über die Organisationsstruktur und Team-Zuordnungen.
         </p>
@@ -70,7 +70,7 @@
               </div>
             </div>
             <div class="node-actions">
-              {{ getTeamMemberCount(teamlead.userId) }} Mitarbeiter
+              {{ getTeamMemberCount(teamlead.userId) }} {{ t('roles.employee') }}
             </div>
           </div>
 
@@ -87,7 +87,7 @@
                   <div class="node-icon">👤</div>
                   <div class="node-info">
                     <div class="node-name">{{ employee.displayName }}</div>
-                    <div class="node-role">Mitarbeiter</div>
+                    <div class="node-role">{{ t('roles.employee') }}</div>
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@
         <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
           <div class="team-header">
             <h4>👥 Team {{ team.teamleadName }}</h4>
-            <span class="team-count">{{ team.members?.length || 0 }} Mitarbeiter</span>
+            <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
           </div>
           <div class="team-members">
             <div v-if="!team.members || team.members.length === 0" class="empty-team">
@@ -148,7 +148,7 @@
       <div class="management-form">
         <div class="form-row">
           <div class="form-group">
-            <label>Mitarbeiter</label>
+            <label>{{ t('roles.employee') }}</label>
             <select v-model="selectedEmployee">
               <option value="">Mitarbeiter wählen...</option>
               <option v-for="emp in allEmployees" :key="emp.userId" :value="emp.userId">
@@ -185,6 +185,7 @@ import html2canvas from 'html2canvas'
 import { branding, getPdfHeader } from '~/config/branding'
 
 const toast = useToast()
+const { t } = useI18n()
 const { currentUser } = useAuth()
 const { 
   assignToTeam, 
@@ -333,7 +334,7 @@ const exportOrgChart = async () => {
     
     // Titel
     doc.setFontSize(18)
-    doc.text(`Organigramm - ${branding.company.name}`, 20, 25)
+    doc.text(`{{ t('nav.organization') }} - ${branding.company.name}`, 20, 25)
     
     doc.setFontSize(11)
     doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 35)
@@ -398,7 +399,7 @@ const exportTeamOverview = () => {
       const teamData = teamMembers.map(e => [
         e.displayName,
         e.username,
-        'Mitarbeiter'
+        t('roles.employee')
       ])
       
       autoTable(doc, {
@@ -434,7 +435,7 @@ const exportTeamOverview = () => {
       const unassignedData = unassigned.map(e => [
         e.displayName,
         e.username,
-        'Mitarbeiter'
+        t('roles.employee')
       ])
       
       autoTable(doc, {
