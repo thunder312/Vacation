@@ -25,60 +25,64 @@ onMounted(() => {
 <style scoped>
 .language-switcher {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .lang-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 2px solid transparent;
+  gap: 5px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.1);
   color: white;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  min-width: 60px;
+  justify-content: center;
 }
 
 .lang-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .lang-btn.active {
   background: white;
   color: var(--color-primary);
   border-color: white;
+  font-weight: 600;
 }
 
 .lang-flag {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .lang-code {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-/* Für helle Hintergründe */
-.light-bg .lang-btn {
-  background: var(--color-gray-100);
-  color: var(--color-gray-800);
-  border-color: var(--color-gray-300);
-}
-
-.light-bg .lang-btn:hover {
-  background: var(--color-gray-200);
-}
-
-.light-bg .lang-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
+/* Responsive */
+@media (max-width: 768px) {
+  .lang-code {
+    display: none;
+  }
+  
+  .lang-btn {
+    min-width: 40px;
+    padding: 8px;
+  }
+  
+  .lang-flag {
+    font-size: 18px;
+  }
 }
 </style>

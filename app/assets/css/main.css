@@ -361,6 +361,41 @@ button {
     color: var(--color-white);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--color-white);
+}
+
+.user-greeting {
+    margin-right: var(--spacing-sm);
+}
+
+.header-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--color-white);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.about-btn {
+    font-size: 18px;
+}
+
 .user-info {
     display: flex;
     align-items: center;

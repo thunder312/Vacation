@@ -4,8 +4,16 @@
 
     <div class="header">
       <h1>Urlaubsantrags-System</h1>
-      <div class="user-info">
-        <span>Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
+      <div class="header-actions">
+        <span class="user-greeting">Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
+        
+        <!-- Language Switcher -->
+        <LanguageSwitcher />
+        
+        <!-- About Button -->
+        <button @click="showAbout = true" class="header-btn about-btn" title="Über diese Software">
+          ℹ️
+        </button>
         
         <!-- User Dropdown Menu -->
         <div class="user-dropdown">
@@ -24,6 +32,9 @@
         </div>
       </div>
     </div>
+
+    <!-- About Modal -->
+    <AboutModal v-model="showAbout" />
 
     <!-- Passwort ändern Modal -->
     <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
@@ -322,6 +333,7 @@ const { currentTheme, toggleTheme, initTheme } = useTheme()
 
 // User Menu State
 const showUserMenu = ref(false)
+const showAbout = ref(false)
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
