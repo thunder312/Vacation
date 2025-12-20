@@ -46,6 +46,8 @@
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
+const { t } = useI18n()
+
 const props = withDefaults(defineProps<{
   request: VacationRequest
   approvalLevel?: 'teamlead' | 'manager'

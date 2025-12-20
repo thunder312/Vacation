@@ -33,7 +33,7 @@ export const usePdfExport = () => {
             doc.setFontSize(9)
             doc.setTextColor(128, 128, 128)
             
-            const pageText = `Seite ${i}/${pageCount}`
+            const pageText = t('pdf.totalPages', { current: i, total: pageCount })
             const pageWidth = doc.internal.pageSize.getWidth()
             const textWidth = doc.getTextWidth(pageText)
             
@@ -53,7 +53,7 @@ export const usePdfExport = () => {
         const userId = user?.userId || username
         
         if (!approvedRequests || approvedRequests.length === 0) {
-            toast.warning('Keine genehmigten Urlaube vorhanden')
+            toast.warning(t('errors.notFound'))
             return
         }
 
@@ -65,23 +65,23 @@ export const usePdfExport = () => {
             addLogoToPdf(doc)
 
             doc.setFontSize(18)
-            doc.text('Meine genehmigten Urlaube', 14, 20)
+            doc.text(t('pdf.myApprovedVacations'), 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`{{ t('roles.employee') }}: ${username}`, 14, 30)
-            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+            doc.text(`${t('roles.employee')}: ${username}`, 14, 30)
+            doc.text(`${t('organization.createdOn')}: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
             
             // Urlaubskonto-Info
             doc.setFontSize(10)
             doc.setFont('arial', 'bold')
-            doc.text('Urlaubskonto:', 14, 45)
+            doc.text(`${t('vacation.vacationAccount')}:`, 14, 45)
             doc.setFont('arial', 'normal')
             
             if (balance.carryoverDays > 0) {
-                doc.text(`{{ t('vacation.standard') }}: ${balance.standardDays} {{ t('common.days') }} | {{ t('vacation.carryover') }}: ${balance.carryoverDays} {{ t('common.days') }} | {{ t('vacation.totalDays') }}: ${balance.totalDays} {{ t('common.days') }}`, 14, 51)
-                doc.text(`Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 57)
+                doc.text(`${t('vacation.standard')}: ${balance.standardDays} ${t('common.days')} | ${t('vacation.carryover')}: ${balance.carryoverDays} ${t('common.days')} | ${t('vacation.totalDays')}: ${balance.totalDays} ${t('common.days')}`, 14, 51)
+                doc.text(`${t('vacation.usedDays')}: ${balance.usedDays} ${t('common.days')} | ${t('vacation.remainingDays')}: ${balance.remainingDays} ${t('common.days')}`, 14, 57)
             } else {
-                doc.text(`{{ t('vacation.totalDays') }}: ${balance.totalDays} {{ t('common.days') }} | Genommen: ${balance.usedDays} {{ t('common.days') }} | Verbleibend: ${balance.remainingDays} {{ t('common.days') }}`, 14, 51)
+                doc.text(`${t('vacation.totalDays')}: ${balance.totalDays} ${t('common.days')} | ${t('vacation.usedDays')}: ${balance.usedDays} ${t('common.days')} | ${t('vacation.remainingDays')}: ${balance.remainingDays} ${t('common.days')}`, 14, 51)
             }
 
             // Nach Startdatum sortieren
@@ -99,7 +99,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: balance.carryoverDays > 0 ? 63 : 57,
-                head: [[t('common.from'), t('common.to'), 'Urlaubstage', t('common.reason'), t('common.status')]],
+                head: [[t('common.from'), t('common.to'), t('vacation.vacationDays'), t('common.reason'), t('common.status')]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -112,7 +112,7 @@ export const usePdfExport = () => {
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(11)
-            doc.text(`Gesamt genehmigte Urlaubstage: ${totalDays}`, 14, finalY)
+            doc.text(`${t('pdf.totalApprovedDays')}: ${totalDays}`, 14, finalY)
 
             // Seitenzahlen hinzufügen
             addPageNumbers(doc)
@@ -122,10 +122,10 @@ export const usePdfExport = () => {
             const pdfUrl = URL.createObjectURL(pdfBlob)
             window.open(pdfUrl, '_blank')
 
-            toast.success( t('vacation.pdfCreated'))
+            toast.success(t('vacation.pdfCreated'))
         } catch (error) {
             console.error('Fehler beim PDF-Export:', error)
-            toast.error('Fehler beim PDF-Export')
+            toast.error(t('errors.genericError'))
         }
     }
 
@@ -140,7 +140,7 @@ export const usePdfExport = () => {
         const teamleadName = user?.displayName || username
         
         if (!teamRequests || teamRequests.length === 0) {
-            toast.warning('Keine Team-Urlaube vorhanden')
+            toast.warning(t('errors.notFound'))
             return
         }
 
@@ -151,11 +151,11 @@ export const usePdfExport = () => {
             addLogoToPdf(doc)
 
             doc.setFontSize(18)
-            doc.text('Team-Urlaubsübersicht', 14, 20)
+            doc.text(t('pdf.teamVacations'), 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Teamlead: ${teamleadName}`, 14, 30)
-            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+            doc.text(`${t('roles.teamlead')}: ${teamleadName}`, 14, 30)
+            doc.text(`${t('organization.createdOn')}: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
             // Sortieren: Erst nach Mitarbeiter, dann nach Startdatum
             const sortedRequests = [...teamRequests].sort((a, b) => {
@@ -180,7 +180,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [[t('roles.employee'), t('common.from'), t('common.to') , 'Urlaubstage', t('common.reason'), t('common.status') ]],
+                head: [[t('roles.employee'), t('common.from'), t('common.to'), t('vacation.vacationDays'), t('common.reason'), t('common.status')]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -192,9 +192,9 @@ export const usePdfExport = () => {
 
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)
-            doc.text(`Gesamt Anträge: ${teamRequests.length}`, 14, finalY)
-            doc.text(`Genehmigt: ${approvedCount}`, 14, finalY + 6)
-            doc.text(`Ausstehend: ${pendingCount}`, 14, finalY + 12)
+            doc.text(`${t('pdf.totalRequests')}: ${teamRequests.length}`, 14, finalY)
+            doc.text(`${t('pdf.fullyApproved')}: ${approvedCount}`, 14, finalY + 6)
+            doc.text(`${t('pdf.pendingTeamlead')}: ${pendingCount}`, 14, finalY + 12)
 
             // Seitenzahlen hinzufügen
             addPageNumbers(doc)
@@ -204,10 +204,10 @@ export const usePdfExport = () => {
             const pdfUrl = URL.createObjectURL(pdfBlob)
             window.open(pdfUrl, '_blank')
 
-            toast.success('Team-PDF erfolgreich erstellt!')
+            toast.success(t('vacation.pdfCreated'))
         } catch (error) {
             console.error('Fehler:', error)
-            toast.error('Fehler beim PDF-Export')
+            toast.error(t('errors.genericError'))
         }
     }
 
@@ -222,7 +222,7 @@ export const usePdfExport = () => {
         const managerName = user?.displayName || username || 'Unbekannt'
         
         if (!allRequests || allRequests.length === 0) {
-            toast.warning('Keine Urlaube vorhanden')
+            toast.warning(t('errors.notFound'))
             return
         }
 
@@ -233,13 +233,13 @@ export const usePdfExport = () => {
             addLogoToPdf(doc)
 
             doc.setFontSize(18)
-            doc.text(`Urlaubsübersicht - ${branding.company.name}`, 14, 20)
+            doc.text(t('organization.vacationOverviewPdf', { company: branding.company.name }), 14, 20)
 
             doc.setFontSize(11)
-            doc.text(`Erstellt von: ${managerName}`, 14, 30)
-            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
+            doc.text(`${t('organization.createdOn')}: ${managerName}`, 14, 30)
+            doc.text(`${t('organization.createdOn')}: ${new Date().toLocaleDateString('de-DE')}`, 14, 36)
 
-            // Sortieren: Erst nach {{ t('roles.employee') }}, dann nach Startdatum
+            // Sortieren: Erst nach Mitarbeiter, dann nach Startdatum
             const sortedRequests = [...allRequests].sort((a, b) => {
                 // Erst nach displayName/userId sortieren
                 const nameA = (a.displayName || a.userId).toLowerCase()
@@ -262,7 +262,7 @@ export const usePdfExport = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [[t('roles.employee'), t('common.from'), t('common.to'), 'Urlaubstage', t('common.reason'), t('common.status')]],
+                head: [[t('roles.employee'), t('common.from'), t('common.to'), t('vacation.vacationDays'), t('common.reason'), t('common.status')]],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [102, 126, 234] },
@@ -285,17 +285,17 @@ export const usePdfExport = () => {
             const finalY = (doc as any).lastAutoTable.finalY + 10
             doc.setFontSize(10)
             doc.setFont('arial', 'bold')
-            doc.text('Statistik:', 14, finalY)
+            doc.text(`${t('organization.statistics')}:`, 14, finalY)
             doc.setFont('arial', 'normal')
-            doc.text(`Gesamt Anträge: ${totalRequests}`, 14, finalY + 6)
-            doc.text(`Vollständig genehmigt: ${approvedCount}`, 14, finalY + 12)
-            doc.text(`Bei Manager ausstehend: ${teamleadApprovedCount}`, 14, finalY + 18)
-            doc.text(`Bei Teamleiter ausstehend: ${pendingCount}`, 14, finalY + 24)
-            doc.text(`Abgelehnt: ${rejectedCount}`, 14, finalY + 30)
-            doc.text(`Abgesagt: ${cancelledCount}`, 14, finalY + 36)
-            doc.text(`Genehmigte Urlaubstage gesamt: ${totalApprovedDays}`, 14, finalY + 42)
+            doc.text(`${t('pdf.totalRequests')}: ${totalRequests}`, 14, finalY + 6)
+            doc.text(`${t('pdf.fullyApproved')}: ${approvedCount}`, 14, finalY + 12)
+            doc.text(`${t('pdf.pendingManager')}: ${teamleadApprovedCount}`, 14, finalY + 18)
+            doc.text(`${t('pdf.pendingTeamlead')}: ${pendingCount}`, 14, finalY + 24)
+            doc.text(`${t('status.rejected')}: ${rejectedCount}`, 14, finalY + 30)
+            doc.text(`${t('status.cancelled')}: ${cancelledCount}`, 14, finalY + 36)
+            doc.text(`${t('pdf.totalApprovedDays')}: ${totalApprovedDays}`, 14, finalY + 42)
             if (totalCancelledDays > 0) {
-                doc.text(`Abgesagte Urlaubstage gesamt: ${totalCancelledDays}`, 14, finalY + 48)
+                doc.text(`${t('pdf.totalCancelledDays')}: ${totalCancelledDays}`, 14, finalY + 48)
             }
 
             // Seitenzahlen hinzufügen
@@ -306,10 +306,10 @@ export const usePdfExport = () => {
             const pdfUrl = URL.createObjectURL(pdfBlob)
             window.open(pdfUrl, '_blank')
 
-            toast.success('Urlaubs-PDF erfolgreich erstellt!')
+            toast.success(t('vacation.pdfCreated'))
         } catch (error) {
             console.error('Fehler:', error)
-            toast.error('Fehler beim PDF-Export')
+            toast.error(t('errors.genericError'))
         }
     }
 

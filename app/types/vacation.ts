@@ -5,7 +5,7 @@ export interface VacationRequest {
     startDate: string
     endDate: string
     reason: string
-    status: 'pending' | 'teamlead_approved' | 'approved' | 'rejected'
+    status: 'pending' | 'teamlead_approved' | 'approved' | 'rejected' | 'cancelled'
     teamleadApprovalDate?: string
     managerApprovalDate?: string
 }

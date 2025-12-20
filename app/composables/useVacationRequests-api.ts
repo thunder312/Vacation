@@ -3,6 +3,7 @@ import type { VacationRequest } from '~/types/vacation'
 
 export const useVacationRequests = () => {
   const toast = useToast()
+    const { t } = useI18n()
   
   // State für alle Requests (wird vom Server geladen)
   const requests = useState<VacationRequest[]>('vacationRequests', () => [])
@@ -38,7 +39,7 @@ export const useVacationRequests = () => {
 
       // Lokale Liste aktualisieren
       requests.value.push(newRequest)
-      toast.success(' {{ t('vacation.requestSubmitted') }}')
+      toast.success( t('vacation.requestSubmitted'))
       
       return newRequest
     } catch (error) {

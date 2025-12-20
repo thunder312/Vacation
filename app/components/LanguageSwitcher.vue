@@ -34,8 +34,13 @@ const toggleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const selectLanguage = (code: string) => {
+const selectLanguage = async (code: string) => {
+  // Sprache wechseln
   setLocale(code as any)
+  // Warten bis Vue alle Updates durchgeführt hat
+  await nextTick()
+  await nextTick() // Zweimal für alle reactive Updates
+  // Dann Dropdown schließen
   isOpen.value = false
 }
 

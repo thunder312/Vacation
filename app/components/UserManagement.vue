@@ -4,7 +4,7 @@
 
     <!-- Neuen Mitarbeiter hinzufügen -->
     <div class="add-user-section">
-      <h3>t('users.addUser')</h3>
+      <h3>{{ t('users.addUser') }}</h3>
       <form @submit.prevent="handleAddUser" class="user-form">
         <div class="form-row">
           <div class="form-group">
@@ -407,7 +407,7 @@ const generateLoginPDF = async (userInfo: any) => {
     y += 10
     const teamlead = teamleads.value.find((tl: any) => tl.username === userInfo.teamleadId)
     doc.setFont('helvetica', 'bold')
-    doc.text(Ihr  {{ t('users.yourTeamlead') }} + ':', 30, y)
+    doc.text('Ihr ' +  t('users.yourTeamlead')  + ':', 30, y)
     doc.setFont('helvetica', 'normal')
     doc.text(teamlead?.displayName || userInfo.teamleadId, 80, y)
   }
