@@ -15,7 +15,7 @@
             <input v-model="newDate" type="date" required />
           </div>
           <div class="form-group">
-            <label>t('vacation.halfDayDescription')</label>
+            <label>{{ t('vacation.halfDayDescription') }}</label>
             <input 
               v-model="newDescription" 
               type="text" 
