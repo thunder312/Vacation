@@ -11,7 +11,7 @@ const __dirname = dirname(__filename)
 console.log('🔄 Starte Migration...')
 
 try {
-  const dbPath = join(__dirname, 'sqlite.db')
+  const dbPath = join(__dirname, 'server', 'database', 'sqlite.db')
   const db = new Database(dbPath)
 
   console.log('📂 Datenbank geöffnet:', dbPath)

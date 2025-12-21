@@ -1,74 +1,65 @@
 // server/api/carryover/approve.post.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { userId, year, approvedBy } = body
 
   try {
-    const projectRoot = process.cwd().includes('.nuxt') 
-      ? join(process.cwd(), '..', '..')
-      : process.cwd()
-    const dbPath = join(projectRoot, 'sqlite.db')
-    const db = new Database(dbPath)
-
-    // Hole berechneten Übertrag
-    const user = db.prepare(`
+    // Berechne Übertrag für diesen User
+    const user = query<any>(`
       SELECT 
-        userId,
-        vacationDaysPerYear,
-        carryoverDays,
-        (vacationDaysPerYear + COALESCE(carryoverDays, 0)) - 
-        (SELECT COALESCE(SUM(days), 0) 
-         FROM vacation_requests 
-         WHERE userId = ? 
-           AND status = 'approved'
-           AND strftime('%Y', startDate) = ?) as calculatedCarryover
-      FROM users
-      WHERE userId = ?
-    `).get(userId, (year - 1).toString(), userId) as any
+        u.username,
+        u.vacationDays,
+        COALESCE(
+          u.vacationDays - 
+          (SELECT COALESCE(SUM(
+            julianday(endDate) - julianday(startDate) + 1
+          ), 0) 
+           FROM vacation_requests 
+           WHERE userId = u.username 
+             AND status IN ('approved', 'teamlead_approved')
+             AND strftime('%Y', startDate) = ?),
+          0
+        ) as calculatedCarryover
+      FROM users u
+      WHERE u.username = ?
+    `, [(year - 1).toString(), userId])
 
-    if (!user) {
-      db.close()
-      throw createError({ statusCode: 404, message: 'User not found' })
+    if (!user || user.length === 0) {
+      throw createError({ 
+        statusCode: 404, 
+        message: 'User not found' 
+      })
     }
 
-    const originalDays = Math.max(user.calculatedCarryover, 0)
+    const carryoverDays = Math.max(user[0].calculatedCarryover, 0)
 
-    // Erstelle oder update Carryover Adjustment
-    db.prepare(`
-      INSERT INTO carryover_adjustments 
-        (userId, year, originalDays, approvedDays, status, approvedBy, approvedAt)
-      VALUES (?, ?, ?, ?, 'approved', ?, datetime('now'))
+    // Speichere in carryover Tabelle
+    query(`
+      INSERT INTO carryover 
+        (userId, year, carryoverDays, createdAt, updatedAt)
+      VALUES (?, ?, ?, datetime('now'), datetime('now'))
       ON CONFLICT(userId, year) 
       DO UPDATE SET 
-        status = 'approved',
-        approvedDays = ?,
-        approvedBy = ?,
-        approvedAt = datetime('now')
-    `).run(userId, year, originalDays, originalDays, approvedBy, originalDays, approvedBy)
+        carryoverDays = ?,
+        updatedAt = datetime('now')
+    `, [userId, year, carryoverDays, carryoverDays])
 
-    // Update User carryoverDays
-    db.prepare(`
-      UPDATE users 
-      SET carryoverDays = ?
-      WHERE userId = ?
-    `).run(originalDays, userId)
-
-    db.close()
+    console.log(`✅ Approved carryover for ${userId}: ${carryoverDays} days (${year})`)
 
     return { 
       success: true,
       userId,
-      approvedDays: originalDays
+      year,
+      approvedDays: carryoverDays
     }
 
-  } catch (error) {
-    console.error('Fehler beim Bestätigen:', error)
+  } catch (error: any) {
+    console.error('❌ ERROR in POST /api/carryover/approve:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Bestätigen des Übertrags'
+      message: 'Fehler beim Bestätigen des Übertrags: ' + error.message
     })
   }
 })

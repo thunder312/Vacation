@@ -1,128 +1,73 @@
 // server/api/carryover/review.get.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
-export default defineEventHandler((event) => {
-  const query = getQuery(event)
-  const year = parseInt(query.year as string) || new Date().getFullYear()
+export default defineEventHandler(async (event) => {
+  const queryParams = getQuery(event)
+  const year = parseInt(queryParams.year as string) || new Date().getFullYear()
 
   try {
-    // Finde Projekt-Root (2 Ebenen über .nuxt/dev)
-    const projectRoot = process.cwd().includes('.nuxt') 
-      ? join(process.cwd(), '..', '..')
-      : process.cwd()
-    
-    const dbPath = join(projectRoot, 'sqlite.db')
-    console.log('📂 Loading DB from:', dbPath)
-    
-    const db = new Database(dbPath)
+    // Hole alle aktiven Mitarbeiter mit berechneten Überträgen
+    const carryovers = query<any>(`
+      SELECT 
+        u.username as userId,
+        CASE 
+          WHEN u.firstName IS NOT NULL AND u.lastName IS NOT NULL 
+          THEN u.firstName || ' ' || u.lastName
+          ELSE u.username
+        END as displayName,
+        u.vacationDays as vacationDaysPerYear,
+        
+        -- Berechneter Übertrag aus Vorjahr
+        -- = Jahres-Urlaubstage MINUS genommene Tage im Vorjahr
+        COALESCE(
+          u.vacationDays - 
+          (SELECT COALESCE(SUM(
+            julianday(endDate) - julianday(startDate) + 1
+          ), 0) 
+           FROM vacation_requests 
+           WHERE userId = u.username 
+             AND status IN ('approved', 'teamlead_approved')
+             AND strftime('%Y', startDate) = ?),
+          0
+        ) as originalDays,
+        
+        -- Bereits gespeicherter Übertrag (falls vorhanden)
+        c.carryoverDays as approvedDays,
+        c.expiryDate
+        
+      FROM users u
+      LEFT JOIN carryover c 
+        ON u.username = c.userId AND c.year = ?
+      WHERE u.isActive = 1
+        AND u.role IN ('employee', 'teamlead')
+      ORDER BY displayName
+    `, [(year - 1).toString(), year])
 
-    // Prüfe ob Tabelle existiert
-    const tableExists = db.prepare(`
-      SELECT name FROM sqlite_master 
-      WHERE type='table' AND name='carryover_adjustments'
-    `).get()
+    // Formatiere Ergebnis für UI
+    const result = carryovers.map((c: any) => ({
+      userId: c.userId,
+      displayName: c.displayName,
+      vacationDaysPerYear: c.vacationDaysPerYear,
+      originalDays: Math.max(c.originalDays, 0), // Negativ → 0
+      approvedDays: c.approvedDays ?? Math.max(c.originalDays, 0),
+      status: c.approvedDays !== null ? 'approved' : 'pending',
+      expiryDate: c.expiryDate,
+      // Dummy-Felder für UI (nicht im Schema vorhanden)
+      adjustmentReason: null,
+      adjustedBy: null,
+      adjustedAt: null,
+      approvedBy: null,
+      approvedAt: null
+    }))
 
-    let carryovers: any[] = []
+    console.log(`✅ Loaded ${result.length} carryover entries for year ${year}`)
+    return result
 
-    if (!tableExists) {
-      // Wenn Tabelle nicht existiert, nur berechnete Überträge zurückgeben
-      console.warn('⚠️ Tabelle carryover_adjustments existiert nicht. Nur berechnete Überträge werden angezeigt.')
-      
-      carryovers = db.prepare(`
-        SELECT 
-          u.userId,
-          u.displayName,
-          u.vacationDaysPerYear,
-          
-          COALESCE(
-            (u.vacationDaysPerYear + COALESCE(u.carryoverDays, 0)) - 
-            (SELECT COALESCE(SUM(days), 0) 
-             FROM vacation_requests 
-             WHERE userId = u.userId 
-               AND status = 'approved'
-               AND strftime('%Y', startDate) = ?),
-            0
-          ) as originalDays
-          
-        FROM users u
-        WHERE u.isActive = 1
-          AND u.role IN ('employee', 'teamlead')
-        ORDER BY u.displayName
-      `).all((year - 1).toString()) as any[]
-
-      // Alle als pending markieren
-      carryovers = carryovers.map(c => ({
-        ...c,
-        approvedDays: c.originalDays,
-        status: 'pending',
-        adjustmentReason: null,
-        adjustedBy: null,
-        adjustedAt: null,
-        approvedBy: null,
-        approvedAt: null
-      }))
-
-    } else {
-      // Normale Abfrage mit JOIN
-      carryovers = db.prepare(`
-        SELECT 
-          u.userId,
-          u.displayName,
-          u.vacationDaysPerYear,
-          
-          COALESCE(
-            (u.vacationDaysPerYear + COALESCE(u.carryoverDays, 0)) - 
-            (SELECT COALESCE(SUM(days), 0) 
-             FROM vacation_requests 
-             WHERE userId = u.userId 
-               AND status = 'approved'
-               AND strftime('%Y', startDate) = ?),
-            0
-          ) as originalDays,
-          
-          ca.approvedDays,
-          ca.status,
-          ca.adjustmentReason,
-          ca.adjustedBy,
-          ca.adjustedAt,
-          ca.approvedBy,
-          ca.approvedAt
-          
-        FROM users u
-        LEFT JOIN carryover_adjustments ca 
-          ON u.userId = ca.userId AND ca.year = ?
-        WHERE u.isActive = 1
-          AND u.role IN ('employee', 'teamlead')
-        ORDER BY u.displayName
-      `).all((year - 1).toString(), year) as any[]
-
-      // Wenn keine Adjustments existieren, Status = pending
-      carryovers = carryovers.map(c => ({
-        ...c,
-        status: c.status || 'pending',
-        approvedDays: c.approvedDays ?? c.originalDays
-      }))
-    }
-
-    db.close()
-    return carryovers
-
-  } catch (error) {
-    const err = error as Error
-    console.error('❌ Fehler beim Laden der Carryovers:', err.message)
-    console.error('Stack:', err.stack)
-    console.error('Error Type:', err.constructor.name)
-    
-    // Bei DB-Fehlern detaillierte Info
-    if (err.message.includes('no such table') || err.message.includes('no such column')) {
-      console.error('💡 Tipp: Überprüfe ob vacation.db im richtigen Verzeichnis liegt')
-      console.error('💡 Erwarteter Pfad:', join(process.cwd(), 'vacation.db'))
-    }
-    
+  } catch (error: any) {
+    console.error('❌ ERROR in GET /api/carryover/review:', error)
     throw createError({
       statusCode: 500,
-      message: `Carryover Load Error: ${err.message}`
+      message: 'Fehler beim Laden der Überträge: ' + error.message
     })
   }
 })

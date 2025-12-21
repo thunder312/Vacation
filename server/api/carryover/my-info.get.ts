@@ -1,87 +1,89 @@
 // server/api/carryover/my-info.get.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
-export default defineEventHandler((event) => {
-  const query = getQuery(event)
-  const year = parseInt(query.year as string) || new Date().getFullYear()
+export default defineEventHandler(async (event) => {
+  const queryParams = getQuery(event)
+  const year = parseInt(queryParams.year as string) || new Date().getFullYear()
   
-  // Hole userId aus Cookie (wie in anderen APIs)
+  // Hole userId aus Cookie
   const cookies = parseCookies(event)
   const userId = cookies.userId
   
   if (!userId) {
     console.warn('⚠️ Kein userId Cookie gefunden')
-    // Kein Fehler werfen, einfach null zurückgeben
     return null
   }
 
   try {
-    const projectRoot = process.cwd().includes('.nuxt') 
-      ? join(process.cwd(), '..', '..')
-      : process.cwd()
-    const dbPath = join(projectRoot, 'sqlite.db')
-    const db = new Database(dbPath)
-
-    // Hole Carryover Adjustment für diesen User
-    const carryoverInfo = db.prepare(`
+    // Hole gespeicherten Carryover für diesen User
+    const carryoverInfo = query<any>(`
       SELECT 
-        ca.userId,
-        ca.year,
-        ca.originalDays,
-        ca.approvedDays,
-        ca.status,
-        ca.adjustmentReason,
-        ca.adjustedBy,
-        ca.adjustedAt,
-        ca.approvedBy,
-        ca.approvedAt
-      FROM carryover_adjustments ca
-      WHERE ca.userId = ? AND ca.year = ?
-    `).get(userId, year) as any
+        c.userId,
+        c.year,
+        c.carryoverDays as approvedDays,
+        c.expiryDate
+      FROM carryover c
+      WHERE c.userId = ? AND c.year = ?
+    `, [userId, year])
 
-    db.close()
-
-    // Wenn kein Eintrag existiert, berechne den Übertrag
-    if (!carryoverInfo) {
-      const user = db.prepare(`
-        SELECT 
-          userId,
-          vacationDaysPerYear,
-          carryoverDays,
-          (vacationDaysPerYear + COALESCE(carryoverDays, 0)) - 
-          (SELECT COALESCE(SUM(days), 0) 
-           FROM vacation_requests 
-           WHERE userId = ? 
-             AND status = 'approved'
-             AND strftime('%Y', startDate) = ?) as calculatedCarryover
-        FROM users
-        WHERE userId = ?
-      `).get(userId, (year - 1).toString(), userId) as any
-
-      if (user && user.calculatedCarryover > 0) {
-        return {
-          userId,
-          year,
-          originalDays: Math.max(user.calculatedCarryover, 0),
-          approvedDays: null,
-          status: 'pending',
-          adjustmentReason: null,
-          adjustedBy: null,
-          adjustedAt: null
-        }
+    // Wenn Eintrag existiert → wurde bereits genehmigt
+    if (carryoverInfo && carryoverInfo.length > 0) {
+      return {
+        userId,
+        year,
+        originalDays: carryoverInfo[0].approvedDays, // Original unbekannt
+        approvedDays: carryoverInfo[0].approvedDays,
+        status: 'approved',
+        expiryDate: carryoverInfo[0].expiryDate,
+        // Nicht im Schema vorhanden:
+        adjustmentReason: null,
+        adjustedBy: null,
+        adjustedAt: null
       }
-
-      return null
     }
 
-    return carryoverInfo
+    // Kein Eintrag → Berechne was übertragen werden würde
+    const user = query<any>(`
+      SELECT 
+        u.username,
+        u.vacationDays,
+        COALESCE(
+          u.vacationDays - 
+          (SELECT COALESCE(SUM(
+            julianday(endDate) - julianday(startDate) + 1
+          ), 0) 
+           FROM vacation_requests 
+           WHERE userId = u.username 
+             AND status IN ('approved', 'teamlead_approved')
+             AND strftime('%Y', startDate) = ?),
+          0
+        ) as calculatedCarryover
+      FROM users u
+      WHERE u.username = ?
+    `, [(year - 1).toString(), userId])
 
-  } catch (error) {
-    console.error('Fehler beim Laden der Carryover-Info:', error)
+    if (user && user.length > 0 && user[0].calculatedCarryover > 0) {
+      return {
+        userId,
+        year,
+        originalDays: Math.max(user[0].calculatedCarryover, 0),
+        approvedDays: null,
+        status: 'pending',
+        expiryDate: null,
+        adjustmentReason: null,
+        adjustedBy: null,
+        adjustedAt: null
+      }
+    }
+
+    // Kein Übertrag
+    return null
+
+  } catch (error: any) {
+    console.error('❌ ERROR in GET /api/carryover/my-info:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Laden der Übertrag-Information'
+      message: 'Fehler beim Laden der Übertrag-Information: ' + error.message
     })
   }
 })

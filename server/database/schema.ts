@@ -23,7 +23,7 @@ export function initSchema(): void {
     )
   `)
 
-  // Index für schnellere Suche
+  // Indices für users
   db.exec(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`)
   db.exec(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`)
 
@@ -83,7 +83,7 @@ export function initSchema(): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS organization (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId TEXT UNIQUE NOT NULL,
+      userId TEXT NOT NULL,
       teamId TEXT,
       managerId TEXT,
       createdAt TEXT DEFAULT (datetime('now')),
@@ -93,9 +93,6 @@ export function initSchema(): void {
       FOREIGN KEY (managerId) REFERENCES users(username) ON DELETE SET NULL
     )
   `)
-
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_org_userId ON organization(userId)`)
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_org_teamId ON organization(teamId)`)
 
   console.log('✅ Datenbank-Schema initialisiert')
 }

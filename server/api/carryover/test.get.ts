@@ -1,67 +1,43 @@
 // server/api/carryover/test.get.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   try {
-    // Finde Projekt-Root
-    const projectRoot = process.cwd().includes('.nuxt') 
-      ? join(process.cwd(), '..', '..')
-      : process.cwd()
+    // Zeige ALLE Tabellen die existieren
+    const tables = query<any>(`
+      SELECT name FROM sqlite_master WHERE type='table'
+    `)
     
-    const dbPath = join(projectRoot, 'vacation.db')
+    console.log('🔍 TEST: Tabellen gefunden:', tables.length)
+    tables.forEach((t: any) => console.log('  📋', t.name))
     
-    console.log('🔍 TEST: process.cwd():', process.cwd())
-    console.log('🔍 TEST: projectRoot:', projectRoot)
-    console.log('🔍 TEST: dbPath:', dbPath)
+    // Prüfe ob users Tabelle existiert
+    const hasUsers = tables.some((t: any) => t.name === 'users')
     
-    // Prüfe ob Datei existiert
-    const fs = require('fs')
-    const exists = fs.existsSync(dbPath)
-    console.log('🔍 TEST: DB exists?', exists)
-    
-    if (!exists) {
+    if (!hasUsers) {
       return {
-        error: 'DB nicht gefunden',
-        cwd: process.cwd(),
-        projectRoot,
-        dbPath,
-        exists: false
+        error: 'Tabelle "users" existiert nicht!',
+        tables: tables.map((t: any) => t.name),
+        hint: 'Die sqlite.db Datei ist leer oder hat die falschen Tabellen.'
       }
     }
     
-    const db = new Database(dbPath)
-    
-    // Teste einfache Query
-    const tables = db.prepare(`
-      SELECT name FROM sqlite_master WHERE type='table'
-    `).all()
-    
-    console.log('🔍 TEST: Tabellen gefunden:', tables.length)
-    
-    const userCount = db.prepare(`SELECT COUNT(*) as count FROM users`).get()
-    
-    db.close()
+    // Nur wenn users existiert, count machen
+    const userCount = query<any>(`SELECT COUNT(*) as count FROM users`)
     
     return {
       success: true,
-      cwd: process.cwd(),
-      projectRoot,
-      dbPath,
-      exists: true,
       tables: tables.map((t: any) => t.name),
-      userCount: (userCount as any).count
+      userCount: userCount[0].count
     }
     
-  } catch (error) {
-    const err = error as Error
-    console.error('🔍 TEST ERROR:', err.message)
-    console.error('🔍 TEST STACK:', err.stack)
+  } catch (error: any) {
+    console.error('🔍 TEST ERROR:', error.message)
+    console.error('🔍 TEST STACK:', error.stack)
     
     return {
-      error: err.message,
-      stack: err.stack,
-      cwd: process.cwd()
+      error: error.message,
+      stack: error.stack
     }
   }
 })

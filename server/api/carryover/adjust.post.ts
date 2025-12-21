@@ -1,6 +1,5 @@
 // server/api/carryover/adjust.post.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -14,52 +13,39 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const projectRoot = process.cwd().includes('.nuxt') 
-      ? join(process.cwd(), '..', '..')
-      : process.cwd()
-    const dbPath = join(projectRoot, 'sqlite.db')
-    const db = new Database(dbPath)
-
-    // Erstelle oder update Carryover Adjustment
-    db.prepare(`
-      INSERT INTO carryover_adjustments 
-        (userId, year, originalDays, approvedDays, status, adjustmentReason, adjustedBy, adjustedAt)
-      VALUES (?, ?, ?, ?, 'adjusted', ?, ?, datetime('now'))
+    // Speichere angepassten Übertrag in carryover Tabelle
+    query(`
+      INSERT INTO carryover 
+        (userId, year, carryoverDays, createdAt, updatedAt)
+      VALUES (?, ?, ?, datetime('now'), datetime('now'))
       ON CONFLICT(userId, year) 
       DO UPDATE SET 
-        originalDays = ?,
-        approvedDays = ?,
-        status = 'adjusted',
-        adjustmentReason = ?,
-        adjustedBy = ?,
-        adjustedAt = datetime('now')
-    `).run(
-      userId, year, originalDays, approvedDays, reason, adjustedBy,
-      originalDays, approvedDays, reason, adjustedBy
-    )
+        carryoverDays = ?,
+        updatedAt = datetime('now')
+    `, [userId, year, approvedDays, approvedDays])
 
-    // Update User carryoverDays
-    db.prepare(`
-      UPDATE users 
-      SET carryoverDays = ?
-      WHERE userId = ?
-    `).run(approvedDays, userId)
-
-    db.close()
+    // WICHTIG: Begründung kann nicht in DB gespeichert werden!
+    // Das aktuelle Schema hat keine Felder für: adjustmentReason, adjustedBy, status
+    console.warn(`⚠️ Carryover angepasst für ${userId}: ${originalDays} → ${approvedDays} Tage`)
+    console.warn(`   Begründung (NUR GELOGGT): ${reason}`)
+    console.warn(`   Angepasst von: ${adjustedBy}`)
+    console.warn(`   ⚠️ Schema-Limitation: Begründung wird nicht in DB gespeichert!`)
 
     return { 
       success: true,
       userId,
+      year,
       originalDays,
       approvedDays,
-      reduction: originalDays - approvedDays
+      reduction: originalDays - approvedDays,
+      warning: 'Begründung wurde geloggt, aber nicht in DB gespeichert (Schema hat kein adjustmentReason Feld)'
     }
 
-  } catch (error) {
-    console.error('Fehler beim Anpassen:', error)
+  } catch (error: any) {
+    console.error('❌ ERROR in POST /api/carryover/adjust:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Anpassen des Übertrags'
+      message: 'Fehler beim Anpassen des Übertrags: ' + error.message
     })
   }
 })
