@@ -241,9 +241,10 @@
     </div>
 
     <!-- Jahreswechsel Panel -->
-    <div class="users-list">
-      <YearTransitionPanel />
-    </div>
+    <YearTransitionPanel />
+    
+    <!-- Carryover Review Panel -->
+    <CarryoverReview />
   </div>
 </template>
 

@@ -123,6 +123,10 @@
       </div>
     </div>
 
+
+    <!-- Carryover Info Banner (Mitarbeiter sieht seine Übertrag-Info) -->
+    <CarryoverInfo />
+
     <div class="tabs">
       <button
           v-for="tab in visibleTabs"
@@ -250,10 +254,6 @@
         <HalfDayRuleManager />
       </div>
 
-      <!-- Tab 5: Urlaubstage-Übertrag (nur für manager/admin) -->
-      <div v-show="activeTab === 'carryover'" class="tab-content">
-        <CarryoverManager />
-      </div>
 
       <!-- Tab 6: Organigramm (nur für manager/admin) -->
       <div v-show="activeTab === 'organization'" class="tab-content">
@@ -319,7 +319,6 @@ const {
 
 const { fetchOrganization } = useOrganization()
 const { fetchHalfDayRules, halfDayDates } = useHalfDayRules()
-const { fetchCarryovers } = useCarryover()
 
 const {
   exportMyApprovedVacations,
@@ -488,7 +487,6 @@ onMounted(async () => {
     fetchRequests(),
     fetchOrganization(),
     fetchHalfDayRules(),
-    fetchCarryovers()
   ])
 })
 
@@ -606,11 +604,6 @@ const visibleTabs = computed(() => {
       count: 0
     })
     tabs.push({
-      id: 'carryover',
-      label: t('vacation.carryover'),
-      count: 0
-    })
-    tabs.push({
       id: 'users',
       label: 'Mitarbeiterverwaltung',
       count: 0
@@ -632,7 +625,6 @@ const visibleTabs = computed(() => {
       { id: 'teamlead', label: 'Teamleiter-Ansicht', count: 0 },
       { id: 'manager', label: 'Manager-Ansicht', count: 0 },
       { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
-      { id: 'carryover', label: t('vacation.carryover'), count: 0 },
       { id: 'organization', label: t('nav.organization'), count: 0 }
     ]
   }
