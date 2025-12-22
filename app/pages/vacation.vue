@@ -233,20 +233,10 @@
         </div>
 
         <!-- Genehmigte Urlaube (können abgesagt werden) -->
-        <h2 style="margin-top: 40px;">Genehmigte Urlaube</h2>
-        <template v-if="approvedRequests && approvedRequests.length > 0">
-          <VacationApprovalCard
-              v-for="request in approvedRequests"
-              :key="request.id"
-              :request="request"
-              :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
-              :show-actions="true"
-              @cancel="handleCancelRequest"
-          />
-        </template>
-        <div v-else class="empty-state">
-          Keine genehmigten Urlaube
-        </div>
+        <ApprovedVacationList
+            :requests="approvedRequests || []"
+            @cancel="handleCancelRequest"
+        />
       </div>
 
       <!-- Tab 4: Urlaubsregelung (nur für manager) -->

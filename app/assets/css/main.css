@@ -1109,9 +1109,16 @@ button {
 }
 
 .balance-item.total {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);  /* Gleich wie used */
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
+}
+
+.balance-item.total .balance-label,
+.balance-item.total .balance-value,
+.balance-item.total .balance-unit {
+    color: white;
+    opacity: 1;  /* Volle Deckkraft */
 }
 
 .balance-item.used {
@@ -4428,5 +4435,124 @@ button {
   color: var(--color-error);
   background: var(--color-error-light);
   border-radius: var(--radius-md);
+}
+
+
+/* ============================================================ */
+/* APPROVED VACATION LIST (Genehmigte Urlaube - Manager Tab) */
+/* ============================================================ */
+
+.approved-vacation-list {
+  margin-top: 40px;
+}
+
+.approved-vacation-list .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 0;
+  border: 1px solid var(--color-gray-200);
+  user-select: none;
+}
+
+.approved-vacation-list .section-header:hover {
+  background: var(--color-gray-100);
+}
+
+.approved-vacation-list .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.approved-vacation-list .header-left h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.approved-vacation-list .count-badge {
+  background: var(--color-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.approved-vacation-list .description-collapsed {
+  color: var(--color-gray-600);
+  font-size: 14px;
+}
+
+.approved-vacation-list .section-content {
+  animation: slideDown 0.3s ease-out;
+  padding-top: 20px;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 16px;
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  border: 1px solid var(--color-gray-200);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--color-gray-700);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.filter-input {
+  padding: 8px 12px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(66, 139, 202, 0.1);
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.filter-stats {
+  margin-left: auto;
+  color: var(--color-gray-600);
+  font-size: 13px;
+  font-weight: 600;
 }
 
