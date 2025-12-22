@@ -1,42 +1,42 @@
 // server/api/year-transition/preview.get.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
 export default defineEventHandler((event) => {
   try {
-    const dbPath = join(process.cwd(), 'vacation.db')
-    const db = new Database(dbPath)
+    const currentYear = new Date().getFullYear()
 
-    // Hole alle aktiven Benutzer mit ihren Urlaubsdaten
-    const users = db.prepare(`
+    // Hole alle aktiven Benutzer (username nicht userId!)
+    const users = query<any>(`
       SELECT 
-        userId,
-        displayName,
-        vacationDaysPerYear,
-        carryoverDays
+        username as userId,
+        firstName || ' ' || lastName as displayName,
+        vacationDays as vacationDaysPerYear
       FROM users
       WHERE isActive = 1
-    `).all() as Array<{
-      userId: string
-      displayName: string
-      vacationDaysPerYear: number
-      carryoverDays: number
-    }>
+    `)
 
     // Berechne für jeden User die Änderungen
-    const preview = users.map(user => {
-      // Hole genommene Urlaubstage dieses Jahr
-      const balance = db.prepare(`
+    const preview = users.map((user: any) => {
+      // Hole existierendes Carryover
+      const carryoverResult = query<any>(`
+        SELECT carryoverDays FROM carryover 
+        WHERE userId = ? AND year = ?
+      `, [user.userId, currentYear])
+
+      const currentCarryover = carryoverResult.length > 0 ? carryoverResult[0].carryoverDays : 0
+
+      // Hole genommene Urlaubstage dieses Jahr - mit julianday
+      const balance = query<any>(`
         SELECT 
-          COALESCE(SUM(days), 0) as usedDays
+          COALESCE(SUM(julianday(endDate) - julianday(startDate) + 1), 0) as usedDays
         FROM vacation_requests
         WHERE userId = ? 
-          AND status = 'approved'
-          AND strftime('%Y', startDate) = strftime('%Y', 'now')
-      `).get(user.userId) as { usedDays: number }
+          AND status IN ('approved', 'teamlead_approved')
+          AND strftime('%Y', startDate) = ?
+      `, [user.userId, currentYear.toString()])
 
-      const currentTotal = user.vacationDaysPerYear + user.carryoverDays
-      const remaining = currentTotal - balance.usedDays
+      const currentTotal = user.vacationDaysPerYear + currentCarryover
+      const remaining = currentTotal - balance[0].usedDays
 
       // Alle verbleibenden Tage werden übertragen (keine Begrenzung)
       const newCarryover = Math.max(remaining, 0)
@@ -46,9 +46,9 @@ export default defineEventHandler((event) => {
         displayName: user.displayName,
         current: {
           standard: user.vacationDaysPerYear,
-          carryover: user.carryoverDays,
+          carryover: currentCarryover,
           total: currentTotal,
-          used: balance.usedDays,
+          used: balance[0].usedDays,
           remaining: remaining
         },
         new: {
@@ -59,14 +59,12 @@ export default defineEventHandler((event) => {
       }
     })
 
-    db.close()
-
     return preview
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fehler beim Erstellen der Preview:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Erstellen der Preview'
+      message: 'Fehler beim Erstellen der Preview: ' + error.message
     })
   }
 })

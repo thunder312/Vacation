@@ -253,11 +253,17 @@
     
     <!-- Carryover Review Panel -->
     <CarryoverReview />
+    
+    <!-- Urlaubs-Rückbuchung (nur für Manager) -->
+    <VacationCancellation v-if="currentUser?.role === 'manager'" />
   </div>
 </template>
 
 <script setup lang="ts">
+import VacationCancellation from './VacationCancellation.vue'
+
 const toast = useToast()
+const { currentUser } = useAuth()
 const { t } = useI18n()
 
 // State

@@ -1,62 +1,62 @@
 // server/api/year-transition/execute.post.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query, run, transaction } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   try {
-    const dbPath = join(process.cwd(), 'vacation.db')
-    const db = new Database(dbPath)
-
     const currentYear = new Date().getFullYear()
+    let updatedCount = 0
 
-    // Transaction starten
-    const transaction = db.transaction(() => {
-      // Hole alle aktiven Benutzer
-      const users = db.prepare(`
+    // Transaction verwenden
+    transaction(() => {
+      // Hole alle aktiven Benutzer (username nicht userId!)
+      const users = query<any>(`
         SELECT 
-          userId,
-          vacationDaysPerYear,
-          carryoverDays
+          username as userId,
+          vacationDays as vacationDaysPerYear
         FROM users
         WHERE isActive = 1
-      `).all() as Array<{
-        userId: string
-        vacationDaysPerYear: number
-        carryoverDays: number
-      }>
-
-      const updateStmt = db.prepare(`
-        UPDATE users 
-        SET carryoverDays = ?
-        WHERE userId = ?
       `)
 
-      let updatedCount = 0
+      users.forEach((user: any) => {
+        // Hole existierendes Carryover für letztes Jahr
+        const lastYearCarryover = query<any>(`
+          SELECT carryoverDays FROM carryover 
+          WHERE userId = ? AND year = ?
+        `, [user.userId, currentYear - 1])
 
-      users.forEach(user => {
-        // Berechne verbleibende Tage
-        const balance = db.prepare(`
+        const carryover = lastYearCarryover.length > 0 ? lastYearCarryover[0].carryoverDays : 0
+
+        // Berechne verbleibende Tage - mit julianday für korrekte Berechnung
+        const balance = query<any>(`
           SELECT 
-            COALESCE(SUM(days), 0) as usedDays
+            COALESCE(SUM(julianday(endDate) - julianday(startDate) + 1), 0) as usedDays
           FROM vacation_requests
           WHERE userId = ? 
-            AND status = 'approved'
+            AND status IN ('approved', 'teamlead_approved')
             AND strftime('%Y', startDate) = ?
-        `).get(user.userId, (currentYear - 1).toString()) as { usedDays: number }
+        `, [user.userId, (currentYear - 1).toString()])
 
-        const currentTotal = user.vacationDaysPerYear + user.carryoverDays
-        const remaining = currentTotal - balance.usedDays
+        const currentTotal = user.vacationDaysPerYear + carryover
+        const remaining = currentTotal - balance[0].usedDays
 
-        // Alle verbleibenden Tage werden übertragen (keine Begrenzung)
+        // Alle verbleibenden Tage werden übertragen
         const newCarryover = Math.max(remaining, 0)
 
-        // Update User
-        updateStmt.run(newCarryover, user.userId)
+        // Speichere in carryover Tabelle
+        run(`
+          INSERT INTO carryover (userId, year, carryoverDays, createdAt, updatedAt)
+          VALUES (?, ?, ?, datetime('now'), datetime('now'))
+          ON CONFLICT(userId, year) 
+          DO UPDATE SET 
+            carryoverDays = ?,
+            updatedAt = datetime('now')
+        `, [user.userId, currentYear, newCarryover, newCarryover])
+
         updatedCount++
       })
 
       // Erstelle system_settings Tabelle falls nicht existiert
-      db.exec(`
+      run(`
         CREATE TABLE IF NOT EXISTS system_settings (
           key TEXT PRIMARY KEY,
           value TEXT NOT NULL,
@@ -65,27 +65,24 @@ export default defineEventHandler(async (event) => {
       `)
 
       // Speichere letzten Jahreswechsel
-      db.prepare(`
+      run(`
         INSERT OR REPLACE INTO system_settings (key, value, updatedAt)
         VALUES ('last_year_transition', ?, datetime('now'))
-      `).run(currentYear.toString())
+      `, [currentYear.toString()])
 
-      return updatedCount
+      console.log(`✅ Year transition completed for ${updatedCount} users`)
     })
-
-    const updatedCount = transaction()
-    db.close()
 
     return {
       success: true,
       updatedCount,
       year: currentYear
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fehler beim Jahreswechsel:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Jahreswechsel'
+      message: 'Fehler beim Jahreswechsel: ' + error.message
     })
   }
 })

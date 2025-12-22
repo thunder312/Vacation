@@ -1,21 +1,30 @@
 // server/api/year-transition/check.get.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { query } from '../../database/db'
 
 export default defineEventHandler((event) => {
   try {
-    const dbPath = join(process.cwd(), 'vacation.db')
-    const db = new Database(dbPath)
+    // Prüfe ob system_settings Tabelle existiert
+    const tableCheck = query<any>(`
+      SELECT name FROM sqlite_master 
+      WHERE type='table' AND name='system_settings'
+    `)
+    
+    const tableExists = tableCheck.length > 0
 
-    // Prüfe ob es eine letzte Jahreswechsel-Info gibt
-    const lastTransition = db.prepare(`
-      SELECT value FROM system_settings WHERE key = 'last_year_transition'
-    `).get() as { value: string } | undefined
+    let lastYear = new Date().getFullYear() - 1
+
+    if (tableExists) {
+      // Prüfe ob es eine letzte Jahreswechsel-Info gibt
+      const lastTransition = query<any>(`
+        SELECT value FROM system_settings WHERE key = 'last_year_transition'
+      `)
+
+      if (lastTransition && lastTransition.length > 0) {
+        lastYear = parseInt(lastTransition[0].value)
+      }
+    }
 
     const currentYear = new Date().getFullYear()
-    const lastYear = lastTransition ? parseInt(lastTransition.value) : currentYear - 1
-
-    db.close()
 
     return {
       needed: lastYear < currentYear,
