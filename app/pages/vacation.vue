@@ -283,6 +283,12 @@
       <div v-show="activeTab === 'calendar'" class="tab-content">
         <VacationCalendar />
       </div>
+
+      <!-- Tab: Berichte (für Manager und Office) -->
+      <div v-show="activeTab === 'reports'" class="tab-content">
+        <h2>Berichte & Statistiken</h2>
+        <AnnualVacationReport />
+      </div>
     </div>
 
     <!-- About Modal -->
@@ -622,6 +628,15 @@ const visibleTabs = computed(() => {
     count: 0
   })
   
+  // Berichte Tab für Manager und Office
+  if (currentUser.value?.role === 'manager' || currentUser.value?.role === 'office') {
+    tabs.push({
+      id: 'reports',
+      label: 'Berichte',
+      count: 0
+    })
+  }
+  
   // Urlaubskalender für alle
   tabs.push({
     id: 'calendar',
@@ -638,6 +653,7 @@ const visibleTabs = computed(() => {
       { id: 'manager', label: 'Manager-Ansicht', count: 0 },
       { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
       { id: 'organization', label: t('nav.organization'), count: 0 },
+      { id: 'reports', label: 'Berichte', count: 0 },
       { id: 'calendar', label: 'Kalender', count: 0 }
     ]
   }
