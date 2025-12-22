@@ -3597,3 +3597,88 @@ button {
   padding: 40px;
   color: var(--color-gray-500);
 }
+
+/* ============================================================ */
+/* COLLAPSIBLE SECTIONS - Shared Styles */
+/* ============================================================ */
+
+.section-header {
+  background: var(--color-gray-50);
+  padding: 15px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  border: 1px solid var(--color-gray-200);
+  margin-bottom: 15px;
+}
+
+.section-header:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.section-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-gray-800);
+}
+
+.toggle-icon {
+  font-size: 14px;
+  transition: transform var(--transition-fast);
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.section-content {
+  animation: slideDown var(--transition-base) ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================ */
+/* USER MANAGEMENT - Add User Section */
+/* ============================================================ */
+
+.add-user-section {
+  background: white;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 30px;
+}
+
+.add-user-section .section-content {
+  padding: 20px;
+}
+
+/* ============================================================ */
+/* ORGANIZATION CHART - Teams Overview */
+/* ============================================================ */
+
+.teams-overview {
+  background: white;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 30px;  /* Abstand zum Organigramm darunter */
+}
+
+.teams-overview .section-content {
+  padding: 20px;
+}
+

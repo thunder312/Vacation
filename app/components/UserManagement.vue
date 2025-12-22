@@ -4,8 +4,15 @@
 
     <!-- Neuen Mitarbeiter hinzufügen -->
     <div class="add-user-section">
-      <h3>Neuen Mitarbeiter hinzufügen</h3>
-      <form @submit.prevent="handleAddUser" class="user-form">
+      <div class="section-header" @click="toggleAddUserSection">
+        <h3>
+          <span class="toggle-icon">{{ showAddUserSection ? '▼' : '▶' }}</span>
+          Neuen Mitarbeiter hinzufügen
+        </h3>
+      </div>
+      
+      <div v-show="showAddUserSection" class="section-content">
+        <form @submit.prevent="handleAddUser" class="user-form">
         <div class="form-row">
           <div class="form-group">
             <label>Nachname *</label>
@@ -66,6 +73,7 @@
 
         <button type="submit" class="btn-primary">Mitarbeiter hinzufügen</button>
       </form>
+      </div>
     </div>
 
     <!-- Bestehende Mitarbeiter -->
@@ -265,9 +273,14 @@ const newUser = ref({
 const editingUser = ref<any>(null)
 const showInactive = ref(false)
 const showUsersSection = ref(false)  // Standardmäßig eingeklappt
+const showAddUserSection = ref(false)  // Standardmäßig eingeklappt
 const searchQuery = ref('')
 const sortColumn = ref<string>('displayName')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+
+const toggleAddUserSection = () => {
+  showAddUserSection.value = !showAddUserSection.value
+}
 
 const toggleUsersSection = () => {
   showUsersSection.value = !showUsersSection.value

@@ -17,6 +17,43 @@
       </div>
     </div>
 
+    <!-- Team-Übersicht -->
+    <div class="teams-overview">
+      <div class="section-header" @click="toggleTeamsSection">
+        <h3>
+          <span class="toggle-icon">{{ showTeamsSection ? '▼' : '▶' }}</span>
+          Team-Übersicht ({{ teams?.length || 0 }})
+        </h3>
+      </div>
+      
+      <div v-show="showTeamsSection" class="section-content">
+        <div class="teams-grid">
+        <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
+          <div class="team-header">
+            <h4>👥 Team {{ team.teamleadName }}</h4>
+            <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
+          </div>
+          <div class="team-members">
+            <div v-if="!team.members || team.members.length === 0" class="empty-team">
+              Keine Mitarbeiter zugeordnet
+            </div>
+            <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
+              {{ getDisplayName(memberId) }}
+              <button 
+                v-if="isEditable" 
+                @click="handleRemove(memberId)" 
+                class="remove-btn"
+                title="Aus Team entfernen"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Organigramm Baum -->
     <div ref="orgTreeRef" class="org-tree">
       <!-- Manager-Ebene -->
@@ -37,23 +74,23 @@
 
       <!-- Teamlead & Office Ebene -->
       <div class="teamlead-level">
-        <!-- Office -->
-        <div v-if="officeUser" class="org-node office">
+        <!-- Office (kann mehrere sein) -->
+        <div v-for="office in officeUsers" :key="office.userId" class="org-node office">
           <div class="node-header">
             <div class="node-icon">📋</div>
             <div class="node-info">
-              <div class="node-name">{{ officeUser.displayName }}</div>
+              <div class="node-name">{{ office.displayName }}</div>
               <div class="node-role">Office</div>
             </div>
           </div>
         </div>
 
-        <!-- System-Admin -->
-        <div v-if="sysadminUser" class="org-node sysadmin">
+        <!-- System-Admin (kann mehrere sein) -->
+        <div v-for="sysadmin in sysadminUsers" :key="sysadmin.userId" class="org-node sysadmin">
           <div class="node-header">
             <div class="node-icon">🔧</div>
             <div class="node-info">
-              <div class="node-name">{{ sysadminUser.displayName }}</div>
+              <div class="node-name">{{ sysadmin.displayName }}</div>
               <div class="node-role">System-Admin</div>
             </div>
           </div>
@@ -97,34 +134,7 @@
       </div>
     </div>
 
-    <!-- Team-Übersicht -->
-    <div class="teams-overview">
-      <h3>Team-Übersicht</h3>
-      <div class="teams-grid">
-        <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
-          <div class="team-header">
-            <h4>👥 Team {{ team.teamleadName }}</h4>
-            <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
-          </div>
-          <div class="team-members">
-            <div v-if="!team.members || team.members.length === 0" class="empty-team">
-              Keine Mitarbeiter zugeordnet
-            </div>
-            <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
-              {{ getDisplayName(memberId) }}
-              <button 
-                v-if="isEditable" 
-                @click="handleRemove(memberId)" 
-                class="remove-btn"
-                title="Aus Team entfernen"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Nicht zugeordnete Mitarbeiter (nur im Edit-Modus) -->
     <div v-if="isEditable && unassignedEmployees && unassignedEmployees.length > 0" class="unassigned-section">
@@ -208,19 +218,25 @@ const allEmployees = getAllEmployees
 
 const selectedEmployee = ref('')
 const selectedTeamlead = ref('')
+const showTeamsSection = ref(false)  // Standardmäßig eingeklappt
+
+const toggleTeamsSection = () => {
+  showTeamsSection.value = !showTeamsSection.value
+}
 
 // Manager-Nodes (nur Stefan Schulz, nicht admin)
 const managers = computed(() => {
   return orgNodes.value?.filter(n => n.role === 'manager' && n.userId !== 'admin') || []
 })
 
-// Office-User
-const officeUser = computed(() => {
-  return orgNodes.value?.find(n => n.role === 'office')
+// Office-Users (kann mehrere geben!)
+const officeUsers = computed(() => {
+  return orgNodes.value?.filter(n => n.role === 'office') || []
 })
 
-const sysadminUser = computed(() => {
-  return orgNodes.value?.find(n => n.role === 'sysadmin')
+// Sysadmin-Users (kann mehrere geben!)
+const sysadminUsers = computed(() => {
+  return orgNodes.value?.filter(n => n.role === 'sysadmin') || []
 })
 
 // Alle Teams mit Info
