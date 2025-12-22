@@ -114,6 +114,7 @@
 
 <script setup lang="ts">
 import { isWeekend, isHoliday } from '~/utils/holidays'
+import { getTodayLocal } from '~/utils/dateUtils'
 
 const toast = useToast()
 
@@ -168,8 +169,11 @@ const generateDays = () => {
   daysInMonth.value = []
   
   for (let day = 1; day <= daysCount; day++) {
-    const date = new Date(year, month - 1, day)
-    const dateStr = date.toISOString().split('T')[0]
+    // WICHTIG: Date mit lokalem Datum erstellen (12:00 Uhr um Zeitzonenfehler zu vermeiden)
+    const date = new Date(year, month - 1, day, 12, 0, 0)
+    
+    // Datum-String manuell erstellen (nicht toISOString verwenden!)
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     
     daysInMonth.value.push({
       day,
@@ -274,14 +278,12 @@ const getVacationTooltip = (vacation: any) => {
 
 // Tag-CSS-Klassen
 const getDayClass = (day: any) => {
-  // Heute in lokaler Zeitzone (Deutschland)
-  const today = new Date()
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  const today = getTodayLocal()  // Lokale Zeitzone (Europe/Berlin)
   
   return {
     'is-weekend': day.isWeekend,
     'is-holiday': day.isHoliday,
-    'is-today': day.date === todayStr
+    'is-today': day.date === today
   }
 }
 
