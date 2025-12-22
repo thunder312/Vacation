@@ -278,6 +278,11 @@
             :vacation-days="calculateVacationDays(request.startDate, request.endDate)"
         />
       </div>
+
+      <!-- Tab: Urlaubskalender (für alle) -->
+      <div v-show="activeTab === 'calendar'" class="tab-content">
+        <VacationCalendar />
+      </div>
     </div>
 
     <!-- About Modal -->
@@ -616,6 +621,13 @@ const visibleTabs = computed(() => {
     label: t('nav.organization'),
     count: 0
   })
+  
+  // Urlaubskalender für alle
+  tabs.push({
+    id: 'calendar',
+    label: 'Kalender',
+    count: 0
+  })
 
   // Office sieht: Alle Tabs (readonly außer eigene Anträge)
   if (currentUser.value?.role === 'office') {
@@ -625,7 +637,8 @@ const visibleTabs = computed(() => {
       { id: 'teamlead', label: 'Teamleiter-Ansicht', count: 0 },
       { id: 'manager', label: 'Manager-Ansicht', count: 0 },
       { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
-      { id: 'organization', label: t('nav.organization'), count: 0 }
+      { id: 'organization', label: t('nav.organization'), count: 0 },
+      { id: 'calendar', label: 'Kalender', count: 0 }
     ]
   }
 
