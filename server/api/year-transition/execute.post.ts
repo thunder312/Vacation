@@ -6,6 +6,15 @@ export default defineEventHandler(async (event) => {
     const currentYear = new Date().getFullYear()
     let updatedCount = 0
 
+    // Erstelle system_settings Tabelle ZUERST (außerhalb Transaction)
+    run(`
+      CREATE TABLE IF NOT EXISTS system_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
     // Transaction verwenden
     transaction(() => {
       // Hole alle aktiven Benutzer (username nicht userId!)
@@ -54,15 +63,6 @@ export default defineEventHandler(async (event) => {
 
         updatedCount++
       })
-
-      // Erstelle system_settings Tabelle falls nicht existiert
-      run(`
-        CREATE TABLE IF NOT EXISTS system_settings (
-          key TEXT PRIMARY KEY,
-          value TEXT NOT NULL,
-          updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      `)
 
       // Speichere letzten Jahreswechsel
       run(`
