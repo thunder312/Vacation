@@ -44,6 +44,7 @@ defineEmits<{
   assign: [userId: string, teamleadId: string]
   remove: [userId: string]
 }>()
+const { t } = useI18n()
 
 const roleIcon = computed(() => {
   switch (props.node.role) {

@@ -26,6 +26,7 @@ const props = defineProps<{
   request: VacationRequest
 }>()
 
+const { t } = useI18n()
 const { halfDayRules } = useHalfDayRules()
 
 const vacationDays = computed(() => {

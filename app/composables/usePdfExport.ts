@@ -74,7 +74,7 @@ export const usePdfExport = () => {
             // Urlaubskonto-Info
             doc.setFontSize(10)
             doc.setFont('arial', 'bold')
-            doc.text(`${t('vacation.vacationAccount')}:`, 14, 45)
+            doc.text(`${t('pdf.vacationAccount')}:`, 14, 45)
             doc.setFont('arial', 'normal')
             
             if (balance.carryoverDays > 0) {
