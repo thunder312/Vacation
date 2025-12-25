@@ -1,14 +1,14 @@
 <template>
   <div class="language-dropdown">
     <button @click="toggleDropdown" class="lang-dropdown-btn">
-      <span class="current-lang-flag">{{ currentLocale.flag }}</span>
-      <span class="current-lang-code">{{ currentLocale.code.toUpperCase() }}</span>
+      <span class="current-lang-flag">{{ currentFlag }}</span>
+      <span class="current-lang-code">{{ locale.toUpperCase() }}</span>
       <span class="dropdown-arrow">▼</span>
     </button>
     
     <div v-if="isOpen" class="lang-dropdown-menu">
       <button 
-        v-for="lang in availableLocales" 
+        v-for="lang in languages" 
         :key="lang.code"
         @click="selectLanguage(lang.code)"
         :class="['lang-option', { active: locale === lang.code }]"
@@ -22,29 +22,30 @@
 </template>
 
 <script setup lang="ts">
-const { locale, setLocale, availableLocales } = useI18n()
+const { locale, saveLocale, loadLocale } = useLocale()
 
 const isOpen = ref(false)
 
-const currentLocale = computed(() => {
-  return availableLocales.find(l => l.code === locale.value) || availableLocales[0]
+const languages = [
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'pt-br', name: 'Português', flag: '🇧🇷' }
+]
+
+const currentFlag = computed(() => {
+  const lang = languages.find(l => l.code === locale.value)
+  return lang?.flag || '🇩🇪'
 })
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const selectLanguage = async (code: string) => {
-  // Sprache wechseln
-  setLocale(code as any)
-  // Warten bis Vue alle Updates durchgeführt hat
-  await nextTick()
-  await nextTick() // Zweimal für alle reactive Updates
-  // Dann Dropdown schließen
+const selectLanguage = (code: string) => {
+  saveLocale(code)
   isOpen.value = false
 }
 
-// Click outside to close
 const handleClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (!target.closest('.language-dropdown')) {
@@ -53,6 +54,7 @@ const handleClickOutside = (e: MouseEvent) => {
 }
 
 onMounted(() => {
+  loadLocale()
   document.addEventListener('click', handleClickOutside)
 })
 

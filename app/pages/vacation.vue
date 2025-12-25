@@ -3,12 +3,14 @@
     <ToastContainer />
 
     <div class="header">
-      <h1>{{ t('app.title') }}</h1>
+      <h1>Urlaubsantrags-System</h1>
       <div class="header-actions">
-        <span class="user-greeting">{{ t('login.loggedInAs') }} <strong>{{ currentUser?.displayName || t('common.user') }}</strong></span>
+        <span class="user-greeting">Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
         
+        <!-- Language Switcher -->
         <LanguageSwitcher />
         
+        <!-- User Dropdown Menu -->
         <div class="user-dropdown">
           <button @click="toggleUserMenu" class="user-menu-btn">
             👤 {{ currentUser?.username }} ▼
@@ -16,29 +18,30 @@
           
           <div v-if="showUserMenu" class="dropdown-menu">
             <button @click="openPasswordModal" class="dropdown-item">
-              🔑 {{ t('login.changePassword') }}
+              🔑 Passwort ändern
             </button>
             <button @click="openAboutModal" class="dropdown-item">
-              ℹ️ {{ t('about.about') }}
+              ℹ️ Über
             </button>
             <button @click="handleLogout" class="dropdown-item logout">
-              🚪 {{ t('login.logout') }}
+              🚪 Abmelden
             </button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Passwort ändern Modal -->
     <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>{{ t('login.changePassword') }}</h2>
+          <h2>Passwort ändern</h2>
           <button @click="closePasswordModal" class="modal-close">✕</button>
         </div>
         
         <form @submit.prevent="handleChangePassword" class="password-form">
           <div class="form-group">
-            <label>{{ t('login.oldPassword') }} *</label>
+            <label>Altes Passwort *</label>
             <input 
               v-model="passwordForm.oldPassword" 
               type="password" 
@@ -48,7 +51,7 @@
           </div>
           
           <div class="form-group">
-            <label>{{ t('login.newPassword') }} * (min. 8 Zeichen)</label>
+            <label>Neues Passwort * (min. 8 Zeichen)</label>
             <input 
               v-model="passwordForm.newPassword" 
               type="password" 
@@ -59,7 +62,7 @@
           </div>
           
           <div class="form-group">
-            <label>{{ t('login.confirmPassword') }} *</label>
+            <label>Neues Passwort bestätigen *</label>
             <input 
               v-model="passwordForm.confirmPassword" 
               type="password" 
@@ -78,12 +81,14 @@
               {{ t('common.cancel') }}
             </button>
             <button type="submit" class="btn-primary">
-              {{ t('login.changePassword') }}
+              Passwort ändern
             </button>
           </div>
         </form>
       </div>
     </div>
+
+    <!-- Urlaub absagen Modal -->
 
     <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
       <div class="modal-content">
@@ -95,50 +100,30 @@
         <div class="modal-body">
           <p><strong>Achtung:</strong> Der genehmigte Urlaub wird abgesagt und die {{ t('vacation.vacationDays') }} werden dem {{ t('organization.employee') }} zurückgebucht.</p>
           
-          <div v-if="requestToCancel" class="cancel-details">
-            <p><strong>{{ t('organization.employee') }}:</strong> {{ requestToCancel.displayName }}</p>
-            <p><strong>Zeitraum:</strong> {{ formatDate(requestToCancel.startDate) }} - {{ formatDate(requestToCancel.endDate) }}</p>
-            <p><strong>{{ t('common.days') }}:</strong> {{ calculateWorkdays(requestToCancel.startDate, requestToCancel.endDate, halfDayDates) }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>{{ t('common.reason') }} *</label>
-            <textarea 
-              v-model="cancelReason" 
-              rows="3" 
-              required
-              placeholder="Grund für die Absage..."
-            ></textarea>
-          </div>
-        </div>
-        
-        <div class="modal-actions">
-          <button @click="closeCancelModal" class="btn-secondary">
-            {{ t('common.cancel') }}
-          </button>
-          <button @click="confirmCancel" class="btn-danger">
-            🚫 {{ t('vacation.cancel') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <AboutModal v-model="showAboutModal" />
-
-    <nav class="navigation">
+          <form @submit.prevent="confirmCancelRequest" class="cancel-form">
+            <div class="form-group">
+              <label>{{ t('vacation.cancelReason') }} ({{ t('common.optional') }})</label>
+              <textarea 
+                v-model="cancellationReason" 
+                rows="4"
+                placeholder="z.B. Dringender Kundentermin, Projektverschiebung..."
+              ></textarea>
+              <small>Dieser Grund wird dem {{ t('organization.employee') }} angezeigt.</small>
+            </div>
             
             <div class="modal-actions">
               <button type="button" @click="closeCancelModal" class="btn-secondary">
                 {{ t('common.cancel') }}
               </button>
               <button type="submit" class="btn-danger">
-                 {{ t('vacation.cancel') }}
+                🚫 {{ t('vacation.cancel') }}
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
 
 
     <!-- Carryover Info Banner (Mitarbeiter sieht seine Übertrag-Info) -->
@@ -171,20 +156,20 @@
         <VacationRequestForm @submit="handleSubmitRequest" />
 
         <div class="pdf-export-section">
-          <h3>{{ t('vacation.exportApprovedVacations') }}</h3>
+          <h3>Genehmigte Urlaube exportieren</h3>
           <button
               @click="handleExportMyVacations"
               class="btn-pdf"
               :disabled="!approvedUserRequests || approvedUserRequests.length === 0"
           >
-            📄 {{ t('vacation.exportPdf') }}
+            📄 Als PDF exportieren
           </button>
         </div>
 
         <div class="requests-list">
-          <h2>{{ t('vacation.myRequests') }}</h2>
+          <h2>Meine Urlaubsanträge</h2>
           <div v-if="!userRequests || userRequests.length === 0" class="empty-state">
-            {{ t('vacation.noRequests') }}
+            Noch keine Urlaubsanträge vorhanden
           </div>
           <VacationRequestCard
               v-for="request in userRequests || []"
@@ -197,17 +182,17 @@
 
       <!-- Tab 2: Teamleiter (nur für teamleiter und chef) -->
       <div v-show="activeTab === 'teamlead'" class="tab-content">
-        <h2>{{ t('vacation.requestsForApproval') }} ( {{ t('users.teamlead') }})</h2>
+        <h2>Urlaubsanträge zur Genehmigung ( {{ t('users.teamlead') }})</h2>
 
         <div class="pdf-export-section">
-          <h3>{{ t('vacation.exportTeamVacations') }}</h3>
+          <h3>Team-Urlaube exportieren</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
             📄  {{ t('vacation.exportTeamPdf') }}
           </button>
         </div>
 
         <div v-if="!pendingTeamleadRequests || pendingTeamleadRequests.length === 0" class="empty-state">
-          {{ t('vacation.noPendingRequests') }}
+          Keine ausstehenden Urlaubsanträge
         </div>
         <template v-else>
           <VacationApprovalCard
@@ -224,10 +209,10 @@
 
       <!-- Tab 3: Manager (nur für chef) -->
       <div v-show="activeTab === 'manager'" class="tab-content">
-        <h2>{{ t('vacation.requestsForFinalApproval') }} (Manager)</h2>
+        <h2>Urlaubsanträge zur finalen Genehmigung (Manager)</h2>
 
         <div class="pdf-export-section">
-          <h3>{{ t('vacation.exportAllVacations') }}</h3>
+          <h3>Alle Urlaube exportieren</h3>
           <button @click="handleExportAllVacations" class="btn-pdf">
             📄  {{ t('vacation.exportAllPdf') }}
           </button>
@@ -246,7 +231,7 @@
           />
         </template>
         <div v-else class="empty-state">
-          {{ t('vacation.noPendingRequests') }} für finale Genehmigung
+          Keine ausstehenden Urlaubsanträge für finale Genehmigung
         </div>
 
         <!-- Genehmigte Urlaube (können abgesagt werden) -->
@@ -428,7 +413,7 @@ const handleChangePassword = async () => {
   }
   
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    passwordError.value = t('login.passwordMismatch')
+    passwordError.value = 'Passwörter stimmen nicht überein'
     return
   }
   
@@ -441,11 +426,11 @@ const handleChangePassword = async () => {
       }
     })
     
-    toast.success(t('login.passwordChanged'))
+    toast.success('Passwort erfolgreich geändert')
     closePasswordModal()
   } catch (error: any) {
     console.error('Passwort-Änderung fehlgeschlagen:', error)
-    passwordError.value = error.data?.message || t('login.passwordChangeError')
+    passwordError.value = error.data?.message || 'Fehler beim Ändern des Passworts'
   }
 }
 

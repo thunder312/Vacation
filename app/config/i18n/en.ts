@@ -1,4 +1,4 @@
-export default {
+export const en = {
   common: {
     loading: 'Loading...',
     save: 'Save',
@@ -95,6 +95,7 @@ export default {
     approve: 'Approve',
     reject: 'Reject',
     cancel: 'Cancel',
+    cancelReason: 'Cancellation Reason',
     approvedVacations: 'Approved Vacations',
     filterByEmployee: 'Filter by Employee',
     filterByYear: 'Filter by Year',
@@ -230,3 +231,5 @@ export default {
     about: 'About'
   }
 }
+
+export default en

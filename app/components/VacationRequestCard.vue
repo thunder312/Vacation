@@ -1,5 +1,5 @@
 <template>
-  <div class="request-card">
+  <div v-if="request" class="request-card">
     <div class="request-header">
       <span class="request-date">
         {{ formatDate(request.startDate) }} - {{ formatDate(request.endDate) }}
@@ -23,13 +23,14 @@ import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
 
 const props = defineProps<{
-  request: VacationRequest
+  request: VacationRequest | null
 }>()
 
 const { t } = useI18n()
 const { halfDayRules } = useHalfDayRules()
 
 const vacationDays = computed(() => {
+  if (!props.request) return 0
   const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
   return calculateWorkdays(props.request.startDate, props.request.endDate, halfDayDates)
 })

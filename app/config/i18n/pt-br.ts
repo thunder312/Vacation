@@ -1,4 +1,4 @@
-export default {
+export const ptBr = {
   common: {
     loading: 'Carregando...',
     save: 'Salvar',
@@ -95,6 +95,7 @@ export default {
     approve: 'Aprovar',
     reject: 'Rejeitar',
     cancel: 'Cancelar',
+    cancelReason: 'Motivo do Cancelamento',
     approvedVacations: 'Férias Aprovadas',
     filterByEmployee: 'Filtrar por Funcionário',
     filterByYear: 'Filtrar por Ano',
@@ -230,3 +231,5 @@ export default {
     about: 'Sobre'
   }
 }
+
+export default ptBr
