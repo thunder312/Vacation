@@ -3,7 +3,7 @@
   - <del>days off per year: 30 (carryover to next year)</del>
   - <del>custom days (holidays) addable by admin, even half days</del>
   - <del>role: office (see as admin, but no edits)</del>
-  - Year-report with statistics (days carried over, middle vacation length); 1 page per person
+  - <del>Year-report with statistics (days carried over, middle vacation length); 1 page per person</del>
   - <del>Office is also a regular user, so it shall be able to add vacations for herself, which only needs to be granted by the manager</del>
   - <del>Teamlead proposals only need to granted by manager</del>
   - <del>Rename Teamlead in all texts to Teamleiter</del>
@@ -33,10 +33,10 @@
   - <del>Mitarbeiterverwaltung: retractable task blocks (new, edit)?</del>
   - <del>PDF shall have page numbers (1/5)</del>
   - <del>Alle Urlaube shall ordered by von-date, then bis-date and group by user.</del>
-  - Finish about modal
+  - <del>Finish about modal</del>
   - Create Manual deutsch/englisch
   - Pflichtenhelft/Lastenheft???
-  - dummy company for gitHub
+  - <del>dummy company for gitHub</del>
 
 ## Code organization
 - <del>all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.</del>
