@@ -229,7 +229,20 @@ export const de = {
     copyright: '© {year} {company}. Alle Rechte vorbehalten.',
     madeWith: 'Entwickelt mit ❤️ und modernsten Technologien',
     about: 'Über'
-  }
+  },
+
+  pdf: {
+    totalPages: 'Seite {current}/{total}',
+    myApprovedVacations: 'Meine genehmigten Urlaube',
+    teamVacations: 'Team-Urlaubsübersicht',
+    vacationAccount: 'Urlaubskonto',
+    totalRequests: 'Anträge gesamt',
+    fullyApproved: 'Vollständig genehmigt',
+    pendingTeamlead: 'Wartet auf Teamleiter',
+    pendingManager: 'Wartet auf Manager',
+    totalApprovedDays: 'Genehmigte Tage gesamt',
+    totalCancelledDays: 'Abgesagte Tage gesamt'
+  },
 }
 
 export default de

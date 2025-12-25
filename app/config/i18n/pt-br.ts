@@ -229,7 +229,20 @@ export const ptBr = {
     copyright: '© {year} {company}. Todos os direitos reservados.',
     madeWith: 'Construído com ❤️ e tecnologias de ponta',
     about: 'Sobre'
-  }
+  },
+
+  pdf: {
+    totalPages: 'Página {current}/{total}',
+    myApprovedVacations: 'Minhas Férias Aprovadas',
+    teamVacations: 'Visão Geral de Férias da Equipe',
+    vacationAccount: 'Conta de Férias',
+    totalRequests: 'Total de Solicitações',
+    fullyApproved: 'Totalmente Aprovado',
+    pendingTeamlead: 'Aguardando Líder de Equipe',
+    pendingManager: 'Aguardando Gerente',
+    totalApprovedDays: 'Total de Dias Aprovados',
+    totalCancelledDays: 'Total de Dias Cancelados'
+  },
 }
 
 export default ptBr

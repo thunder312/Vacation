@@ -24,7 +24,7 @@
       </div>
       
       <div v-show="showTeamsSection" class="section-content">
-        <div class="teams-grid">
+        <div ref="teamsGridRef" class="teams-grid">
         <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
           <div class="team-header">
             <h4>👥 Team {{ team.teamleadName }}</h4>
@@ -159,10 +159,43 @@ const emit = defineEmits(['remove-from-team'])
 const showTeamsSection = ref(false)
 const showOrgTree = ref(false)
 const orgTreeRef = ref<HTMLElement | null>(null)
+const teamsGridRef = ref<HTMLElement | null>(null)
 
 // Lade Organization-Daten wenn nicht als Prop übergeben
-const { orgNodes } = useOrganization()
-const organization = computed(() => props.organization || orgNodes.value || { managers: [], teamleads: [], officeUsers: [], sysadminUsers: [], unassignedEmployees: [], teams: [] })
+const { 
+  orgNodes, 
+  getTeams, 
+  getManager, 
+  getTeamleads, 
+  getAllEmployees, 
+  getUnassignedEmployees,
+  fetchOrganization 
+} = useOrganization()
+
+// Transformiere orgNodes zu erwarteter Struktur
+const organization = computed(() => {
+  if (props.organization) {
+    return props.organization
+  }
+  
+  // Gruppiere orgNodes nach Rolle
+  const nodes = orgNodes.value || []
+  return {
+    managers: nodes.filter(n => n.role === 'manager'),
+    teamleads: nodes.filter(n => n.role === 'teamlead'),
+    officeUsers: nodes.filter(n => n.role === 'office'),
+    sysadminUsers: nodes.filter(n => n.role === 'sysadmin'),
+    unassignedEmployees: nodes.filter(n => n.role === 'employee' && !n.teamId),
+    teams: getTeams.value
+  }
+})
+
+// Lade Daten beim Mount wenn nicht als Prop übergeben
+onMounted(() => {
+  if (!props.organization && orgNodes.value.length === 0) {
+    fetchOrganization()
+  }
+})
 
 const toggleTeamsSection = () => {
   showTeamsSection.value = !showTeamsSection.value
@@ -173,7 +206,14 @@ const toggleOrgTree = () => {
 }
 
 const managers = computed(() => organization.value?.managers || [])
-const teamleads = computed(() => organization.value?.teamleads || [])
+const teamleads = computed(() => {
+  const tls = organization.value?.teamleads || []
+  // Füge teamMembers zu jedem Teamlead hinzu
+  return tls.map(tl => ({
+    ...tl,
+    teamMembers: (orgNodes.value || []).filter(n => n.teamId === tl.userId)
+  }))
+})
 const officeUsers = computed(() => organization.value?.officeUsers || [])
 const sysadminUsers = computed(() => organization.value?.sysadminUsers || [])
 const unassignedEmployees = computed(() => organization.value?.unassignedEmployees || [])
@@ -205,63 +245,79 @@ const handleRemove = (userId: string) => {
 }
 
 const exportOrgChart = async () => {
+  if (!orgTreeRef.value) {
+    toast.error('Organigramm nicht gefunden')
+    return
+  }
+
+  // Stelle sicher, dass das Organigramm sichtbar ist
+  if (!showOrgTree.value) {
+    showOrgTree.value = true
+    await nextTick()
+    // Warte kurz damit das CSS gerendert wird
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+
   toast.info(t('vacation.pdfGenerating'))
   
   try {
+    // Importiere html2canvas
+    const html2canvas = (await import('html2canvas')).default
+    
+    // Erstelle Screenshot vom Organigramm
+    const canvas = await html2canvas(orgTreeRef.value, {
+      scale: 2, // Höhere Auflösung
+      backgroundColor: '#ffffff',
+      logging: false,
+      useCORS: true
+    })
+    
+    const imgData = canvas.toDataURL('image/png')
+    
+    // Erstelle PDF
     const { jsPDF } = await import('jspdf')
+    
+    // Berechne Dimensionen
+    const imgWidth = canvas.width
+    const imgHeight = canvas.height
+    const ratio = imgWidth / imgHeight
+    
+    // A4 Landscape: 297mm x 210mm
+    const pdfWidth = 297
+    const pdfHeight = 210
+    const margin = 20
+    
+    let finalWidth = pdfWidth - (2 * margin)
+    let finalHeight = finalWidth / ratio
+    
+    // Wenn zu hoch, an Höhe anpassen
+    if (finalHeight > pdfHeight - (2 * margin)) {
+      finalHeight = pdfHeight - (2 * margin)
+      finalWidth = finalHeight * ratio
+    }
+    
     const doc = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
       format: 'a4'
     })
     
+    // Titel
     doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
-    doc.text('Organigramm', 148, 20, { align: 'center' })
+    doc.text('Organigramm', pdfWidth / 2, 15, { align: 'center' })
     
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
-    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 148, 28, { align: 'center' })
+    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), pdfWidth / 2, 22, { align: 'center' })
     
-    let y = 45
+    // Bild zentriert einfügen
+    const x = (pdfWidth - finalWidth) / 2
+    const y = 30
     
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Manager', 20, y)
-    y += 8
+    doc.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight)
     
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    managers.value.forEach((m: any) => {
-      doc.text('- ' + m.displayName, 25, y)
-      y += 6
-    })
-    y += 5
-    
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Teams', 20, y)
-    y += 8
-    
-    doc.setFontSize(10)
-    teamleads.value.forEach((tl: any) => {
-      doc.setFont('helvetica', 'bold')
-      doc.text('Team ' + tl.displayName + ':', 25, y)
-      y += 6
-      
-      doc.setFont('helvetica', 'normal')
-      if (tl.teamMembers && tl.teamMembers.length > 0) {
-        tl.teamMembers.forEach((emp: any) => {
-          doc.text('  - ' + emp.displayName, 30, y)
-          y += 5
-        })
-      } else {
-        doc.text('  (Keine Mitarbeiter)', 30, y)
-        y += 5
-      }
-      y += 3
-    })
-    
+    // PDF öffnen
     const pdfBlob = doc.output('blob')
     const pdfUrl = URL.createObjectURL(pdfBlob)
     window.open(pdfUrl, '_blank')
@@ -275,53 +331,113 @@ const exportOrgChart = async () => {
 }
 
 const exportTeamOverview = async () => {
+  if (!teamsGridRef.value) {
+    toast.error('Team-Übersicht nicht gefunden')
+    return
+  }
+
+  // Stelle sicher, dass die Team-Section sichtbar ist
+  if (!showTeamsSection.value) {
+    showTeamsSection.value = true
+    await nextTick()
+    // Warte kurz damit das CSS gerendert wird
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+
   toast.info(t('vacation.pdfGenerating'))
   
   try {
+    // Importiere html2canvas
+    const html2canvas = (await import('html2canvas')).default
+    
+    // Erstelle Screenshot von der Team-Grid
+    const canvas = await html2canvas(teamsGridRef.value, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false,
+      useCORS: true
+    })
+    
+    const imgData = canvas.toDataURL('image/png')
+    
+    // Erstelle PDF
     const { jsPDF } = await import('jspdf')
+    
+    // Berechne Dimensionen
+    const imgWidth = canvas.width
+    const imgHeight = canvas.height
+    const ratio = imgWidth / imgHeight
+    
+    // A4 Portrait: 210mm x 297mm
+    const pdfWidth = 210
+    const pdfHeight = 297
+    const margin = 15
+    
+    let finalWidth = pdfWidth - (2 * margin)
+    let finalHeight = finalWidth / ratio
+    
+    // Mehrere Seiten wenn das Bild zu hoch ist
+    const maxHeightPerPage = pdfHeight - 50
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     })
     
+    // Titel auf erster Seite
     doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
-    doc.text('Teamübersicht', 105, 20, { align: 'center' })
+    doc.text('Teamübersicht', pdfWidth / 2, 15, { align: 'center' })
     
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
-    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 28, { align: 'center' })
+    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), pdfWidth / 2, 22, { align: 'center' })
     
-    let y = 45
+    // Statistik
+    const totalTeams = teams.value.length
+    const totalMembers = teams.value.reduce((sum: number, t: any) => sum + (t.members?.length || 0), 0)
+    doc.setFontSize(9)
+    doc.text(`${totalTeams} Teams | ${totalMembers} Mitarbeiter`, pdfWidth / 2, 28, { align: 'center' })
     
-    teams.value.forEach((team: any) => {
-      if (y > 250) {
-        doc.addPage()
-        y = 20
+    // Wenn das Bild auf eine Seite passt
+    if (finalHeight <= maxHeightPerPage) {
+      const x = margin
+      const y = 35
+      doc.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight)
+    } else {
+      // Bild auf mehrere Seiten aufteilen
+      let currentY = 0
+      let pageNum = 0
+      
+      while (currentY < imgHeight) {
+        if (pageNum > 0) {
+          doc.addPage()
+        }
+        
+        const sourceY = currentY
+        const sourceHeight = Math.min(imgHeight - currentY, (maxHeightPerPage / finalHeight) * imgHeight)
+        const destHeight = (sourceHeight / imgHeight) * finalHeight
+        
+        // Canvas-Ausschnitt erstellen
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = imgWidth
+        tempCanvas.height = sourceHeight
+        const tempCtx = tempCanvas.getContext('2d')
+        
+        if (tempCtx) {
+          tempCtx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight)
+          const tempImgData = tempCanvas.toDataURL('image/png')
+          
+          const startY = pageNum === 0 ? 35 : 15
+          doc.addImage(tempImgData, 'PNG', margin, startY, finalWidth, destHeight)
+        }
+        
+        currentY += sourceHeight
+        pageNum++
       }
-      
-      doc.setFontSize(12)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Team ' + team.teamleadName, 20, y)
-      y += 8
-      
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      
-      if (team.members && team.members.length > 0) {
-        team.members.forEach((memberId: string) => {
-          doc.text('- ' + getDisplayName(memberId), 25, y)
-          y += 6
-        })
-      } else {
-        doc.text('(Keine Mitarbeiter)', 25, y)
-        y += 6
-      }
-      
-      y += 10
-    })
+    }
     
+    // PDF öffnen
     const pdfBlob = doc.output('blob')
     const pdfUrl = URL.createObjectURL(pdfBlob)
     window.open(pdfUrl, '_blank')

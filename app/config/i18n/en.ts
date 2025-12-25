@@ -229,7 +229,20 @@ export const en = {
     copyright: '© {year} {company}. All rights reserved.',
     madeWith: 'Built with ❤️ and cutting-edge technologies',
     about: 'About'
-  }
+  },
+
+  pdf: {
+    totalPages: 'Page {current}/{total}',
+    myApprovedVacations: 'My Approved Vacations',
+    teamVacations: 'Team Vacation Overview',
+    vacationAccount: 'Vacation Account',
+    totalRequests: 'Total Requests',
+    fullyApproved: 'Fully Approved',
+    pendingTeamlead: 'Awaiting Team Lead',
+    pendingManager: 'Awaiting Manager',
+    totalApprovedDays: 'Total Approved Days',
+    totalCancelledDays: 'Total Cancelled Days'
+  },
 }
 
 export default en
