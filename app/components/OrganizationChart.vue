@@ -150,7 +150,7 @@ const { t } = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  organization: any
+  organization?: any
   isEditable?: boolean
 }>()
 
@@ -160,6 +160,10 @@ const showTeamsSection = ref(false)
 const showOrgTree = ref(false)
 const orgTreeRef = ref<HTMLElement | null>(null)
 
+// Lade Organization-Daten wenn nicht als Prop übergeben
+const { orgNodes } = useOrganization()
+const organization = computed(() => props.organization || orgNodes.value || { managers: [], teamleads: [], officeUsers: [], sysadminUsers: [], unassignedEmployees: [], teams: [] })
+
 const toggleTeamsSection = () => {
   showTeamsSection.value = !showTeamsSection.value
 }
@@ -168,12 +172,12 @@ const toggleOrgTree = () => {
   showOrgTree.value = !showOrgTree.value
 }
 
-const managers = computed(() => props.organization?.managers || [])
-const teamleads = computed(() => props.organization?.teamleads || [])
-const officeUsers = computed(() => props.organization?.officeUsers || [])
-const sysadminUsers = computed(() => props.organization?.sysadminUsers || [])
-const unassignedEmployees = computed(() => props.organization?.unassignedEmployees || [])
-const teams = computed(() => props.organization?.teams || [])
+const managers = computed(() => organization.value?.managers || [])
+const teamleads = computed(() => organization.value?.teamleads || [])
+const officeUsers = computed(() => organization.value?.officeUsers || [])
+const sysadminUsers = computed(() => organization.value?.sysadminUsers || [])
+const unassignedEmployees = computed(() => organization.value?.unassignedEmployees || [])
+const teams = computed(() => organization.value?.teams || [])
 
 const allUsers = computed(() => {
   const users = new Map()

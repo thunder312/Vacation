@@ -3957,6 +3957,7 @@ button {
 /* VACATION CALENDAR */
 /* ============================================================ */
 
+/* ===== VACATION CALENDAR ===== */
 .vacation-calendar {
   background: white;
   border-radius: var(--radius-lg);
@@ -3979,7 +3980,6 @@ button {
   color: var(--color-gray-900);
 }
 
-/* Month Selector */
 .month-selector {
   display: flex;
   align-items: center;
@@ -4017,7 +4017,6 @@ button {
   transform: scale(1.05);
 }
 
-/* Legend */
 .legend {
   display: flex;
   gap: 20px;
@@ -4046,10 +4045,6 @@ button {
   background: var(--color-success);
 }
 
-.legend-color.pending {
-  background: var(--color-warning);
-}
-
 .legend-color.weekend {
   background: var(--color-gray-200);
 }
@@ -4058,7 +4053,6 @@ button {
   background: var(--color-info);
 }
 
-/* Calendar Container */
 .calendar-container {
   overflow-x: auto;
   overflow-y: visible;
@@ -4067,13 +4061,12 @@ button {
 }
 
 .calendar-grid {
-  min-width: 100%;
+  min-width: 1400px;
 }
 
-/* Calendar Header Row */
 .calendar-days-header {
   display: grid;
-  grid-template-columns: 150px 1fr;  /* Schmaler für kompakte Namen */
+  grid-template-columns: 150px 1fr;
   background: var(--color-gray-100);
   border-bottom: 2px solid var(--color-gray-300);
   position: sticky;
@@ -4091,199 +4084,115 @@ button {
 }
 
 .days-row {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(40px, 1fr);
 }
 
 .day-header {
-  flex: 1;
-  min-width: 40px;
   padding: 8px 4px;
   text-align: center;
   border-right: 1px solid var(--color-gray-200);
-  font-size: 11px;
+  font-size: 12px;
 }
 
-.day-header.is-weekend {
-  background: var(--color-gray-200);
+.day-header.weekend {
+  background: var(--color-gray-100);
 }
 
-.day-header.is-holiday {
+.day-header.holiday {
   background: var(--color-info-light);
-  color: var(--color-info-text);
-}
-
-.day-header.is-today {
-  background: var(--color-primary-light);
-  font-weight: bold;
 }
 
 .day-number {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
+  color: var(--color-gray-800);
 }
 
 .day-name {
   font-size: 10px;
   color: var(--color-gray-600);
   text-transform: uppercase;
+  margin-top: 2px;
 }
 
-/* Calendar Body */
 .calendar-body {
-  /* Kein max-height oder overflow - der äußere Container scrollt */
+  background: white;
 }
 
 .employee-row {
   display: grid;
-  grid-template-columns: 150px 1fr;  /* Gleiche Breite wie Header */
+  grid-template-columns: 150px 1fr;
   border-bottom: 1px solid var(--color-gray-200);
-  min-height: 50px;
 }
 
-.employee-row:hover {
+.employee-row:nth-child(even) {
   background: var(--color-gray-50);
 }
 
+.employee-row:hover {
+  background: #f8f9fa;
+}
+
 .employee-name {
-  padding: 12px 8px;
+  padding: 12px;
   font-weight: 500;
-  font-size: 13px;  /* Etwas kleiner für kompakte Namen */
   color: var(--color-gray-800);
   border-right: 1px solid var(--color-gray-300);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   position: sticky;
   left: 0;
-  background: white;
+  background: inherit;
   z-index: 5;
-}
-
-.employee-row:hover .employee-name {
-  background: var(--color-gray-50);
 }
 
 .vacation-count {
   font-size: 12px;
-  color: var(--color-gray-500);
+  color: var(--color-gray-600);
   font-weight: normal;
 }
 
-/* Day Cells */
 .day-cell {
-  flex: 1;
-  min-width: 40px;
+  min-height: 40px;
   border-right: 1px solid var(--color-gray-200);
   position: relative;
-  padding: 4px 2px;
+  transition: all 0.2s;
 }
 
-.day-cell.is-weekend {
-  background: var(--color-gray-50);
+.day-cell.weekend {
+  background: var(--color-gray-100);
 }
 
-.day-cell.is-holiday {
+.day-cell.holiday {
   background: var(--color-info-light);
 }
 
-/* Vacation Bars */
-.vacation-bar {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 28px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  padding: 0 6px;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
+.day-cell.has-vacation {
+  background: var(--color-success) !important;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  z-index: 2;
 }
 
-.vacation-bar:hover {
-  transform: translateY(-50%) scale(1.02);
-  box-shadow: var(--shadow-md);
-  z-index: 3;
+.day-cell.has-vacation:hover {
+  background: var(--color-success-dark) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-.vacation-bar.status-approved {
-  background: var(--color-success);
-  color: white;
-}
-
-.vacation-bar.status-teamlead_approved {
-  background: var(--color-success);
-  color: white;
-  opacity: 0.8;
-}
-
-.vacation-bar.status-pending {
-  background: var(--color-warning);
-  color: var(--color-warning-text);
-  border: 1px dashed var(--color-warning-dark);
-}
-
-.vacation-label {
-  font-size: 10px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-/* Calendar Actions */
-.calendar-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Loading State */
-.loading-state {
-  text-align: center;
-  padding: 40px;
-  color: var(--color-gray-600);
-}
-
-/* Empty State */
 .empty-state {
+  padding: 40px;
   text-align: center;
-  padding: 60px 20px;
-  color: var(--color-gray-500);
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.loading-state {
+  padding: 40px;
+  text-align: center;
   font-size: 16px;
+  color: var(--color-gray-700);
 }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .calendar-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .month-selector {
-    justify-content: center;
-  }
-  
-  .calendar-days-header,
-  .employee-row {
-    grid-template-columns: 120px 1fr;  /* Mobile noch schmaler */
-  }
-  
-  .employee-name {
-    font-size: 12px;
-    padding: 8px 6px;
-  }
-  
-  .day-header,
-  .day-cell {
-    min-width: 35px;
-  }
-}
-
-
 /* ============================================================ */
 /* ANNUAL VACATION REPORT */
 /* ============================================================ */

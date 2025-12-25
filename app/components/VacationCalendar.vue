@@ -76,8 +76,8 @@
               <div 
                 v-for="day in daysInMonth" 
                 :key="day.date"
-                :class="['day-cell', getDayClass(day), getVacationClass(employee.userId, day.date)]"
-                :title="getVacationTooltip(employee.userId, day.date)"
+                :class="['day-cell', getDayClass(day), getVacationClass(employee, day.date)]"
+                :title="getVacationTooltip(employee, day.date)"
               >
               </div>
             </div>
@@ -95,8 +95,7 @@ const toast = useToast()
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
 const loading = ref(false)
-const vacations = ref<any[]>([])
-const employees = ref<any[]>([])
+const employeesWithVacation = ref<any[]>([])
 
 const years = computed(() => {
   const currentYear = new Date().getFullYear()
@@ -106,13 +105,14 @@ const years = computed(() => {
 const daysInMonth = computed(() => {
   const year = selectedYear.value
   const month = selectedMonth.value
-  const firstDay = new Date(year, month - 1, 1)
-  const lastDay = new Date(year, month, 0)
+  const lastDay = new Date(year, month, 0).getDate()
   const days = []
   
-  for (let d = 1; d <= lastDay.getDate(); d++) {
+  for (let d = 1; d <= lastDay; d++) {
+    // String-basierte Datumserstellung (kein toISOString() wegen Timezone)
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
     const date = new Date(year, month - 1, d)
-    const dateStr = date.toISOString().split('T')[0]
+    
     days.push({
       date: dateStr,
       day: d,
@@ -123,26 +123,6 @@ const daysInMonth = computed(() => {
   }
   
   return days
-})
-
-const employeesWithVacation = computed(() => {
-  const empVacMap = new Map()
-  
-  vacations.value.forEach(v => {
-    if (!empVacMap.has(v.userId)) {
-      const emp = employees.value.find(e => e.username === v.userId)
-      empVacMap.set(v.userId, {
-        userId: v.userId,
-        displayName: v.displayName || emp?.displayName || v.userId,
-        vacations: []
-      })
-    }
-    empVacMap.get(v.userId).vacations.push(v)
-  })
-  
-  return Array.from(empVacMap.values()).sort((a, b) => 
-    a.displayName.localeCompare(b.displayName)
-  )
 })
 
 const getMonthName = (month: number) => {
@@ -163,22 +143,16 @@ const getDayTitle = (day: any) => {
   return ''
 }
 
-const getVacationClass = (userId: string, date: string) => {
-  const vacation = vacations.value.find(v => 
-    v.userId === userId && 
-    v.status === 'approved' &&
-    date >= v.startDate && 
-    date <= v.endDate
+const getVacationClass = (employee: any, date: string) => {
+  const vacation = employee.vacations.find((v: any) => 
+    date >= v.startDate && date <= v.endDate
   )
   return vacation ? 'has-vacation' : ''
 }
 
-const getVacationTooltip = (userId: string, date: string) => {
-  const vacation = vacations.value.find(v => 
-    v.userId === userId && 
-    v.status === 'approved' &&
-    date >= v.startDate && 
-    date <= v.endDate
+const getVacationTooltip = (employee: any, date: string) => {
+  const vacation = employee.vacations.find((v: any) => 
+    date >= v.startDate && date <= v.endDate
   )
   if (vacation) {
     return `Urlaub: ${vacation.startDate} - ${vacation.endDate}`
@@ -217,21 +191,17 @@ const nextMonth = () => {
 const loadCalendar = async () => {
   loading.value = true
   try {
-    const [vacData, empData] = await Promise.all([
-      $fetch('/api/vacation/calendar', {
-        params: {
-          year: selectedYear.value,
-          month: selectedMonth.value
-        }
-      }),
-      $fetch('/api/users')
-    ])
+    const data = await $fetch('/api/vacation/calendar', {
+      params: {
+        year: selectedYear.value,
+        month: selectedMonth.value
+      }
+    })
     
-    vacations.value = vacData || []
-    employees.value = empData || []
+    employeesWithVacation.value = data || []
   } catch (error) {
-    console.error('Fehler:', error)
-    toast.error('Fehler beim Laden')
+    console.error('Fehler beim Laden des Kalenders:', error)
+    toast.error('Fehler beim Laden des Kalenders')
   } finally {
     loading.value = false
   }

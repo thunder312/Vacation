@@ -3,33 +3,42 @@ import { query } from '../../database/db'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
-  const startDate = queryParams.startDate as string
-  const endDate = queryParams.endDate as string
+  const year = queryParams.year as string
+  const month = queryParams.month as string
 
-  if (!startDate || !endDate) {
+  if (!year || !month) {
     throw createError({
       statusCode: 400,
-      message: 'startDate und endDate sind erforderlich'
+      message: 'year und month sind erforderlich'
     })
   }
 
   try {
-    // Hole alle GENEHMIGTEN Urlaubsanträge die den Zeitraum überlappen
+    const monthNum = parseInt(month)
+    const yearNum = parseInt(year)
+    
+    // Berechne Start- und Enddatum des Monats
+    const startDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-01`
+    const lastDay = new Date(yearNum, monthNum, 0).getDate()
+    const endDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+    // Hole alle GENEHMIGTEN Urlaubsanträge die den Monat überlappen
+    // substr() extrahiert nur YYYY-MM-DD (ohne Zeitstempel)
     const vacations = query<any>(`
       SELECT 
         vr.id,
         vr.userId,
         vr.displayName,
-        vr.startDate,
-        vr.endDate,
+        substr(vr.startDate, 1, 10) as startDate,
+        substr(vr.endDate, 1, 10) as endDate,
         vr.reason,
         vr.status
       FROM vacation_requests vr
       WHERE vr.status = 'approved'
         AND (
-          (date(vr.startDate) <= date(?) AND date(vr.endDate) >= date(?))
-          OR (date(vr.startDate) >= date(?) AND date(vr.startDate) <= date(?))
-          OR (date(vr.endDate) >= date(?) AND date(vr.endDate) <= date(?))
+          (substr(vr.startDate, 1, 10) <= ? AND substr(vr.endDate, 1, 10) >= ?)
+          OR (substr(vr.startDate, 1, 10) >= ? AND substr(vr.startDate, 1, 10) <= ?)
+          OR (substr(vr.endDate, 1, 10) >= ? AND substr(vr.endDate, 1, 10) <= ?)
         )
       ORDER BY vr.displayName, vr.startDate
     `, [endDate, startDate, startDate, endDate, startDate, endDate])
@@ -55,11 +64,7 @@ export default defineEventHandler(async (event) => {
       })
     })
 
-    const result = Array.from(employeeMap.values())
-    
-    console.log(`✅ Calendar: Found ${result.length} employees with vacations in period ${startDate} to ${endDate}`)
-    
-    return result
+    return Array.from(employeeMap.values())
 
   } catch (error: any) {
     console.error('❌ ERROR in GET /api/vacation/calendar:', error)
