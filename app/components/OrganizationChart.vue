@@ -17,6 +17,39 @@
       </div>
     </div>
 
+    <!-- Team-Verwaltung (nur für Manager/Admin) -->
+    <div v-if="isEditable" class="team-management">
+      <h3>Team-Verwaltung</h3>
+      <div class="management-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ t('roles.employee') }}</label>
+            <select v-model="selectedEmployee">
+              <option value="">Mitarbeiter wählen...</option>
+              <option v-for="emp in allEmployees" :key="emp.userId" :value="emp.userId">
+                {{ emp.displayName }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label> {{ t('users.teamlead') }}</label>
+            <select v-model="selectedTeamlead">
+              <option value=""> {{ t('users.teamleadSelect') }}</option>
+              <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
+                {{ tl.displayName }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <button
+            @click="handleAssignManual"
+            :disabled="!selectedEmployee || !selectedTeamlead"
+            class="btn-primary"
+        >
+          Zuordnung speichern
+        </button>
+      </div>
+    </div>
     <!-- Team-Übersicht -->
     <div class="teams-overview">
       <div class="section-header" @click="toggleTeamsSection">
@@ -149,40 +182,6 @@
             </option>
           </select>
         </div>
-      </div>
-    </div>
-
-    <!-- Team-Verwaltung (nur für Manager/Admin) -->
-    <div v-if="isEditable" class="team-management">
-      <h3>Team-Verwaltung</h3>
-      <div class="management-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{ t('roles.employee') }}</label>
-            <select v-model="selectedEmployee">
-              <option value="">Mitarbeiter wählen...</option>
-              <option v-for="emp in allEmployees" :key="emp.userId" :value="emp.userId">
-                {{ emp.displayName }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label> {{ t('users.teamlead') }}</label>
-            <select v-model="selectedTeamlead">
-              <option value=""> {{ t('users.teamleadSelect') }}</option>
-              <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
-                {{ tl.displayName }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <button 
-          @click="handleAssignManual" 
-          :disabled="!selectedEmployee || !selectedTeamlead"
-          class="btn-primary"
-        >
-          Zuordnung speichern
-        </button>
       </div>
     </div>
   </div>
