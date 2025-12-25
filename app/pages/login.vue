@@ -65,11 +65,11 @@ const handleLogin = async () => {
       await navigateTo('/vacation', { replace: true })
     } else {
       hasError.value = true
-      errorMessage.value = 'Benutzername oder Passwort falsch'
+      errorMessage.value = t('login.invalidCredentials')
     }
   } catch (err) {
     hasError.value = true
-    errorMessage.value = 'Ein Fehler ist aufgetreten'
+    errorMessage.value = t('login.error')
     console.error('Login error:', err)
   } finally {
     pending.value = false

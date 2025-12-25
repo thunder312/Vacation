@@ -1,15 +1,14 @@
 <template>
   <div class="annual-vacation-report">
     <div class="report-card">
-      <h3>📊 Jahresbericht Urlaube</h3>
+      <h3>📊 {{ t('reports.annualReport') }}</h3>
       <p class="description">
-        Erstellt einen vollständigen Jahresbericht für alle Mitarbeiter mit Gesamtstatistik, 
-        individuellen Urlaubsnachweisen und Unterschriftenvorlagen.
+        {{ t('reports.annualReportDescription') }}
       </p>
 
       <!-- Jahr-Auswahl -->
       <div class="year-selector">
-        <label>Jahr auswählen:</label>
+        <label>{{ t('reports.selectYear') }}</label>
         <select v-model="selectedYear" @change="loadStatistics">
           <option v-for="year in availableYears" :key="year" :value="year">
             {{ year }}
@@ -19,38 +18,38 @@
 
       <!-- Vorschau Statistik -->
       <div v-if="statistics" class="statistics-preview">
-        <h4>Vorschau Gesamtstatistik {{ selectedYear }}</h4>
+        <h4>{{ t('reports.preview', { year: selectedYear }) }}</h4>
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-value">{{ statistics.totalEmployees }}</div>
-            <div class="stat-label">Mitarbeiter</div>
+            <div class="stat-label">{{ t('reports.employees') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">{{ statistics.totalVacationDays }}</div>
-            <div class="stat-label">Urlaubstage gesamt</div>
+            <div class="stat-label">{{ t('reports.totalVacationDays') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">{{ statistics.averagePerEmployee }}</div>
-            <div class="stat-label">Ø pro Mitarbeiter</div>
+            <div class="stat-label">{{ t('reports.averagePerEmployee') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">{{ statistics.takenDays }}</div>
-            <div class="stat-label">Genommen</div>
+            <div class="stat-label">{{ t('reports.taken') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">{{ statistics.remainingDays }}</div>
-            <div class="stat-label">Resturlaub</div>
+            <div class="stat-label">{{ t('reports.remaining') }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">{{ statistics.takenPercentage }}%</div>
-            <div class="stat-label">Quote</div>
+            <div class="stat-label">{{ t('reports.quota') }}</div>
           </div>
         </div>
       </div>
 
       <!-- Loading -->
       <div v-if="loading" class="loading-state">
-        ⏳ Lade Statistiken...
+        ⏳ {{ t('reports.loadingStatistics') }}
       </div>
 
       <!-- Fehler -->
@@ -65,17 +64,17 @@
           class="btn-pdf"
           :disabled="loading || !statistics || generating"
         >
-          {{ generating ? '⏳ PDF wird erstellt...' : '📄 Jahresbericht als PDF erstellen' }}
+          {{ generating ? '⏳ ' + t('reports.creating') : '📄 ' + t('reports.createPdf') }}
         </button>
       </div>
 
       <!-- Info -->
       <div class="report-info">
-        <strong>ℹ️ Das PDF enthält:</strong>
+        <strong>ℹ️ {{ t('reports.pdfContains') }}</strong>
         <ul>
-          <li>Seite 1: Gesamtstatistik über alle Mitarbeiter</li>
-          <li>Ab Seite 2: Individueller Nachweis pro Mitarbeiter (alphabetisch sortiert)</li>
-          <li>Jede Mitarbeiterseite enthält eine Unterschriftenvorlage zur Bestätigung</li>
+          <li>{{ t('reports.pdfPage1') }}</li>
+          <li>{{ t('reports.pdfPage2Plus') }}</li>
+          <li>{{ t('reports.pdfSignatures') }}</li>
         </ul>
       </div>
     </div>
@@ -84,6 +83,7 @@
 
 <script setup lang="ts">
 const toast = useToast()
+const { t } = useI18n()
 
 // State
 const selectedYear = ref(new Date().getFullYear())
@@ -111,7 +111,7 @@ const loadStatistics = async () => {
     statistics.value = data
   } catch (err: any) {
     console.error('Fehler beim Laden der Statistiken:', err)
-    error.value = 'Fehler beim Laden der Statistiken'
+    error.value = t('errors.loadingStatistics')
     statistics.value = null
   } finally {
     loading.value = false
@@ -123,7 +123,7 @@ const generateReport = async () => {
   if (!statistics.value) return
   
   generating.value = true
-  toast.info('PDF wird erstellt, bitte warten...')
+  toast.info(t('vacation.pdfGenerating'))
   
   try {
     const { jsPDF } = await import('jspdf')
@@ -144,7 +144,7 @@ const generateReport = async () => {
     })
     
     employees.forEach((employee: any, index: number) => {
-      if (index > 0 || true) {  // Neue Seite für jeden MA
+      if (index > 0 || true) {
         doc.addPage()
       }
       generateEmployeePage(doc, employee, selectedYear.value, autoTable)
@@ -156,10 +156,10 @@ const generateReport = async () => {
     window.open(pdfUrl, '_blank')
     setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
     
-    toast.success('PDF erfolgreich erstellt')
+    toast.success(t('vacation.pdfCreated'))
   } catch (err: any) {
     console.error('Fehler beim Erstellen des PDFs:', err)
-    toast.error('Fehler beim Erstellen des PDFs')
+    toast.error(t('errors.creatingPdf'))
   } finally {
     generating.value = false
   }
@@ -170,7 +170,6 @@ const generateOverviewPage = (doc: any, stats: any) => {
   const year = selectedYear.value
   const yearStr = String(year)
   
-  // Header
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
   doc.text('URLAUBSBERICHT ' + yearStr, 105, 20, { align: 'center' })
@@ -183,13 +182,11 @@ const generateOverviewPage = (doc: any, stats: any) => {
   const dateStr = new Date().toLocaleDateString('de-DE')
   doc.text('Erstellt am: ' + dateStr, 105, 38, { align: 'center' })
   
-  // Linie
   doc.setLineWidth(0.5)
   doc.line(20, 42, 190, 42)
   
   let y = 55
   
-  // Übersicht
   doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
   doc.text('Übersicht', 20, y)
@@ -209,7 +206,6 @@ const generateOverviewPage = (doc: any, stats: any) => {
   doc.text('Resturlaub: ' + String(stats.remainingDays) + ' Tage (' + String(100 - stats.takenPercentage) + '%)', 25, y)
   y += 15
   
-  // Status
   doc.setFont('helvetica', 'bold')
   doc.text('Status der Anträge', 20, y)
   y += 10
@@ -220,7 +216,6 @@ const generateOverviewPage = (doc: any, stats: any) => {
   doc.text('Ausstehend: ' + String(stats.pendingRequests) + ' Anträge', 25, y)
   y += 15
   
-  // Häufigste Urlaubsmonate
   if (stats.topMonths && stats.topMonths.length > 0) {
     doc.setFont('helvetica', 'bold')
     doc.text('Häufigste Urlaubsmonate', 20, y)
@@ -233,7 +228,6 @@ const generateOverviewPage = (doc: any, stats: any) => {
     })
   }
   
-  // Footer
   doc.setFontSize(8)
   doc.setTextColor(128)
   doc.text('Vertraulich - Nur für internen Gebrauch', 105, 280, { align: 'center' })
@@ -241,7 +235,6 @@ const generateOverviewPage = (doc: any, stats: any) => {
 
 // Mitarbeiter-Seite
 const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: any) => {
-  // Sichere Werte und konvertiere zu String
   const displayName = String(employee.displayName || 'Unbekannt')
   const entitlement = String(employee.entitlement || 0)
   const carryover = String(employee.carryover || 0)
@@ -251,7 +244,6 @@ const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: 
   const yearStr = String(year)
   const lastYearStr = String(year - 1)
   
-  // Header
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
   doc.text('URLAUBSNACHWEIS ' + yearStr, 105, 20, { align: 'center' })
@@ -259,13 +251,11 @@ const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: 
   doc.setFontSize(14)
   doc.text(displayName, 105, 30, { align: 'center' })
   
-  // Linie
   doc.setLineWidth(0.5)
   doc.line(20, 35, 190, 35)
   
   let y = 48
   
-  // Urlaubsanspruch
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.text('Urlaubsanspruch: ' + entitlement + ' Tage', 20, y)
@@ -282,7 +272,6 @@ const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: 
   doc.text('Resturlaub: ' + remaining + ' Tage', 20, y)
   y += 12
   
-  // Urlaubsübersicht Tabelle
   doc.setFont('helvetica', 'bold')
   doc.text('URLAUBSÜBERSICHT:', 20, y)
   y += 5
@@ -311,7 +300,6 @@ const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: 
     y += 20
   }
   
-  // Unterschriftenbereich
   doc.setLineWidth(0.3)
   doc.line(20, y, 190, y)
   y += 10
@@ -336,14 +324,12 @@ const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: 
   
   doc.text('Unterschrift Vorgesetzter: _______________________', 20, y)
   
-  // Footer
   doc.setFontSize(7)
   doc.setTextColor(128)
   const pageNum = String(doc.internal.getNumberOfPages())
   doc.text('Seite ' + pageNum, 105, 285, { align: 'center' })
 }
 
-// Initial laden
 onMounted(() => {
   loadStatistics()
 })

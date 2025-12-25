@@ -1,10 +1,9 @@
 <template>
-  <div class="vacation-balance-card">
-    <h3>Mein Urlaubskonto {{ balance.year }}</h3>
+  <div v-if="balance" class="vacation-balance-card">
+    <h3>{{ t('vacation.myVacation') }} {{ balance.year }}</h3>
     
-    <!-- Übertrag-Hinweis falls vorhanden -->
     <div v-if="balance.carryoverDays > 0" class="carryover-info">
-      ℹ️ Inkl. {{ balance.carryoverDays }} Tage Übertrag aus {{ balance.year - 1 }}
+      ℹ️ {{ t('vacation.carryoverIncluding', { days: balance.carryoverDays, year: balance.year - 1 }) }}
     </div>
 
     <div class="balance-overview">
@@ -20,7 +19,7 @@
       <div class="balance-separator">−</div>
 
       <div class="balance-item used">
-        <div class="balance-label">Genommen</div>
+        <div class="balance-label">{{ t('vacation.usedDays') }}</div>
         <div class="balance-value">{{ balance.usedDays }}</div>
         <div class="balance-unit">{{ t('common.days') }}</div>
       </div>
@@ -28,18 +27,18 @@
       <div class="balance-separator">=</div>
 
       <div class="balance-item remaining" :class="{ warning: balance.remainingDays < 5, critical: balance.remainingDays < 0 }">
-        <div class="balance-label">Verbleibend</div>
+        <div class="balance-label">{{ t('vacation.remainingDays') }}</div>
         <div class="balance-value">{{ balance.remainingDays }}</div>
         <div class="balance-unit">{{ t('common.days') }}</div>
       </div>
     </div>
 
     <div v-if="balance.remainingDays < 5 && balance.remainingDays >= 0" class="balance-warning">
-      ⚠️ Nur noch {{ balance.remainingDays }} Urlaubstage verfügbar
+      ⚠️ Nur noch {{ balance.remainingDays }} {{ t('vacation.remainingDays') }} verfügbar
     </div>
 
     <div v-if="balance.remainingDays < 0" class="balance-error">
-      ❌ Sie haben {{ Math.abs(balance.remainingDays) }} Tage zu viel beantragt!
+      ❌ Sie haben {{ Math.abs(balance.remainingDays) }} {{ t('common.days') }} zu viel beantragt!
     </div>
 
     <div class="balance-progress">
@@ -63,10 +62,11 @@ import type { VacationBalance } from '~/types/vacation'
 const { t } = useI18n()
 
 const props = defineProps<{
-  balance: VacationBalance
+  balance: VacationBalance | null
 }>()
 
 const progressPercentage = computed(() => {
+  if (!props.balance) return 0
   const percentage = (props.balance.usedDays / props.balance.totalDays) * 100
   return Math.min(Math.max(percentage, 0), 100)
 })

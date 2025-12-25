@@ -5,9 +5,9 @@
     <div v-if="carryoverInfo.status === 'approved'" class="info-content success">
       <div class="info-icon">✅</div>
       <div class="info-text">
-        <strong>Urlaubstage-Übertrag {{ currentYear }}</strong>
+        <strong>{{ t('vacation.carryoverInfo', { year: currentYear }) }}</strong>
         <p>
-          {{ carryoverInfo.approvedDays }} Tage aus {{ currentYear - 1 }} wurden übertragen.
+          {{ carryoverInfo.approvedDays }} {{ t('common.days') }} {{ t('common.from') }} {{ currentYear - 1 }} wurden übertragen.
         </p>
       </div>
     </div>
@@ -16,10 +16,10 @@
     <div v-else-if="carryoverInfo.status === 'adjusted'" class="info-content warning">
       <div class="info-icon">⚠️</div>
       <div class="info-text">
-        <strong>Urlaubstage-Übertrag angepasst</strong>
+        <strong>{{ t('vacation.carryoverApproved') }}</strong>
         <p class="adjustment-summary">
-          Berechnet: {{ carryoverInfo.originalDays }} Tage → 
-          Genehmigt: <strong>{{ carryoverInfo.approvedDays }} Tage</strong>
+          {{ t('vacation.carryoverCalculated') }} {{ carryoverInfo.originalDays }} {{ t('common.days') }} → 
+          {{ t('vacation.carryoverApprovedAmount') }} <strong>{{ carryoverInfo.approvedDays }} {{ t('common.days') }}</strong>
         </p>
         
         <div class="reason-box">
@@ -36,9 +36,9 @@
     <div v-else-if="carryoverInfo.status === 'pending'" class="info-content pending">
       <div class="info-icon">⏳</div>
       <div class="info-text">
-        <strong>Urlaubstage-Übertrag wird geprüft</strong>
+        <strong>{{ t('vacation.carryoverPending') }}</strong>
         <p>
-          Ihr Manager prüft derzeit Ihren berechneten Übertrag von {{ carryoverInfo.originalDays }} Tagen aus {{ currentYear - 1 }}.
+          {{ t('vacation.carryoverManagerReviewing', { days: carryoverInfo.originalDays, year: currentYear - 1 }) }}
         </p>
       </div>
     </div>
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const currentYear = new Date().getFullYear()
 const carryoverInfo = ref<any>(null)
 

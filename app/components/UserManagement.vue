@@ -1,13 +1,12 @@
 <template>
   <div class="user-management">
-    <h2>Mitarbeiterverwaltung</h2>
+    <h2>{{ t('users.title') }}</h2>
 
-    <!-- Neuen Mitarbeiter hinzufügen -->
     <div class="add-user-section">
       <div class="section-header" @click="toggleAddUserSection">
         <h3>
           <span class="toggle-icon">{{ showAddUserSection ? '▼' : '▶' }}</span>
-          Neuen Mitarbeiter hinzufügen
+          {{ t('users.addUser') }}
         </h3>
       </div>
       
@@ -15,36 +14,35 @@
         <form @submit.prevent="handleAddUser" class="user-form">
         <div class="form-row">
           <div class="form-group">
-            <label>Nachname *</label>
+            <label>{{ t('users.lastName') }} *</label>
             <input v-model="newUser.lastName" type="text" required />
           </div>
           <div class="form-group">
-            <label>Vorname *</label>
+            <label>{{ t('users.firstName') }} *</label>
             <input v-model="newUser.firstName" type="text" required />
           </div>
         </div>
 
-        <!-- Username Preview -->
         <div v-if="previewUsername" class="username-preview">
-          <strong>Generierter Benutzername:</strong> {{ previewUsername }}
+          <strong>{{ t('users.generated') }} {{ t('users.username') }}:</strong> {{ previewUsername }}
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Rolle *</label>
+            <label>{{ t('users.role') }} *</label>
             <select v-model="newUser.role" required>
-              <option value="">Bitte wählen...</option>
-              <option value="employee">Mitarbeiter</option>
-              <option value="teamlead">Teamleiter</option>
-              <option value="office">Office</option>
-              <option value="sysadmin">System-Admin</option>
+              <option value="">{{ t('users.roleSelect') }}</option>
+              <option value="employee">{{ t('roles.employee') }}</option>
+              <option value="teamlead">{{ t('roles.teamlead') }}</option>
+              <option value="office">{{ t('roles.office') }}</option>
+              <option value="sysadmin">{{ t('roles.sysadmin') }}</option>
             </select>
           </div>
 
           <div v-if="newUser.role === 'employee'" class="form-group">
-            <label>Teamleiter</label>
+            <label>{{ t('users.teamlead') }}</label>
             <select v-model="newUser.teamleadId">
-              <option value="">Keiner</option>
+              <option value="">-</option>
               <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
                 {{ tl.displayName }}
               </option>
@@ -54,34 +52,33 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label>Urlaubstage pro Jahr *</label>
+            <label>{{ t('users.vacationDaysPerYear') }} *</label>
             <input v-model.number="newUser.vacationDays" type="number" min="0" max="50" required />
-            <small>Standard: 30 Tage. Reduzieren bei Eintritt mitten im Jahr.</small>
+            <small>Standard: 30 {{ t('common.days') }}.</small>
           </div>
 
           <div class="form-group">
-            <label>Passwort *</label>
+            <label>{{ t('users.password') }} *</label>
             <div class="password-field">
               <input v-model="newUser.password" type="text" required />
-              <button type="button" @click="newUser.password = generatePassword()" class="btn-regenerate" title="Neues Passwort generieren">
+              <button type="button" @click="newUser.password = generatePassword()" class="btn-regenerate" :title="t('users.regeneratePassword')">
                 🔄
               </button>
             </div>
-            <small>Sicheres Passwort - kann bearbeitet werden</small>
+            <small>{{ t('users.passwordNote') }}</small>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary">Mitarbeiter hinzufügen</button>
+        <button type="submit" class="btn-primary">{{ t('users.addUser') }}</button>
       </form>
       </div>
     </div>
 
-    <!-- Bestehende Mitarbeiter -->
     <div class="users-list">
       <div class="section-header" @click="toggleUsersSection">
         <h3>
           <span class="toggle-icon">{{ showUsersSection ? '▼' : '▶' }}</span>
-          Bestehende Mitarbeiter bearbeiten ({{ activeUsers.length }})
+          {{ t('users.existingUsers') }} ({{ activeUsers.length }})
         </h3>
       </div>
       
@@ -91,68 +88,66 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              placeholder="🔍 Nach Vor- oder Nachname suchen..."
+              :placeholder="'🔍 ' + t('users.searchPlaceholder')"
               class="search-input"
             />
           </div>
           <div class="checkbox-filter">
             <label>
               <input type="checkbox" v-model="showInactive" />
-              Deaktivierte anzeigen ({{ inactiveUsersCount }})
+              {{ t('users.showInactive') }} ({{ inactiveUsersCount }})
             </label>
           </div>
         </div>
 
         <div v-if="filteredAndSearchedUsers.length === 0" class="empty-state">
-          Keine Mitarbeiter gefunden
+          Keine {{ t('organization.employees') }} gefunden
         </div>
 
-        <!-- Kompakte Tabellenansicht -->
         <table v-else class="users-table">
           <thead>
             <tr>
               <th @click="sortBy('displayName')" class="sortable">
-                Name 
+                {{ t('users.name') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'displayName' }">
                   {{ sortColumn === 'displayName' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
               <th @click="sortBy('username')" class="sortable">
-                Username
+                {{ t('users.username') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'username' }">
                   {{ sortColumn === 'username' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
               <th @click="sortBy('role')" class="sortable">
-                Rolle
+                {{ t('users.role') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'role' }">
                   {{ sortColumn === 'role' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
               <th @click="sortBy('vacationDays')" class="sortable">
-                Urlaubstage
+                {{ t('users.vacationDays') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'vacationDays' }">
                   {{ sortColumn === 'vacationDays' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
               <th @click="sortBy('teamleadId')" class="sortable">
-                Teamleiter
+                {{ t('users.teamlead') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'teamleadId' }">
                   {{ sortColumn === 'teamleadId' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
               <th @click="sortBy('isActive')" class="sortable">
-                Status
+                {{ t('common.status') }}
                 <span class="sort-indicator" :class="{ active: sortColumn === 'isActive' }">
                   {{ sortColumn === 'isActive' ? (sortDirection === 'asc' ? '▲' : '▼') : '▲' }}
                 </span>
               </th>
-              <th>Aktionen</th>
+              <th>{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="user in filteredAndSearchedUsers" :key="user.username" :class="{ 'inactive-row': !user.isActive }">
-            <!-- Bearbeiten-Modus -->
             <template v-if="editingUser?.username === user.username">
               <td colspan="7" class="edit-cell">
                 <div class="inline-edit-form">
@@ -160,36 +155,35 @@
                     <strong>{{ user.displayName }}</strong>
                   </div>
                   <div class="edit-group">
-                    <label>Rolle:</label>
+                    <label>{{ t('users.role') }}:</label>
                     <select v-model="editingUser.role">
-                      <option value="employee">Mitarbeiter</option>
-                      <option value="teamlead">Teamleiter</option>
-                      <option value="office">Office</option>
-                      <option value="sysadmin">System-Admin</option>
+                      <option value="employee">{{ t('roles.employee') }}</option>
+                      <option value="teamlead">{{ t('roles.teamlead') }}</option>
+                      <option value="office">{{ t('roles.office') }}</option>
+                      <option value="sysadmin">{{ t('roles.sysadmin') }}</option>
                     </select>
                   </div>
                   <div class="edit-group">
-                    <label>Urlaubstage:</label>
+                    <label>{{ t('users.vacationDays') }}:</label>
                     <input v-model.number="editingUser.vacationDays" type="number" min="0" max="50" />
                   </div>
                   <div v-if="editingUser.role === 'employee'" class="edit-group">
-                    <label>Teamleiter:</label>
+                    <label>{{ t('users.teamlead') }}:</label>
                     <select v-model="editingUser.teamleadId">
-                      <option value="">Keiner</option>
+                      <option value="">-</option>
                       <option v-for="tl in teamleads" :key="tl.username" :value="tl.username">
                         {{ tl.displayName }}
                       </option>
                     </select>
                   </div>
                   <div class="edit-actions">
-                    <button @click="saveEdit" class="btn-save">💾 Speichern</button>
-                    <button @click="cancelEdit" class="btn-cancel">❌ Abbrechen</button>
+                    <button @click="saveEdit" class="btn-save">💾 {{ t('common.save') }}</button>
+                    <button @click="cancelEdit" class="btn-cancel">❌ {{ t('common.cancel') }}</button>
                   </div>
                 </div>
               </td>
             </template>
 
-            <!-- Normal-Ansicht -->
             <template v-else>
               <td>
                 <strong>{{ user.displayName }}</strong>
@@ -201,64 +195,46 @@
                   {{ getRoleLabel(user.role) }}
                 </span>
               </td>
-              <td class="center">{{ user.vacationDays }} Tage</td>
+              <td class="center">{{ user.vacationDays }} {{ t('common.days') }}</td>
               <td>{{ user.teamleadId ? getTeamleadName(user.teamleadId) : '—' }}</td>
               <td class="center">
-                <span v-if="user.isActive" class="status-active">✓ Aktiv</span>
-                <span v-else class="status-inactive">○ Inaktiv</span>
+                <span v-if="user.isActive" class="status-active">✓ {{ t('status.active') }}</span>
+                <span v-else class="status-inactive">○ {{ t('status.inactive') }}</span>
               </td>
               <td class="actions-cell">
                 <button 
                   v-if="user.isActive && user.role !== 'manager'" 
                   @click="startEdit(user)" 
                   class="btn-icon"
-                  title="Bearbeiten"
+                  :title="t('users.editUser')"
                 >
                   ✏️
                 </button>
                 <button
                   v-if="user.role !== 'manager'"
-                  @click="resetPassword(user)"
-                  class="btn-icon btn-warning"
-                  title="Passwort zurücksetzen"
+                  @click="handleResetPassword(user)"
+                  class="btn-icon"
+                  :title="t('users.resetPassword')"
                 >
                   🔑
                 </button>
-                <button 
-                  v-if="user.isActive && user.role !== 'manager'"
-                  @click="toggleUserStatus(user.username, false)" 
-                  class="btn-icon btn-danger"
-                  title="Deaktivieren"
+                <button
+                  v-if="user.role !== 'manager'"
+                  @click="toggleUserActive(user)"
+                  class="btn-icon"
+                  :title="user.isActive ? t('users.deactivateUser') : t('users.activateUser')"
                 >
-                  🚫
-                </button>
-                <button 
-                  v-if="!user.isActive"
-                  @click="toggleUserStatus(user.username, true)"
-                  class="btn-icon btn-success"
-                  title="Aktivieren"
-                >
-                  ✅
+                  {{ user.isActive ? '🚫' : '✓' }}
                 </button>
               </td>
             </template>
-          </tr>
-        </tbody>
-      </table>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <!-- Jahreswechsel Panel -->
-    <YearTransitionPanel />
-    
-    <!-- Carryover Review Panel -->
-    <CarryoverReview />
-    
-    <!-- Urlaubs-Rückbuchung (nur für Manager) -->
-    <VacationCancellation v-if="currentUser?.role === 'manager'" />
   </div>
 </template>
-
 <script setup lang="ts">
 import VacationCancellation from './VacationCancellation.vue'
 
@@ -398,7 +374,7 @@ const generateLoginPDF = async (userInfo: any) => {
   
   // Passwort
   doc.setFont('helvetica', 'bold')
-  doc.text('Passwort:', 30, y)
+  doc.text(t('users.password') + ':', 30, y)
   doc.setFont('courier', 'normal')
   doc.setFontSize(14)
   doc.text(userInfo.password, 80, y)
@@ -408,14 +384,14 @@ const generateLoginPDF = async (userInfo: any) => {
   
   // Rolle
   const roleLabels: Record<string, string> = {
-    employee: 'Mitarbeiter',
-    teamlead: 'Teamleiter',
-    office: 'Office',
-    manager: 'Manager'
+    employee: t('roles.employee'),
+    teamlead: t('roles.teamlead'),
+    office: t('roles.office'),
+    manager: t('roles.manager')
   }
   
   doc.setFont('helvetica', 'bold')
-  doc.text('Ihre Rolle:', 30, y)
+  doc.text(t('users.yourRole') + ':', 30, y)
   doc.setFont('helvetica', 'normal')
   doc.text(roleLabels[userInfo.role] || userInfo.role, 80, y)
   
@@ -423,7 +399,7 @@ const generateLoginPDF = async (userInfo: any) => {
   
   // Urlaubstage
   doc.setFont('helvetica', 'bold')
-  doc.text('Urlaubstage pro Jahr:', 30, y)
+  doc.text(t('users.vacationDaysPerYear') + ':', 30, y)
   doc.setFont('helvetica', 'normal')
   doc.text(`${userInfo.vacationDays} Tage`, 80, y)
   
@@ -432,7 +408,7 @@ const generateLoginPDF = async (userInfo: any) => {
     y += 10
     const teamlead = teamleads.value.find((tl: any) => tl.username === userInfo.teamleadId)
     doc.setFont('helvetica', 'bold')
-    doc.text('Ihr Teamleiter:', 30, y)
+    doc.text(t('users.yourTeamlead') + ':', 30, y)
     doc.setFont('helvetica', 'normal')
     doc.text(teamlead?.displayName || userInfo.teamleadId, 80, y)
   }
@@ -598,11 +574,11 @@ const teamleads = computed(() => {
 // Methods
 const getRoleLabel = (role: string) => {
   const labels: Record<string, string> = {
-    employee: 'Mitarbeiter',
-    teamlead: 'Teamleiter',
-    office: 'Office',
-    manager: 'Manager',
-    sysadmin: 'System-Admin'
+    employee: t('roles.employee'),
+    teamlead: t('roles.teamlead'),
+    office: t('roles.office'),
+    manager: t('roles.manager'),
+    sysadmin: t('roles.sysadmin')
   }
   return labels[role] || role
 }

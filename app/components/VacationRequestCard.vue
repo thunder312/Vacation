@@ -11,7 +11,7 @@
     <p v-if="request.reason" class="request-reason">{{ request.reason }}</p>
     <div class="request-footer">
       <small>
-        Urlaubstage: {{ vacationDays }}
+        {{ t('vacation.vacationDays') }}: {{ vacationDays }}
         ({{ calculateDays(request.startDate, request.endDate) }} {{ t('common.days') }} gesamt)
       </small>
     </div>

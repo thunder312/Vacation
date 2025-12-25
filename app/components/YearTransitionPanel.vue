@@ -1,28 +1,21 @@
 <template>
-    <!-- Collapsible Header -->
     <div class="section-header" @click="toggleSection">
       <h3>
         <span class="toggle-icon">{{ showSection ? '▼' : '▶' }}</span>
         Jahreswechsel
-        <div v-if="transitionStatus?.needed">
-          ⚠️
-        </div>
-        <div v-else>
-          ✅
-        </div>
+        <div v-if="transitionStatus?.needed">⚠️</div>
+        <div v-else>✅</div>
       </h3>
       <p v-if="!showSection" class="description-collapsed">
-        Urlaubstage für das neue Jahr vorbereiten
+        {{ t('vacation.vacationDays') }} für das neue Jahr vorbereiten
       </p>
     </div>
 
-    <!-- Collapsible Content -->
     <div v-show="showSection" class="section-content">
       <p class="description">
-        Urlaubstage für das neue Jahr vorbereiten. Alle verbleibenden Tage werden übertragen.
+        {{ t('vacation.vacationDays') }} für das neue Jahr vorbereiten. Alle verbleibenden {{ t('common.days') }} werden übertragen.
       </p>
 
-      <!-- Status Card -->
       <div v-if="transitionStatus" class="status-card">
         <div v-if="transitionStatus.needed" class="alert alert-warning">
           <strong>⚠️ Jahreswechsel ausstehend!</strong>
@@ -37,19 +30,17 @@
         </div>
       </div>
 
-      <!-- Preview Button -->
       <div class="action-buttons">
         <button 
           @click="loadPreview" 
           class="btn btn-primary"
           :disabled="loading"
         >
-          {{ loading ? 'Lädt...' : '🔍 Jahreswechsel-Preview anzeigen' }}
+          {{ loading ? t('common.loading') : '🔍 Jahreswechsel-Preview anzeigen' }}
         </button>
       </div>
     </div>
 
-    <!-- Preview Modal -->
     <div v-if="showPreview" class="modal-overlay" @click.self="closePreview">
       <div class="modal-content large">
         <div class="modal-header">
@@ -61,22 +52,22 @@
           <div class="info-box">
             <strong>ℹ️ Was passiert beim Jahreswechsel?</strong>
             <ul>
-              <li>Verbleibende Urlaubstage werden berechnet</li>
-              <li>Alle verbleibenden Tage werden ins neue Jahr übertragen</li>
-              <li>Jeder Mitarbeiter erhält seine Standard-Urlaubstage (meist 30)</li>
+              <li>Verbleibende {{ t('vacation.vacationDays') }} werden berechnet</li>
+              <li>Alle verbleibenden {{ t('common.days') }} werden ins neue Jahr übertragen</li>
+              <li>Jeder {{ t('organization.employee') }} erhält seine Standard-{{ t('vacation.vacationDays') }} (meist 30)</li>
               <li>Alte Urlaubsdaten bleiben erhalten (nur zur Historie)</li>
             </ul>
           </div>
 
           <div v-if="preview.length === 0" class="empty-state">
-            Keine aktiven Mitarbeiter gefunden.
+            Keine aktiven {{ t('organization.employees') }} gefunden.
           </div>
 
           <div v-else class="preview-table-wrapper">
             <table class="preview-table">
               <thead>
                 <tr>
-                  <th>Mitarbeiter</th>
+                  <th>{{ t('organization.employee') }}</th>
                   <th colspan="3">Aktuell ({{ new Date().getFullYear() - 1 }})</th>
                   <th colspan="3">Neu ({{ new Date().getFullYear() }})</th>
                 </tr>
@@ -93,47 +84,38 @@
               <tbody>
                 <tr v-for="user in preview" :key="user.userId">
                   <td><strong>{{ user.displayName }}</strong></td>
-                  <!-- Aktuell -->
                   <td>{{ user.current.standard }}</td>
                   <td>{{ user.current.carryover }}</td>
                   <td :class="{ 'text-success': user.current.remaining > 0, 'text-danger': user.current.remaining < 0 }">
                     {{ user.current.remaining }}
                   </td>
-                  <!-- Neu -->
-                  <td>{{ user.new.standard }}</td>
-                  <td :class="{ 'highlight': user.new.carryover > 0 }">
-                    {{ user.new.carryover }}
-                  </td>
-                  <td class="total">{{ user.new.total }}</td>
+                  <td>{{ user.next.standard }}</td>
+                  <td class="text-info">{{ user.next.carryover }}</td>
+                  <td class="text-success"><strong>{{ user.next.total }}</strong></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div class="summary-box">
-            <strong>Zusammenfassung:</strong>
-            <p>{{ preview.length }} Mitarbeiter werden aktualisiert.</p>
+          <div class="action-buttons">
+            <button @click="closePreview" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button 
+              @click="executeTransition" 
+              class="btn btn-danger"
+              :disabled="executing"
+            >
+              {{ executing ? '⏳ Wird ausgeführt...' : '✅ Jahreswechsel durchführen' }}
+            </button>
           </div>
-        </div>
-
-        <div class="modal-footer">
-          <button @click="closePreview" class="btn btn-secondary">
-            Abbrechen
-          </button>
-          <button 
-            @click="confirmTransition" 
-            class="btn btn-save"
-            :disabled="executing"
-          >
-            {{ executing ? 'Wird durchgeführt...' : '✅ Jahreswechsel durchführen' }}
-          </button>
         </div>
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
-const { checkYearTransitionNeeded, getYearTransitionPreview, executeYearTransition } = useYearTransition()
+const { t } = useI18n()
 const toast = useToast()
 
 const showSection = ref(false)
@@ -145,21 +127,30 @@ const preview = ref<any[]>([])
 
 const toggleSection = () => {
   showSection.value = !showSection.value
+  if (showSection.value && !transitionStatus.value) {
+    loadStatus()
+  }
 }
 
-// Status beim Laden prüfen
-onMounted(async () => {
-  transitionStatus.value = await checkYearTransitionNeeded()
-})
+const loadStatus = async () => {
+  try {
+    const data = await $fetch('/api/year-transition/status')
+    transitionStatus.value = data
+  } catch (error) {
+    console.error('Fehler:', error)
+    toast.error('Fehler beim Laden')
+  }
+}
 
 const loadPreview = async () => {
   loading.value = true
   try {
-    preview.value = await getYearTransitionPreview()
+    const data = await $fetch('/api/year-transition/preview')
+    preview.value = data || []
     showPreview.value = true
   } catch (error) {
-    console.error('Fehler beim Laden der Preview:', error)
-    toast.error('Fehler beim Laden der Preview')
+    console.error('Fehler:', error)
+    toast.error('Fehler beim Laden')
   } finally {
     loading.value = false
   }
@@ -169,37 +160,26 @@ const closePreview = () => {
   showPreview.value = false
 }
 
-const confirmTransition = async () => {
-  const confirmed = confirm(
-    `⚠️ WICHTIG: Jahreswechsel für ${new Date().getFullYear()} durchführen?\n\n` +
-    `Dies wird die Urlaubstage für ${preview.value.length} Mitarbeiter aktualisieren.\n\n` +
-    `Diese Aktion kann nicht rückgängig gemacht werden!`
-  )
-
-  if (!confirmed) return
+const executeTransition = async () => {
+  if (!confirm('Möchten Sie den Jahreswechsel wirklich durchführen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+    return
+  }
 
   executing.value = true
   try {
-    const result = await executeYearTransition()
-    
-    toast.success(
-      `✅ Jahreswechsel erfolgreich durchgeführt!\n` +
-      `${result.updatedCount} Mitarbeiter aktualisiert.`
-    )
-    
-    // Status aktualisieren
-    transitionStatus.value = await checkYearTransitionNeeded()
+    await $fetch('/api/year-transition/execute', { method: 'POST' })
+    toast.success('Jahreswechsel erfolgreich durchgeführt')
     showPreview.value = false
-    
-    // Seite neu laden, um aktuelle Daten zu zeigen
-    setTimeout(() => {
-      window.location.reload()
-    }, 2000)
-  } catch (error) {
-    console.error('Fehler beim Jahreswechsel:', error)
-    toast.error('❌ Fehler beim Jahreswechsel. Bitte Logs prüfen.')
+    await loadStatus()
+  } catch (error: any) {
+    console.error('Fehler:', error)
+    toast.error(error.data?.message || 'Fehler beim Jahreswechsel')
   } finally {
     executing.value = false
   }
 }
+
+onMounted(() => {
+  loadStatus()
+})
 </script>

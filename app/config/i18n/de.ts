@@ -1,10 +1,6 @@
-// app/config/i18n/de.ts
-/**
- * Deutsche Übersetzungen
- */
-export const de = {
-  // Allgemein
+export default {
   common: {
+    loading: 'Lädt...',
     save: 'Speichern',
     cancel: 'Abbrechen',
     delete: 'Löschen',
@@ -12,41 +8,38 @@ export const de = {
     close: 'Schließen',
     back: 'Zurück',
     next: 'Weiter',
-    search: 'Suchen',
-    filter: 'Filtern',
-    export: 'Exportieren',
-    loading: 'Lädt...',
-    error: 'Fehler',
-    success: 'Erfolgreich',
-    warning: 'Warnung',
-    info: 'Information',
+    confirm: 'Bestätigen',
     yes: 'Ja',
     no: 'Nein',
-    optional: 'Optional',
-    required: 'Erforderlich',
-    days: 'Tage',
-    day: 'Tag',
+    search: 'Suchen',
+    filter: 'Filtern',
+    actions: 'Aktionen',
+    status: 'Status',
+    date: 'Datum',
     from: 'Von',
     to: 'Bis',
-    date: 'Datum',
+    days: 'Tage',
+    day: 'Tag',
+    optional: 'Optional',
+    required: 'Erforderlich',
+    user: 'Benutzer',
     reason: 'Grund',
-    status: 'Status',
-    actions: 'Aktionen',
-    year: 'Jahr',
     allYears: 'Alle Jahre'
   },
 
-  // Navigation
-  nav: {
-    home: 'Startseite',
-    vacation: 'Urlaub',
-    organization: 'Organigramm',
-    users: 'Benutzerverwaltung',
-    settings: 'Einstellungen',
-    logout: 'Abmelden'
+  app: {
+    title: 'Urlaubsantrags-System'
   },
 
-  // Login
+  nav: {
+    myVacation: 'Mein Urlaub',
+    approveVacations: 'Urlaube genehmigen',
+    users: 'Mitarbeiterverwaltung',
+    organization: 'Organisation',
+    calendar: 'Urlaubskalender',
+    reports: 'Jahresbericht'
+  },
+
   login: {
     title: 'Anmelden',
     username: 'Benutzername',
@@ -54,11 +47,19 @@ export const de = {
     usernamePlaceholder: 'Benutzername eingeben',
     passwordPlaceholder: 'Passwort eingeben',
     loginButton: 'Anmelden',
-    error: 'Benutzername oder Passwort falsch',
-    welcome: 'Willkommen zurück!'
+    invalidCredentials: 'Benutzername oder Passwort falsch',
+    error: 'Ein Fehler ist aufgetreten',
+    logout: 'Abmelden',
+    loggedInAs: 'Angemeldet als:',
+    changePassword: 'Passwort ändern',
+    oldPassword: 'Altes Passwort',
+    newPassword: 'Neues Passwort',
+    confirmPassword: 'Neues Passwort bestätigen',
+    passwordMismatch: 'Passwörter stimmen nicht überein',
+    passwordChanged: 'Passwort erfolgreich geändert',
+    passwordChangeError: 'Fehler beim Ändern des Passworts'
   },
 
-  // Rollen
   roles: {
     employee: 'Mitarbeiter',
     teamlead: 'Teamleiter',
@@ -67,105 +68,128 @@ export const de = {
     sysadmin: 'System-Admin'
   },
 
-  // Status
   status: {
     active: 'Aktiv',
     inactive: 'Inaktiv',
     pending: 'Ausstehend',
+    teamleadApproved: 'Teamleiter genehmigt',
     approved: 'Genehmigt',
     rejected: 'Abgelehnt',
-    cancelled: 'Abgesagt',
-    teamleadApproved: 'Teamleiter genehmigt'
+    cancelled: 'Abgesagt'
   },
 
-  // Urlaubsverwaltung
   vacation: {
-    title: 'Urlaubsverwaltung',
-    myVacation: 'Mein Urlaub',
-    myRequest: 'Mein Antrag',
-    teamRequests: 'Teamleiter-Ansicht',
-    managerApproval: 'Manager-Ansicht',
-    vacationRules: 'Urlaubsregelung',
-    approvedVacations: 'Genehmigte Urlaube',
-    reports: 'Berichte',
-    calendar: 'Kalender',
-    
-    // Formular
-    requestVacation: 'Urlaub beantragen',
-    startDate: 'Startdatum',
-    endDate: 'Enddatum',
-    reason: 'Grund',
-    reasonPlaceholder: 'z.B. Familienurlaub, Erholung...',
-    submit: 'Antrag einreichen',
-    
-    // Übersicht
-    vacationDays: 'Urlaubstage',
-    remainingDays: 'Verbleibende Tage',
-    usedDays: 'Genommene Tage',
+    myVacation: 'Mein Urlaubskonto',
     totalDays: 'Gesamt',
-    carryover: 'Übertrag',
-    standard: 'Standard',
-    
-    // Aktionen
+    usedDays: 'Genommen',
+    remainingDays: 'Verbleibend',
+    vacationDays: 'Urlaubstage',
+    newRequest: 'Neuer Urlaubsantrag',
+    submitRequest: 'Antrag einreichen',
+    myRequests: 'Meine Urlaubsanträge',
+    noRequests: 'Noch keine Urlaubsanträge vorhanden',
+    requestsForApproval: 'Urlaubsanträge zur Genehmigung',
+    requestsForFinalApproval: 'Urlaubsanträge zur finalen Genehmigung',
+    noPendingRequests: 'Keine ausstehenden Urlaubsanträge',
+    noPendingFinalRequests: 'Keine ausstehenden Urlaubsanträge für finale Genehmigung',
     approve: 'Genehmigen',
     reject: 'Ablehnen',
-    cancel: 'Urlaub absagen',
-    cancelReason: 'Grund für die Absage',
-    cancelWarning: 'Der genehmigte Urlaub wird abgesagt und die Urlaubstage werden zurückgebucht.',
-    
-    // Export
-    exportPdf: 'PDF exportieren',
-    exportTeamPdf: 'Team-PDF exportieren',
-    exportAllPdf: 'Alle Urlaube als PDF exportieren',
-    exportMyApprovedVacations: 'Genehmigte Urlaube exportieren',
-    
-    // Meldungen
-    requestSubmitted: 'Urlaubsantrag erfolgreich eingereicht',
-    requestApproved: 'Urlaubsantrag genehmigt',
-    requestRejected: 'Urlaubsantrag abgelehnt',
-    requestCancelled: 'Urlaub abgesagt',
-    pdfCreated: 'PDF erfolgreich erstellt!',
-    pdfGenerating: 'PDF wird erstellt, bitte warten...',
-    
-    // Halbtags-Regeln
-    halfDayRules: 'Halbtags-Regelung',
-    addHalfDay: 'Halbtag hinzufügen',
-    halfDayDate: 'Datum',
-    halfDayDescription: 'Beschreibung',
-    halfDayDescriptionPlaceholder: 'z.B. Heiligabend, Silvester...',
-    noHalfDayRules: 'Noch keine Halbtags-Regelungen definiert',
-    
-    // Filter
-    filterByEmployee: 'Mitarbeiter filtern:',
-    filterByYear: 'Jahr:',
+    cancel: 'Absagen',
+    approvedVacations: 'Genehmigte Urlaube',
+    filterByEmployee: 'Nach Mitarbeiter filtern',
+    filterByYear: 'Nach Jahr filtern',
     enterName: 'Name eingeben...',
     requestsShown: '{shown} von {total} Anträgen',
     noRequestsForFilter: 'Keine Urlaube für diesen Filter gefunden',
     noApprovedVacations: 'Keine genehmigten Urlaube',
-    
-    // Übertrag/Carryover
-    carryoverManagement: 'Urlaubstage-Übertrag {action}',
-    carryoverManage: 'verwalten',
-    carryoverOverview: 'Übersicht',
+    exportPdf: 'Als PDF exportieren',
+    exportTeamPdf: 'Team-PDF exportieren',
+    exportAllPdf: 'Alle-PDF exportieren',
+    exportApprovedVacations: 'Genehmigte Urlaube exportieren',
+    exportTeamVacations: 'Team-Urlaube exportieren',
+    exportAllVacations: 'Alle Urlaube exportieren',
+    pdfGenerating: 'PDF wird erstellt, bitte warten...',
+    pdfCreated: 'PDF erfolgreich erstellt',
+    requestSuccess: 'Urlaub erfolgreich beantragt',
+    requestError: 'Fehler beim Beantragen',
+    approveSuccess: 'Urlaub erfolgreich genehmigt',
+    approveError: 'Fehler beim Genehmigen',
+    rejectSuccess: 'Urlaub erfolgreich abgelehnt',
+    rejectError: 'Fehler beim Ablehnen',
+    cancelSuccess: 'Urlaub erfolgreich abgesagt',
+    cancelError: 'Fehler beim Absagen',
+    calendar: 'Urlaubskalender',
+    carryoverManagement: 'Urlaubstage-Übertrag verwalten',
+    carryoverManage: 'Übertrag verwalten',
+    carryoverOverview: 'Übertrag-Übersicht',
     carryoverReview: 'Urlaubstage-Übertrag prüfen ({year})',
     carryoverAdjust: 'Übertrag anpassen',
-    carryoverAdd: 'Übertrag hinzufügen/bearbeiten',
+    carryoverAdd: 'Übertrag hinzufügen',
     carryoverInfo: 'Urlaubstage-Übertrag {year}',
     carryoverPending: 'Urlaubstage-Übertrag wird geprüft',
     carryoverApproved: 'Urlaubstage-Übertrag angepasst',
     carryoverIncluding: 'Inkl. {days} Tage Übertrag aus {year}',
-    carryoverCalculated: 'Berechneter Übertrag:',
+    carryoverCalculated: 'Berechnet:',
     carryoverApprovedAmount: 'Genehmigter Übertrag:',
     carryoverNewAmount: 'Neuer Übertrag (Tage) *',
-    carryoverReasonLabel: 'Grund für Anpassung *',
+    carryoverReasonLabel: 'Begründung * (sichtbar für Mitarbeiter)',
     carryoverReasonPlaceholder: 'Bitte begründen Sie die Anpassung des Übertrags...',
-    carryoverSave: 'Übertrag speichern',
-    carryoverManagerReviewing: 'Ihr Manager prüft derzeit Ihren berechneten Übertrag von {days} Tagen aus {year}.'
+    carryoverSave: 'Anpassung speichern',
+    carryoverManagerReviewing: 'Ihr Manager prüft derzeit Ihren berechneten Übertrag von {days} Tagen aus {year}.',
+    halfDayRules: 'Firmeninterne Urlaubsregelung',
+    addHalfDay: 'Regelung hinzufügen',
+    halfDayDate: 'Datum',
+    halfDayDescription: 'Beschreibung',
+    halfDayDescriptionPlaceholder: 'z.B. Heiligabend',
+    noHalfDayRules: 'Noch keine Halbtags-Regelungen definiert'
   },
 
-  // Berichte
+  organization: {
+    teamManagement: 'Team-Verwaltung',
+    teams: 'Teams',
+    assignEmployeesToTeams: 'Mitarbeiter den Teams zuordnen',
+    noEmployeesAssigned: 'Keine Mitarbeiter zugeordnet',
+    removeFromTeam: 'Aus Team entfernen',
+    orgChart: 'Organigramm',
+    graphicalRepresentation: 'Grafische Darstellung der Organisationsstruktur',
+    employee: 'Mitarbeiter',
+    employees: 'Mitarbeiter',
+    totalEmployees: 'Mitarbeiter gesamt',
+    unassignedEmployees: 'Nicht zugeordnete Mitarbeiter',
+    description: 'Überblick über die Organisationsstruktur und Team-Zuordnungen.',
+    exportOrgChart: 'Organigramm als PDF',
+    exportTeamOverview: 'Teamübersicht als PDF'
+  },
+
+  users: {
+    title: 'Mitarbeiterverwaltung',
+    addUser: 'Neuen Mitarbeiter hinzufügen',
+    existingUsers: 'Bestehende Mitarbeiter bearbeiten',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    username: 'Benutzername',
+    generated: 'Generierter',
+    role: 'Rolle',
+    roleSelect: 'Bitte wählen...',
+    teamlead: 'Teamleiter',
+    vacationDaysPerYear: 'Urlaubstage pro Jahr',
+    vacationDays: 'Urlaubstage',
+    password: 'Passwort',
+    passwordNote: 'Sicheres Passwort - kann bearbeitet werden',
+    regeneratePassword: 'Neues Passwort generieren',
+    searchPlaceholder: 'Nach Vor- oder Nachname suchen...',
+    showInactive: 'Deaktivierte anzeigen',
+    name: 'Name',
+    editUser: 'Bearbeiten',
+    resetPassword: 'Passwort zurücksetzen',
+    deactivateUser: 'Deaktivieren',
+    activateUser: 'Aktivieren',
+    yourRole: 'Ihre Rolle',
+    yourTeamlead: 'Ihr Teamleiter'
+  },
+
   reports: {
-    title: 'Berichte & Statistiken',
+    title: 'Berichte',
     annualReport: 'Jahresbericht Urlaube',
     annualReportDescription: 'Erstellt einen vollständigen Jahresbericht für alle Mitarbeiter mit Gesamtstatistik, individuellen Urlaubsnachweisen und Unterschriftenvorlagen.',
     selectYear: 'Jahr auswählen:',
@@ -185,161 +209,24 @@ export const de = {
     loadingStatistics: 'Lade Statistiken...'
   },
 
-  // Benutzerverwaltung
-  users: {
-    title: 'Benutzerverwaltung',
-    addUser: 'Mitarbeiter hinzufügen',
-    existingUsers: 'Bestehende Mitarbeiter',
-    
-    // Formular
-    firstName: 'Vorname',
-    lastName: 'Nachname',
-    generated: 'Generierter',
-    username: 'Benutzername',
-    role: 'Rolle',
-    yourRole: 'Ihre Rolle',
-    roleSelect: 'Bitte wählen...',
-    teamlead: 'Teamleiter',
-    teamleadSelect: 'Teamleiter wählen...',
-    yourTeamlead: 'Ihr Teamleiter',
-    password: 'Passwort',
-    vacationDays: 'Urlaubstage',
-    vacationDaysPerYear: 'Urlaubstage pro Jahr',
-    
-    // Platzhalter
-    firstNamePlaceholder: 'Max',
-    lastNamePlaceholder: 'Mustermann',
-    
-    // Tabelle
-    name: 'Name',
-    displayName: 'Anzeigename',
-    
-    // Aktionen
-    editUser: 'Benutzer bearbeiten',
-    resetPassword: 'Passwort zurücksetzen',
-    deactivateUser: 'Benutzer deaktivieren',
-    activateUser: 'Benutzer aktivieren',
-    regeneratePassword: 'Passwort neu generieren',
-    
-    // Filter
-    showInactive: 'Deaktivierte anzeigen',
-    searchPlaceholder: 'Nach Vor- oder Nachname suchen...',
-    
-    // Meldungen
-    userCreated: 'Benutzer erfolgreich erstellt',
-    userUpdated: 'Benutzer aktualisiert',
-    passwordReset: 'Passwort zurückgesetzt',
-    userDeactivated: 'Benutzer deaktiviert',
-    userActivated: 'Benutzer aktiviert',
-    
-    // Passwort
-    changePassword: 'Passwort ändern',
-    oldPassword: 'Altes Passwort',
-    newPassword: 'Neues Passwort',
-    confirmPassword: 'Passwort bestätigen',
-    passwordChanged: 'Passwort erfolgreich geändert',
-    passwordsNotMatch: 'Passwörter stimmen nicht überein',
-    passwordTooShort: 'Passwort muss mindestens 8 Zeichen lang sein',
-    passwordNote: 'Sicheres Passwort - kann bearbeitet werden'
-  },
-
-  // Organigramm
-  organization: {
-    title: 'Organigramm',
-    description: 'Überblick über die Organisationsstruktur und Team-Zuordnungen.',
-    exportOrgChart: 'Organigramm als PDF',
-    exportTeamOverview: 'Teamübersicht als PDF',
-    
-    // Team-Verwaltung
-    teamManagement: 'Team-Verwaltung',
-    teams: 'Teams',
-    assignEmployeesToTeams: 'Mitarbeiter den Teams zuordnen',
-    unassignedEmployees: 'Nicht zugeordnete Mitarbeiter',
-    assignToTeam: 'Mitarbeiter einem Team zuordnen',
-    employee: 'Mitarbeiter',
-    selectEmployee: 'Mitarbeiter wählen...',
-    selectTeamlead: 'Teamleiter wählen...',
-    assignButton: 'Zuordnung speichern',
-    noEmployeesAssigned: 'Keine Mitarbeiter zugeordnet',
-    removeFromTeam: 'Aus Team entfernen',
-    
-    // Organigramm Baum
-    orgChart: 'Organigramm',
-    graphicalRepresentation: 'Grafische Darstellung der Organisationsstruktur',
-    
-    // Statistik
-    statistics: 'Statistik',
-    totalEmployees: 'Gesamt Mitarbeiter',
-    teamleads: 'Teamleiter',
-    employees: 'Mitarbeiter',
-    
-    // PDF
-    orgChartPdf: 'Organigramm - {company}',
-    teamOverviewPdf: 'Teamübersicht - {company}',
-    vacationOverviewPdf: 'Urlaubsübersicht - {company}',
-    createdOn: 'Erstellt am',
-    supervisor: 'Vorgesetzter',
-    teamMembers: 'Team-Mitglieder',
-    notAssigned: 'Nicht zugeordnet'
-  },
-
-  // Fehlermeldungen
   errors: {
-    genericError: 'Ein Fehler ist aufgetreten',
-    networkError: 'Netzwerkfehler',
-    notFound: 'Nicht gefunden',
-    unauthorized: 'Nicht autorisiert',
-    forbidden: 'Zugriff verweigert',
-    serverError: 'Serverfehler',
-    validationError: 'Validierungsfehler',
-    required: 'Dieses Feld ist erforderlich',
-    invalidEmail: 'Ungültige E-Mail-Adresse',
-    invalidDate: 'Ungültiges Datum',
-    startDateAfterEndDate: 'Startdatum muss vor Enddatum liegen',
-    noVacationDaysLeft: 'Keine Urlaubstage mehr verfügbar',
     loadingStatistics: 'Fehler beim Laden der Statistiken',
     creatingPdf: 'Fehler beim Erstellen des PDFs'
   },
 
-  // PDF Texte
-  pdf: {
-    page: 'Seite',
-    totalPages: 'Seite {current}/{total}',
-    myApprovedVacations: 'Meine genehmigten Urlaube',
-    teamVacations: 'Team-Urlaubsübersicht',
-    allVacations: 'Urlaubsübersicht',
-    vacationAccount: 'Urlaubskonto',
-    totalApprovedDays: 'Gesamt genehmigte Urlaubstage',
-    totalRequests: 'Gesamt Anträge',
-    fullyApproved: 'Vollständig genehmigt',
-    pendingManager: 'Bei Manager ausstehend',
-    pendingTeamlead: 'Bei Teamleiter ausstehend',
-    totalCancelledDays: 'Abgesagte Urlaubstage gesamt'
-  },
-
-  // Bestätigungsdialoge
   confirm: {
-    deleteTitle: 'Löschen bestätigen',
-    deleteMessage: 'Möchten Sie diesen Eintrag wirklich löschen?',
-    cancelTitle: 'Abbrechen bestätigen',
-    cancelMessage: 'Möchten Sie diesen Vorgang wirklich abbrechen?',
-    logoutTitle: 'Abmelden bestätigen',
-    logoutMessage: 'Möchten Sie sich wirklich abmelden?',
-    resetPasswordTitle: 'Passwort zurücksetzen',
-    resetPasswordMessage: 'Passwort für {name} zurücksetzen?'
+    deleteMessage: 'Möchten Sie diese Regelung wirklich löschen?'
   },
 
-  // About Dialog
   about: {
-    title: '{appName}',
+    title: 'Über {appName}',
     version: 'Version {version}',
     developedBy: 'Entwickelt von',
     leadDeveloper: 'Lead Developer',
-    aiAssistant: 'AI Assistant by Anthropic',
+    aiAssistant: 'KI-Assistent',
     techStack: 'Technologie-Stack',
-    copyright: '© {year} {company}',
-    madeWith: 'Erstellt mit ❤️ in Deutschland'
+    copyright: '© {year} {company}. Alle Rechte vorbehalten.',
+    madeWith: 'Entwickelt mit ❤️ und modernsten Technologien',
+    about: 'Über'
   }
 }
-
-export type Translation = typeof de

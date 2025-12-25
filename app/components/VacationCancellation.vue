@@ -12,9 +12,8 @@
 
     <div v-show="showSection" class="section-content">
 
-      <!-- Schritt 1: Datum wählen -->
       <div class="step-section">
-        <h4>1. Datum auswählen</h4>
+        <h4>1. {{ t('common.date') }} auswählen</h4>
         <div class="date-picker-group">
           <input 
             v-model="selectedDate" 
@@ -28,17 +27,16 @@
             class="btn-secondary"
             :disabled="!selectedDate"
           >
-            🔍 Mitarbeiter suchen
+            🔍 {{ t('organization.employees') }} suchen
           </button>
         </div>
       </div>
 
-      <!-- Schritt 2: Mitarbeiter anzeigen (nur wenn Datum gewählt) -->
       <div v-if="selectedDate && !loading" class="step-section">
-        <h4>2. Betroffene Mitarbeiter auswählen</h4>
+        <h4>2. Betroffene {{ t('organization.employees') }} auswählen</h4>
         
         <div v-if="employeesOnVacation.length === 0" class="empty-state">
-          ℹ️ Keine Mitarbeiter im Urlaub am {{ formatDate(selectedDate) }}
+          ℹ️ Keine {{ t('organization.employees') }} im Urlaub am {{ formatDate(selectedDate) }}
         </div>
 
         <div v-else class="employees-list">
@@ -68,7 +66,7 @@
                 <strong>{{ emp.displayName }}</strong>
                 <span class="vacation-period">
                   {{ formatDate(emp.startDate) }} - {{ formatDate(emp.endDate) }}
-                  ({{ emp.totalDays }} Tage)
+                  ({{ emp.totalDays }} {{ t('common.days') }})
                 </span>
               </div>
             </label>
@@ -76,28 +74,27 @@
         </div>
       </div>
 
-      <!-- Schritt 3: Tage und Beschreibung -->
       <div v-if="selectedEmployees.length > 0" class="step-section">
         <h4>3. Rückbuchung konfigurieren</h4>
         
         <div class="form-row">
           <div class="form-group">
-            <label>Anzahl Tage zurückbuchen *</label>
+            <label>Anzahl {{ t('common.days') }} zurückbuchen *</label>
             <select v-model.number="daysToCancel" required>
-              <option value="">Bitte wählen...</option>
-              <option value="0.5">0.5 Tage (halber Tag)</option>
-              <option value="1">1 Tag</option>
-              <option value="1.5">1.5 Tage</option>
-              <option value="2">2 Tage</option>
-              <option value="2.5">2.5 Tage</option>
-              <option value="3">3 Tage</option>
+              <option value="">{{ t('users.roleSelect') }}</option>
+              <option value="0.5">0.5 {{ t('common.days') }} (halber Tag)</option>
+              <option value="1">1 {{ t('common.day') }}</option>
+              <option value="1.5">1.5 {{ t('common.days') }}</option>
+              <option value="2">2 {{ t('common.days') }}</option>
+              <option value="2.5">2.5 {{ t('common.days') }}</option>
+              <option value="3">3 {{ t('common.days') }}</option>
             </select>
             <small>In 0.5-Tage-Schritten</small>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Beschreibung / Grund *</label>
+          <label>Beschreibung / {{ t('common.reason') }} *</label>
           <textarea 
             v-model="description"
             placeholder="z.B. Firmenveranstaltung, Kundentermin, Notfall..."
@@ -108,18 +105,16 @@
           <small>{{ description.length }}/500 Zeichen</small>
         </div>
 
-        <!-- Vorschau -->
         <div class="cancellation-preview">
           <h5>📋 Vorschau:</h5>
           <ul>
-            <li><strong>Datum:</strong> {{ formatDate(selectedDate) }}</li>
-            <li><strong>Betroffene:</strong> {{ selectedEmployees.length }} Mitarbeiter</li>
-            <li><strong>Rückbuchung:</strong> {{ daysToCancel }} Tage pro Person</li>
-            <li><strong>Gesamt:</strong> {{ selectedEmployees.length * daysToCancel }} Urlaubstage</li>
+            <li><strong>{{ t('common.date') }}:</strong> {{ formatDate(selectedDate) }}</li>
+            <li><strong>Betroffene:</strong> {{ selectedEmployees.length }} {{ t('organization.employees') }}</li>
+            <li><strong>Rückbuchung:</strong> {{ daysToCancel }} {{ t('common.days') }} pro Person</li>
+            <li><strong>Gesamt:</strong> {{ selectedEmployees.length * daysToCancel }} {{ t('vacation.vacationDays') }}</li>
           </ul>
         </div>
 
-        <!-- Submit -->
         <div class="action-buttons">
           <button 
             @click="askConfirmation"
@@ -138,13 +133,11 @@
         </div>
       </div>
 
-      <!-- Loading -->
       <div v-if="loading" class="loading-state">
-        ⏳ Lade Daten...
+        ⏳ {{ t('common.loading') }}
       </div>
     </div>
 
-    <!-- Bestätigungs-Modal -->
     <div v-if="showConfirmModal" class="modal-overlay" @click.self="showConfirmModal = false">
       <div class="modal-content confirm-modal">
         <div class="modal-header">
@@ -154,10 +147,10 @@
         <div class="modal-body">
           <p><strong>Möchten Sie wirklich fortfahren?</strong></p>
           <ul class="confirm-details">
-            <li>📅 Datum: <strong>{{ formatDate(selectedDate) }}</strong></li>
-            <li>👥 Mitarbeiter: <strong>{{ selectedEmployees.length }}</strong></li>
-            <li>⏱️ Tage pro Person: <strong>{{ daysToCancel }}</strong></li>
-            <li>📊 Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} Urlaubstage</strong></li>
+            <li>📅 {{ t('common.date') }}: <strong>{{ formatDate(selectedDate) }}</strong></li>
+            <li>👥 {{ t('organization.employees') }}: <strong>{{ selectedEmployees.length }}</strong></li>
+            <li>⏱️ {{ t('common.days') }} pro Person: <strong>{{ daysToCancel }}</strong></li>
+            <li>📊 Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} {{ t('vacation.vacationDays') }}</strong></li>
           </ul>
           <p class="warning-text">
             ⚠️ Diese Aktion kann bestehende Urlaubsanträge aufteilen oder kürzen.
@@ -165,7 +158,7 @@
         </div>
         <div class="modal-footer">
           <button @click="showConfirmModal = false" class="btn-secondary">
-            ❌ Abbrechen
+            ❌ {{ t('common.cancel') }}
           </button>
           <button @click="confirmCancellation" class="btn-danger">
             ✅ Ja, zurückbuchen
@@ -177,10 +170,10 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const toast = useToast()
 import { formatDate } from '~/utils/dateHelpers'
 
-// State
 const showSection = ref(false)
 const selectedDate = ref('')
 const employeesOnVacation = ref<any[]>([])
@@ -191,7 +184,6 @@ const loading = ref(false)
 const submitting = ref(false)
 const showConfirmModal = ref(false)
 
-// Min date = heute
 const minDate = computed(() => {
   const today = new Date()
   return today.toISOString().split('T')[0]
@@ -220,7 +212,6 @@ const toggleSelectAll = () => {
   }
 }
 
-// Lade Mitarbeiter die am gewählten Datum Urlaub haben
 const loadEmployeesOnVacation = async () => {
   if (!selectedDate.value) return
 
@@ -247,13 +238,11 @@ const loadEmployeesOnVacation = async () => {
   }
 }
 
-// Zeige Bestätigungs-Modal
 const askConfirmation = () => {
   if (!canSubmit.value) return
   showConfirmModal.value = true
 }
 
-// Bestätige Rückbuchung
 const confirmCancellation = async () => {
   showConfirmModal.value = false
   submitting.value = true

@@ -1,6 +1,6 @@
 <template>
   <div class="request-form-container">
-    <h2>Neuer Urlaubsantrag</h2>
+    <h2>{{ t('vacation.newRequest') }}</h2>
     <form @submit.prevent="handleSubmit" class="request-form">
       <div class="form-row">
         <div class="form-group">
@@ -14,11 +14,11 @@
       </div>
 
       <div class="form-group">
-        <label>Grund / Bemerkung</label>
+        <label>{{ t('common.reason') }} / Bemerkung</label>
         <textarea v-model="reason" rows="3" :placeholder="t('common.optional')"></textarea>
       </div>
 
-      <button type="submit" class="submit-btn">Antrag einreichen</button>
+      <button type="submit" class="submit-btn">{{ t('vacation.submitRequest') }}</button>
     </form>
   </div>
 </template>
@@ -40,7 +40,6 @@ const handleSubmit = () => {
     reason: reason.value
   })
 
-  // Formular zurücksetzen
   startDate.value = ''
   endDate.value = ''
   reason.value = ''

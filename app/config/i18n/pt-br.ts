@@ -1,12 +1,6 @@
-// app/config/i18n/pt-br.ts
-import type { Translation } from './de'
-
-/**
- * Brazilian Portuguese Translations
- */
-export const ptBr: Translation = {
-  // Geral
+export default {
   common: {
+    loading: 'Carregando...',
     save: 'Salvar',
     cancel: 'Cancelar',
     delete: 'Excluir',
@@ -14,53 +8,58 @@ export const ptBr: Translation = {
     close: 'Fechar',
     back: 'Voltar',
     next: 'Próximo',
-    search: 'Buscar',
-    filter: 'Filtrar',
-    export: 'Exportar',
-    loading: 'Carregando...',
-    error: 'Erro',
-    success: 'Sucesso',
-    warning: 'Aviso',
-    info: 'Informação',
+    confirm: 'Confirmar',
     yes: 'Sim',
     no: 'Não',
-    optional: 'Opcional',
-    required: 'Obrigatório',
-    days: 'Dias',
-    day: 'Dia',
+    search: 'Pesquisar',
+    filter: 'Filtrar',
+    actions: 'Ações',
+    status: 'Status',
+    date: 'Data',
     from: 'De',
     to: 'Até',
-    date: 'Data',
+    days: 'Dias',
+    day: 'Dia',
+    optional: 'Opcional',
+    required: 'Obrigatório',
+    user: 'Usuário',
     reason: 'Motivo',
-    status: 'Status',
-    actions: 'Ações',
-    year: 'Ano',
     allYears: 'Todos os Anos'
   },
 
-  // Navegação
-  nav: {
-    home: 'Início',
-    vacation: 'Férias',
-    organization: 'Organograma',
-    users: 'Gerenciamento de Usuários',
-    settings: 'Configurações',
-    logout: 'Sair'
+  app: {
+    title: 'Sistema de Solicitação de Férias'
   },
 
-  // Login
+  nav: {
+    myVacation: 'Minhas Férias',
+    approveVacations: 'Aprovar Férias',
+    users: 'Gerenciamento de Usuários',
+    organization: 'Organização',
+    calendar: 'Calendário de Férias',
+    reports: 'Relatório Anual'
+  },
+
   login: {
     title: 'Entrar',
-    username: 'Nome de usuário',
+    username: 'Nome de Usuário',
     password: 'Senha',
     usernamePlaceholder: 'Digite o nome de usuário',
     passwordPlaceholder: 'Digite a senha',
     loginButton: 'Entrar',
-    error: 'Nome de usuário ou senha inválidos',
-    welcome: 'Bem-vindo de volta!'
+    invalidCredentials: 'Nome de usuário ou senha inválidos',
+    error: 'Ocorreu um erro',
+    logout: 'Sair',
+    loggedInAs: 'Conectado como:',
+    changePassword: 'Alterar Senha',
+    oldPassword: 'Senha Antiga',
+    newPassword: 'Nova Senha',
+    confirmPassword: 'Confirmar Nova Senha',
+    passwordMismatch: 'As senhas não coincidem',
+    passwordChanged: 'Senha alterada com sucesso',
+    passwordChangeError: 'Erro ao alterar senha'
   },
 
-  // Funções
   roles: {
     employee: 'Funcionário',
     teamlead: 'Líder de Equipe',
@@ -69,277 +68,165 @@ export const ptBr: Translation = {
     sysadmin: 'Administrador do Sistema'
   },
 
-  // Status
   status: {
     active: 'Ativo',
     inactive: 'Inativo',
     pending: 'Pendente',
+    teamleadApproved: 'Aprovado pelo Líder de Equipe',
     approved: 'Aprovado',
     rejected: 'Rejeitado',
-    cancelled: 'Cancelado',
-    teamleadApproved: 'Aprovado pelo Líder'
+    cancelled: 'Cancelado'
   },
 
-  // Gerenciamento de Férias
   vacation: {
-    title: 'Gerenciamento de Férias',
-    myVacation: 'Minhas Férias',
-    myRequest: 'Minha Solicitação',
-    teamRequests: 'Visão do Líder de Equipe',
-    managerApproval: 'Visão do Gerente',
-    vacationRules: 'Regras de Férias',
-    approvedVacations: 'Férias Aprovadas',
-    reports: 'Relatórios',
-    calendar: 'Calendário',
-    
-    // Formulário
-    requestVacation: 'Solicitar Férias',
-    startDate: 'Data de Início',
-    endDate: 'Data de Término',
-    reason: 'Motivo',
-    reasonPlaceholder: 'ex: Férias em família, Descanso...',
-    submit: 'Enviar Solicitação',
-    
-    // Visão Geral
-    vacationDays: 'Dias de Férias',
-    remainingDays: 'Dias Restantes',
-    usedDays: 'Dias Usados',
+    myVacation: 'Minha Conta de Férias',
     totalDays: 'Total',
-    carryover: 'Saldo Anterior',
-    standard: 'Padrão',
-    
-    // Ações
+    usedDays: 'Usados',
+    remainingDays: 'Restantes',
+    vacationDays: 'Dias de Férias',
+    newRequest: 'Nova Solicitação de Férias',
+    submitRequest: 'Enviar Solicitação',
+    myRequests: 'Minhas Solicitações de Férias',
+    noRequests: 'Ainda não há solicitações de férias',
+    requestsForApproval: 'Solicitações de Férias para Aprovação',
+    requestsForFinalApproval: 'Solicitações de Férias para Aprovação Final',
+    noPendingRequests: 'Não há solicitações de férias pendentes',
+    noPendingFinalRequests: 'Não há solicitações pendentes para aprovação final',
     approve: 'Aprovar',
     reject: 'Rejeitar',
-    cancel: 'Cancelar Férias',
-    cancelReason: 'Motivo do Cancelamento',
-    cancelWarning: 'As férias aprovadas serão canceladas e os dias serão reembolsados.',
-    
-    // Exportar
-    exportPdf: 'Exportar PDF',
-    exportTeamPdf: 'Exportar PDF da Equipe',
-    exportAllPdf: 'Exportar Todas as Férias em PDF',
-    exportMyApprovedVacations: 'Exportar Férias Aprovadas',
-    
-    // Mensagens
-    requestSubmitted: 'Solicitação de férias enviada com sucesso',
-    requestApproved: 'Solicitação de férias aprovada',
-    requestRejected: 'Solicitação de férias rejeitada',
-    requestCancelled: 'Férias canceladas',
-    pdfCreated: 'PDF criado com sucesso!',
-    pdfGenerating: 'Criando PDF, por favor aguarde...',
-    
-    // Regras de Meio Dia
-    halfDayRules: 'Regras de Meio Dia',
-    addHalfDay: 'Adicionar Meio Dia',
-    halfDayDate: 'Data',
-    halfDayDescription: 'Descrição',
-    halfDayDescriptionPlaceholder: 'ex: Véspera de Natal, Véspera de Ano Novo...',
-    noHalfDayRules: 'Nenhuma regra de meio dia definida ainda',
-    
-    // Filtro
-    filterByEmployee: 'Filtrar por funcionário:',
-    filterByYear: 'Ano:',
+    cancel: 'Cancelar',
+    approvedVacations: 'Férias Aprovadas',
+    filterByEmployee: 'Filtrar por Funcionário',
+    filterByYear: 'Filtrar por Ano',
     enterName: 'Digite o nome...',
     requestsShown: '{shown} de {total} solicitações',
     noRequestsForFilter: 'Nenhuma férias encontrada para este filtro',
     noApprovedVacations: 'Nenhuma férias aprovada',
-    
-    // Saldo Anterior
-    carryoverManagement: 'Saldo de Dias de Férias {action}',
-    carryoverManage: 'gerenciar',
-    carryoverOverview: 'visão geral',
-    carryoverReview: 'Revisar Saldo de Dias de Férias ({year})',
-    carryoverAdjust: 'Ajustar Saldo',
-    carryoverAdd: 'Adicionar/Editar Saldo',
-    carryoverInfo: 'Saldo de Dias de Férias {year}',
-    carryoverPending: 'Saldo de Dias de Férias em Revisão',
-    carryoverApproved: 'Saldo de Dias de Férias Ajustado',
-    carryoverIncluding: 'Incl. {days} dias de saldo de {year}',
-    carryoverCalculated: 'Saldo Calculado:',
-    carryoverApprovedAmount: 'Saldo Aprovado:',
-    carryoverNewAmount: 'Novo Saldo (Dias) *',
-    carryoverReasonLabel: 'Motivo do Ajuste *',
-    carryoverReasonPlaceholder: 'Por favor, explique o motivo do ajuste do saldo...',
-    carryoverSave: 'Salvar Saldo',
-    carryoverManagerReviewing: 'Seu gerente está revisando seu saldo calculado de {days} dias de {year}.'
+    exportPdf: 'Exportar como PDF',
+    exportTeamPdf: 'Exportar PDF da Equipe',
+    exportAllPdf: 'Exportar Todos em PDF',
+    exportApprovedVacations: 'Exportar Férias Aprovadas',
+    exportTeamVacations: 'Exportar Férias da Equipe',
+    exportAllVacations: 'Exportar Todas as Férias',
+    pdfGenerating: 'Criando PDF, aguarde...',
+    pdfCreated: 'PDF criado com sucesso',
+    requestSuccess: 'Férias solicitadas com sucesso',
+    requestError: 'Erro ao enviar solicitação',
+    approveSuccess: 'Férias aprovadas com sucesso',
+    approveError: 'Erro ao aprovar férias',
+    rejectSuccess: 'Férias rejeitadas com sucesso',
+    rejectError: 'Erro ao rejeitar férias',
+    cancelSuccess: 'Férias canceladas com sucesso',
+    cancelError: 'Erro ao cancelar férias',
+    calendar: 'Calendário de Férias',
+    carryoverManagement: 'Gerenciar Transferência de Férias',
+    carryoverManage: 'Gerenciar Transferência',
+    carryoverOverview: 'Visão Geral da Transferência',
+    carryoverReview: 'Revisar Transferência de Férias ({year})',
+    carryoverAdjust: 'Ajustar Transferência',
+    carryoverAdd: 'Adicionar Transferência',
+    carryoverInfo: 'Transferência de Férias {year}',
+    carryoverPending: 'Transferência de Férias em Revisão',
+    carryoverApproved: 'Transferência de Férias Ajustada',
+    carryoverIncluding: 'Incl. {days} dias de transferência de {year}',
+    carryoverCalculated: 'Calculado:',
+    carryoverApprovedAmount: 'Transferência Aprovada:',
+    carryoverNewAmount: 'Nova Transferência (Dias) *',
+    carryoverReasonLabel: 'Motivo * (visível para o funcionário)',
+    carryoverReasonPlaceholder: 'Por favor, forneça um motivo para ajustar a transferência...',
+    carryoverSave: 'Salvar Ajuste',
+    carryoverManagerReviewing: 'Seu gerente está revisando sua transferência calculada de {days} dias de {year}.',
+    halfDayRules: 'Política de Férias da Empresa',
+    addHalfDay: 'Adicionar Regra',
+    halfDayDate: 'Data',
+    halfDayDescription: 'Descrição',
+    halfDayDescriptionPlaceholder: 'ex: Véspera de Natal',
+    noHalfDayRules: 'Nenhuma regra de meio dia definida ainda'
   },
 
-  // Relatórios
+  organization: {
+    teamManagement: 'Gerenciamento de Equipe',
+    teams: 'Equipes',
+    assignEmployeesToTeams: 'Atribuir funcionários às equipes',
+    noEmployeesAssigned: 'Nenhum funcionário atribuído',
+    removeFromTeam: 'Remover da equipe',
+    orgChart: 'Organograma',
+    graphicalRepresentation: 'Representação gráfica da estrutura organizacional',
+    employee: 'Funcionário',
+    employees: 'Funcionários',
+    totalEmployees: 'Total de Funcionários',
+    unassignedEmployees: 'Funcionários Não Atribuídos',
+    description: 'Visão geral da estrutura organizacional e atribuições de equipe.',
+    exportOrgChart: 'Exportar Organograma como PDF',
+    exportTeamOverview: 'Exportar Visão Geral da Equipe como PDF'
+  },
+
+  users: {
+    title: 'Gerenciamento de Usuários',
+    addUser: 'Adicionar Novo Funcionário',
+    existingUsers: 'Editar Funcionários Existentes',
+    firstName: 'Nome',
+    lastName: 'Sobrenome',
+    username: 'Nome de Usuário',
+    generated: 'Gerado',
+    role: 'Função',
+    roleSelect: 'Por favor, selecione...',
+    teamlead: 'Líder de Equipe',
+    vacationDaysPerYear: 'Dias de Férias por Ano',
+    vacationDays: 'Dias de Férias',
+    password: 'Senha',
+    passwordNote: 'Senha segura - pode ser editada',
+    regeneratePassword: 'Gerar nova senha',
+    searchPlaceholder: 'Pesquisar por nome ou sobrenome...',
+    showInactive: 'Mostrar Inativos',
+    name: 'Nome',
+    editUser: 'Editar',
+    resetPassword: 'Redefinir Senha',
+    deactivateUser: 'Desativar',
+    activateUser: 'Ativar',
+    yourRole: 'Sua Função',
+    yourTeamlead: 'Seu Líder de Equipe'
+  },
+
   reports: {
-    title: 'Relatórios e Estatísticas',
+    title: 'Relatórios',
     annualReport: 'Relatório Anual de Férias',
-    annualReportDescription: 'Cria um relatório anual completo para todos os funcionários com estatísticas gerais, registros individuais de férias e modelos de assinatura.',
-    selectYear: 'Selecionar ano:',
-    preview: 'Visualizar Estatísticas Gerais {year}',
+    annualReportDescription: 'Cria um relatório anual abrangente para todos os funcionários com estatísticas gerais, registros individuais de férias e modelos de assinatura.',
+    selectYear: 'Selecionar Ano:',
+    preview: 'Prévia de Estatísticas Gerais {year}',
     createPdf: 'Criar Relatório Anual como PDF',
     creating: 'Criando PDF...',
     employees: 'Funcionários',
     totalVacationDays: 'Total de Dias de Férias',
     averagePerEmployee: 'Média por Funcionário',
-    taken: 'Usados',
+    taken: 'Tirados',
     remaining: 'Restantes',
     quota: 'Quota',
     pdfContains: 'O PDF contém:',
     pdfPage1: 'Página 1: Estatísticas gerais para todos os funcionários',
-    pdfPage2Plus: 'A partir da página 2: Registro individual por funcionário (ordenado alfabeticamente)',
+    pdfPage2Plus: 'A partir da Página 2: Registro individual por funcionário (ordenado alfabeticamente)',
     pdfSignatures: 'Cada página de funcionário inclui um modelo de assinatura para confirmação',
     loadingStatistics: 'Carregando estatísticas...'
   },
 
-  // Gerenciamento de Usuários
-  users: {
-    title: 'Gerenciamento de Usuários',
-    addUser: 'Adicionar Funcionário',
-    existingUsers: 'Funcionários Existentes',
-    
-    // Formulário
-    firstName: 'Nome',
-    lastName: 'Sobrenome',
-    username: 'Nome de Usuário',
-    generated: 'gerado',
-    role: 'Função',
-    yourRole: 'Sua função',
-    roleSelect: 'Por favor, selecione...',
-    teamlead: 'Líder de Equipe',
-    teamleadSelect: 'Selecionar Líder de Equipe...',
-    yourTeamlead: 'Seu Líder de Equipe',
-    password: 'Senha',
-    vacationDays: 'Dias de Férias',
-    vacationDaysPerYear: 'Dias de Férias por Ano',
-    
-    // Placeholders
-    firstNamePlaceholder: 'João',
-    lastNamePlaceholder: 'Silva',
-    
-    // Tabela
-    name: 'Nome',
-    displayName: 'Nome de Exibição',
-    
-    // Ações
-    editUser: 'Editar Usuário',
-    resetPassword: 'Redefinir Senha',
-    deactivateUser: 'Desativar Usuário',
-    activateUser: 'Ativar Usuário',
-    regeneratePassword: 'Gerar Nova Senha',
-    
-    // Filtro
-    showInactive: 'Mostrar Inativos',
-    searchPlaceholder: 'Buscar por nome ou sobrenome...',
-    
-    // Mensagens
-    userCreated: 'Usuário criado com sucesso',
-    userUpdated: 'Usuário atualizado',
-    passwordReset: 'Senha redefinida',
-    userDeactivated: 'Usuário desativado',
-    userActivated: 'Usuário ativado',
-    
-    // Senha
-    changePassword: 'Alterar Senha',
-    oldPassword: 'Senha Antiga',
-    newPassword: 'Nova Senha',
-    confirmPassword: 'Confirmar Senha',
-    passwordChanged: 'Senha alterada com sucesso',
-    passwordsNotMatch: 'As senhas não correspondem',
-    passwordTooShort: 'A senha deve ter pelo menos 8 caracteres',
-    passwordNote: 'Senha segura - pode ser editada'
-  },
-
-  // Organograma
-  organization: {
-    title: 'Organograma',
-    description: 'Visão geral da estrutura organizacional e atribuições de equipe.',
-    exportOrgChart: 'Exportar Organograma como PDF',
-    exportTeamOverview: 'Exportar Visão Geral da Equipe como PDF',
-    
-    // Gerenciamento de Equipe
-    teamManagement: 'Gerenciamento de Equipe',
-    teams: 'Equipes',
-    assignEmployeesToTeams: 'Atribuir funcionários às equipes',
-    unassignedEmployees: 'Funcionários Não Atribuídos',
-    assignToTeam: 'Atribuir Funcionário à Equipe',
-    employee: 'Funcionário',
-    selectEmployee: 'Selecionar Funcionário...',
-    selectTeamlead: 'Selecionar Líder de Equipe...',
-    assignButton: 'Salvar Atribuição',
-    noEmployeesAssigned: 'Nenhum funcionário atribuído',
-    removeFromTeam: 'Remover da equipe',
-    
-    // Árvore Organizacional
-    orgChart: 'Organograma',
-    graphicalRepresentation: 'Representação gráfica da estrutura organizacional',
-    
-    // Estatísticas
-    statistics: 'Estatísticas',
-    totalEmployees: 'Total de Funcionários',
-    teamleads: 'Líderes de Equipe',
-    employees: 'Funcionários',
-    
-    // PDF
-    orgChartPdf: 'Organograma - {company}',
-    teamOverviewPdf: 'Visão Geral da Equipe - {company}',
-    vacationOverviewPdf: 'Visão Geral de Férias - {company}',
-    createdOn: 'Criado em',
-    supervisor: 'Supervisor',
-    teamMembers: 'Membros da Equipe',
-    notAssigned: 'Não Atribuído'
-  },
-
-  // Mensagens de Erro
   errors: {
-    genericError: 'Ocorreu um erro',
-    networkError: 'Erro de rede',
-    notFound: 'Não encontrado',
-    unauthorized: 'Não autorizado',
-    forbidden: 'Acesso negado',
-    serverError: 'Erro do servidor',
-    validationError: 'Erro de validação',
-    required: 'Este campo é obrigatório',
-    invalidEmail: 'Endereço de e-mail inválido',
-    invalidDate: 'Data inválida',
-    startDateAfterEndDate: 'A data de início deve ser anterior à data de término',
-    noVacationDaysLeft: 'Não há dias de férias disponíveis',
     loadingStatistics: 'Erro ao carregar estatísticas',
     creatingPdf: 'Erro ao criar PDF'
   },
 
-  // Textos do PDF
-  pdf: {
-    page: 'Página',
-    totalPages: 'Página {current}/{total}',
-    myApprovedVacations: 'Minhas Férias Aprovadas',
-    teamVacations: 'Visão Geral de Férias da Equipe',
-    allVacations: 'Visão Geral de Férias',
-    vacationAccount: 'Conta de Férias',
-    totalApprovedDays: 'Total de Dias de Férias Aprovados',
-    totalRequests: 'Total de Solicitações',
-    fullyApproved: 'Totalmente Aprovado',
-    pendingManager: 'Pendente com Gerente',
-    pendingTeamlead: 'Pendente com Líder de Equipe',
-    totalCancelledDays: 'Total de Dias de Férias Cancelados'
-  },
-
-  // Diálogos de Confirmação
   confirm: {
-    deleteTitle: 'Confirmar Exclusão',
-    deleteMessage: 'Você realmente deseja excluir este item?',
-    cancelTitle: 'Confirmar Cancelamento',
-    cancelMessage: 'Você realmente deseja cancelar esta ação?',
-    logoutTitle: 'Confirmar Saída',
-    logoutMessage: 'Você realmente deseja sair?',
-    resetPasswordTitle: 'Redefinir Senha',
-    resetPasswordMessage: 'Redefinir senha para {name}?'
+    deleteMessage: 'Você realmente deseja excluir esta regra?'
   },
 
-  // About Dialog
   about: {
-    title: '{appName}',
+    title: 'Sobre {appName}',
     version: 'Versão {version}',
     developedBy: 'Desenvolvido por',
     leadDeveloper: 'Desenvolvedor Principal',
-    aiAssistant: 'Assistente de IA da Anthropic',
-    techStack: 'Stack Tecnológico',
-    copyright: '© {year} {company}',
-    madeWith: 'Feito com ❤️ na Alemanha'
+    aiAssistant: 'Assistente de IA',
+    techStack: 'Stack de Tecnologia',
+    copyright: '© {year} {company}. Todos os direitos reservados.',
+    madeWith: 'Construído com ❤️ e tecnologias de ponta',
+    about: 'Sobre'
   }
 }

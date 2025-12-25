@@ -1,9 +1,6 @@
 import { isWorkday } from '~/utils/holidays'
 
 export const formatDate = (dateStr: string | undefined): string => {
-
-    const { t } = useI18n()
-
     if (!dateStr) return '-'
     const date = new Date(dateStr)
     return date.toLocaleDateString('de-DE', {
@@ -21,7 +18,6 @@ export const calculateDays = (start: string, end: string): number => {
 }
 
 export const calculateWorkdays = (start: string, end: string, halfDayDates: string[] = []): number => {
-    const { t } = useI18n()
     const startDate = new Date(start)
     const endDate = new Date(end)
 
@@ -32,7 +28,6 @@ export const calculateWorkdays = (start: string, end: string, halfDayDates: stri
         if (isWorkday(currentDate)) {
             const dateStr = currentDate.toISOString().split('T')[0]
             
-            // Prüfen ob es ein Halbtag ist
             if (halfDayDates.includes(dateStr)) {
                 workdays += 0.5
             } else {
@@ -60,11 +55,11 @@ export const getStatusText = (status: string): string => {
 export const getStatusTextWithIcon = (status: string): string => {
     const { t } = useI18n()
     const statusMap: Record<string, string> = {
-        pending: t('status.pending'),
-        teamlead_approved: 'Teamlead ✓',
-        approved: 'Genehmigt ✓✓',
-        rejected: t('status.rejected'),
-        cancelled: '🚫 Abgesagt'
+        pending: `⏳ ${t('status.pending')}`,
+        teamlead_approved: `✓ ${t('status.teamleadApproved')}`,
+        approved: `✓✓ ${t('status.approved')}`,
+        rejected: `✗ ${t('status.rejected')}`,
+        cancelled: `🚫 ${t('status.cancelled')}`
     }
     return statusMap[status] || status
 }

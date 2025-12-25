@@ -15,7 +15,6 @@
       </div>
     </div>
 
-    <!-- Kinder (Untergebene) -->
     <div v-if="node.children && node.children.length > 0" class="org-children">
       <div class="org-line"></div>
       <div class="children-container">
@@ -58,10 +57,10 @@ const roleIcon = computed(() => {
 
 const roleLabel = computed(() => {
   switch (props.node.role) {
-    case 'manager': return {{ t('roles.manager') }}
-    case 'teamlead': return {{ t('roles.teamlead') }}
-    case 'employee': return {{ t('roles.employee') }}
-    case 'office': return {{ t('roles.office') }}
+    case 'manager': return t('roles.manager')
+    case 'teamlead': return t('roles.teamlead')
+    case 'employee': return t('roles.employee')
+    case 'office': return t('roles.office')
     default: return props.node.role
   }
 })

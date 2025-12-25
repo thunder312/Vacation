@@ -1,12 +1,6 @@
-// app/config/i18n/en.ts
-import type { Translation } from './de'
-
-/**
- * English Translations
- */
-export const en: Translation = {
-  // General
+export default {
   common: {
+    loading: 'Loading...',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -14,53 +8,58 @@ export const en: Translation = {
     close: 'Close',
     back: 'Back',
     next: 'Next',
-    search: 'Search',
-    filter: 'Filter',
-    export: 'Export',
-    loading: 'Loading...',
-    error: 'Error',
-    success: 'Success',
-    warning: 'Warning',
-    info: 'Information',
+    confirm: 'Confirm',
     yes: 'Yes',
     no: 'No',
-    optional: 'Optional',
-    required: 'Required',
-    days: 'Days',
-    day: 'Day',
+    search: 'Search',
+    filter: 'Filter',
+    actions: 'Actions',
+    status: 'Status',
+    date: 'Date',
     from: 'From',
     to: 'To',
-    date: 'Date',
+    days: 'Days',
+    day: 'Day',
+    optional: 'Optional',
+    required: 'Required',
+    user: 'User',
     reason: 'Reason',
-    status: 'Status',
-    actions: 'Actions',
-    year: 'Year',
     allYears: 'All Years'
   },
 
-  // Navigation
-  nav: {
-    home: 'Home',
-    vacation: 'Vacation',
-    organization: 'Organization Chart',
-    users: 'User Management',
-    settings: 'Settings',
-    logout: 'Logout'
+  app: {
+    title: 'Vacation Request System'
   },
 
-  // Login
+  nav: {
+    myVacation: 'My Vacation',
+    approveVacations: 'Approve Vacations',
+    users: 'User Management',
+    organization: 'Organization',
+    calendar: 'Vacation Calendar',
+    reports: 'Annual Report'
+  },
+
   login: {
     title: 'Login',
     username: 'Username',
     password: 'Password',
     usernamePlaceholder: 'Enter username',
     passwordPlaceholder: 'Enter password',
-    loginButton: 'Sign In',
-    error: 'Invalid username or password',
-    welcome: 'Welcome back!'
+    loginButton: 'Login',
+    invalidCredentials: 'Invalid username or password',
+    error: 'An error occurred',
+    logout: 'Logout',
+    loggedInAs: 'Logged in as:',
+    changePassword: 'Change Password',
+    oldPassword: 'Old Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm New Password',
+    passwordMismatch: 'Passwords do not match',
+    passwordChanged: 'Password changed successfully',
+    passwordChangeError: 'Error changing password'
   },
 
-  // Roles
   roles: {
     employee: 'Employee',
     teamlead: 'Team Lead',
@@ -69,277 +68,165 @@ export const en: Translation = {
     sysadmin: 'System Admin'
   },
 
-  // Status
   status: {
     active: 'Active',
     inactive: 'Inactive',
     pending: 'Pending',
+    teamleadApproved: 'Team Lead Approved',
     approved: 'Approved',
     rejected: 'Rejected',
-    cancelled: 'Cancelled',
-    teamleadApproved: 'Team Lead Approved'
+    cancelled: 'Cancelled'
   },
 
-  // Vacation Management
   vacation: {
-    title: 'Vacation Management',
-    myVacation: 'My Vacation',
-    myRequest: 'My Request',
-    teamRequests: 'Team Lead View',
-    managerApproval: 'Manager View',
-    vacationRules: 'Vacation Rules',
-    approvedVacations: 'Approved Vacations',
-    reports: 'Reports',
-    calendar: 'Calendar',
-    
-    // Form
-    requestVacation: 'Request Vacation',
-    startDate: 'Start Date',
-    endDate: 'End Date',
-    reason: 'Reason',
-    reasonPlaceholder: 'e.g. Family vacation, Recreation...',
-    submit: 'Submit Request',
-    
-    // Overview
-    vacationDays: 'Vacation Days',
-    remainingDays: 'Remaining Days',
-    usedDays: 'Used Days',
+    myVacation: 'My Vacation Account',
     totalDays: 'Total',
-    carryover: 'Carryover',
-    standard: 'Standard',
-    
-    // Actions
+    usedDays: 'Used',
+    remainingDays: 'Remaining',
+    vacationDays: 'Vacation Days',
+    newRequest: 'New Vacation Request',
+    submitRequest: 'Submit Request',
+    myRequests: 'My Vacation Requests',
+    noRequests: 'No vacation requests yet',
+    requestsForApproval: 'Vacation Requests for Approval',
+    requestsForFinalApproval: 'Vacation Requests for Final Approval',
+    noPendingRequests: 'No pending vacation requests',
+    noPendingFinalRequests: 'No pending requests for final approval',
     approve: 'Approve',
     reject: 'Reject',
-    cancel: 'Cancel Vacation',
-    cancelReason: 'Cancellation Reason',
-    cancelWarning: 'The approved vacation will be cancelled and vacation days will be refunded.',
-    
-    // Export
-    exportPdf: 'Export PDF',
-    exportTeamPdf: 'Export Team PDF',
-    exportAllPdf: 'Export All Vacations as PDF',
-    exportMyApprovedVacations: 'Export Approved Vacations',
-    
-    // Messages
-    requestSubmitted: 'Vacation request successfully submitted',
-    requestApproved: 'Vacation request approved',
-    requestRejected: 'Vacation request rejected',
-    requestCancelled: 'Vacation cancelled',
-    pdfCreated: 'PDF successfully created!',
-    pdfGenerating: 'Creating PDF, please wait...',
-    
-    // Half-day Rules
-    halfDayRules: 'Half-Day Rules',
-    addHalfDay: 'Add Half-Day',
-    halfDayDate: 'Date',
-    halfDayDescription: 'Description',
-    halfDayDescriptionPlaceholder: 'e.g. Christmas Eve, New Year\'s Eve...',
-    noHalfDayRules: 'No half-day rules defined yet',
-    
-    // Filter
-    filterByEmployee: 'Filter by employee:',
-    filterByYear: 'Year:',
+    cancel: 'Cancel',
+    approvedVacations: 'Approved Vacations',
+    filterByEmployee: 'Filter by Employee',
+    filterByYear: 'Filter by Year',
     enterName: 'Enter name...',
     requestsShown: '{shown} of {total} requests',
     noRequestsForFilter: 'No vacations found for this filter',
     noApprovedVacations: 'No approved vacations',
-    
-    // Carryover
-    carryoverManagement: 'Vacation Days Carryover {action}',
-    carryoverManage: 'manage',
-    carryoverOverview: 'overview',
-    carryoverReview: 'Review Vacation Days Carryover ({year})',
+    exportPdf: 'Export as PDF',
+    exportTeamPdf: 'Export Team PDF',
+    exportAllPdf: 'Export All PDF',
+    exportApprovedVacations: 'Export Approved Vacations',
+    exportTeamVacations: 'Export Team Vacations',
+    exportAllVacations: 'Export All Vacations',
+    pdfGenerating: 'Creating PDF, please wait...',
+    pdfCreated: 'PDF created successfully',
+    requestSuccess: 'Vacation requested successfully',
+    requestError: 'Error submitting request',
+    approveSuccess: 'Vacation approved successfully',
+    approveError: 'Error approving vacation',
+    rejectSuccess: 'Vacation rejected successfully',
+    rejectError: 'Error rejecting vacation',
+    cancelSuccess: 'Vacation cancelled successfully',
+    cancelError: 'Error cancelling vacation',
+    calendar: 'Vacation Calendar',
+    carryoverManagement: 'Manage Vacation Carryover',
+    carryoverManage: 'Manage Carryover',
+    carryoverOverview: 'Carryover Overview',
+    carryoverReview: 'Review Vacation Carryover ({year})',
     carryoverAdjust: 'Adjust Carryover',
-    carryoverAdd: 'Add/Edit Carryover',
-    carryoverInfo: 'Vacation Days Carryover {year}',
-    carryoverPending: 'Vacation Days Carryover Under Review',
-    carryoverApproved: 'Vacation Days Carryover Adjusted',
+    carryoverAdd: 'Add Carryover',
+    carryoverInfo: 'Vacation Carryover {year}',
+    carryoverPending: 'Vacation Carryover Under Review',
+    carryoverApproved: 'Vacation Carryover Adjusted',
     carryoverIncluding: 'Incl. {days} days carryover from {year}',
-    carryoverCalculated: 'Calculated Carryover:',
+    carryoverCalculated: 'Calculated:',
     carryoverApprovedAmount: 'Approved Carryover:',
     carryoverNewAmount: 'New Carryover (Days) *',
-    carryoverReasonLabel: 'Reason for Adjustment *',
-    carryoverReasonPlaceholder: 'Please explain the reason for the carryover adjustment...',
-    carryoverSave: 'Save Carryover',
-    carryoverManagerReviewing: 'Your manager is currently reviewing your calculated carryover of {days} days from {year}.'
+    carryoverReasonLabel: 'Reason * (visible to employee)',
+    carryoverReasonPlaceholder: 'Please provide a reason for adjusting the carryover...',
+    carryoverSave: 'Save Adjustment',
+    carryoverManagerReviewing: 'Your manager is currently reviewing your calculated carryover of {days} days from {year}.',
+    halfDayRules: 'Company Vacation Policy',
+    addHalfDay: 'Add Rule',
+    halfDayDate: 'Date',
+    halfDayDescription: 'Description',
+    halfDayDescriptionPlaceholder: 'e.g. Christmas Eve',
+    noHalfDayRules: 'No half-day rules defined yet'
   },
 
-  // Reports
+  organization: {
+    teamManagement: 'Team Management',
+    teams: 'Teams',
+    assignEmployeesToTeams: 'Assign employees to teams',
+    noEmployeesAssigned: 'No employees assigned',
+    removeFromTeam: 'Remove from team',
+    orgChart: 'Organization Chart',
+    graphicalRepresentation: 'Graphical representation of organizational structure',
+    employee: 'Employee',
+    employees: 'Employees',
+    totalEmployees: 'Total Employees',
+    unassignedEmployees: 'Unassigned Employees',
+    description: 'Overview of organizational structure and team assignments.',
+    exportOrgChart: 'Export Org Chart as PDF',
+    exportTeamOverview: 'Export Team Overview as PDF'
+  },
+
+  users: {
+    title: 'User Management',
+    addUser: 'Add New Employee',
+    existingUsers: 'Edit Existing Employees',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    username: 'Username',
+    generated: 'Generated',
+    role: 'Role',
+    roleSelect: 'Please select...',
+    teamlead: 'Team Lead',
+    vacationDaysPerYear: 'Vacation Days per Year',
+    vacationDays: 'Vacation Days',
+    password: 'Password',
+    passwordNote: 'Secure password - can be edited',
+    regeneratePassword: 'Generate new password',
+    searchPlaceholder: 'Search by first or last name...',
+    showInactive: 'Show Inactive',
+    name: 'Name',
+    editUser: 'Edit',
+    resetPassword: 'Reset Password',
+    deactivateUser: 'Deactivate',
+    activateUser: 'Activate',
+    yourRole: 'Your Role',
+    yourTeamlead: 'Your Team Lead'
+  },
+
   reports: {
-    title: 'Reports & Statistics',
+    title: 'Reports',
     annualReport: 'Annual Vacation Report',
-    annualReportDescription: 'Creates a comprehensive annual report for all employees with overall statistics, individual vacation records and signature templates.',
-    selectYear: 'Select year:',
-    preview: 'Preview Overall Statistics {year}',
+    annualReportDescription: 'Creates a comprehensive annual report for all employees with overall statistics, individual vacation records, and signature templates.',
+    selectYear: 'Select Year:',
+    preview: 'Overall Statistics Preview {year}',
     createPdf: 'Create Annual Report as PDF',
     creating: 'Creating PDF...',
     employees: 'Employees',
     totalVacationDays: 'Total Vacation Days',
-    averagePerEmployee: 'Avg. per Employee',
+    averagePerEmployee: 'Avg per Employee',
     taken: 'Taken',
     remaining: 'Remaining',
     quota: 'Quota',
     pdfContains: 'The PDF contains:',
     pdfPage1: 'Page 1: Overall statistics for all employees',
-    pdfPage2Plus: 'From page 2: Individual record per employee (alphabetically sorted)',
+    pdfPage2Plus: 'From Page 2: Individual record per employee (alphabetically sorted)',
     pdfSignatures: 'Each employee page includes a signature template for confirmation',
     loadingStatistics: 'Loading statistics...'
   },
 
-  // User Management
-  users: {
-    title: 'User Management',
-    addUser: 'Add Employee',
-    existingUsers: 'Existing Employees',
-    
-    // Form
-    firstName: 'First Name',
-    lastName: 'Last Name',
-    generated: 'generated',
-    username: 'Username',
-    role: 'Role',
-    yourRole: 'Your role',
-    roleSelect: 'Please select...',
-    teamlead: 'Team Lead',
-    teamleadSelect: 'Select Team Lead...',
-    yourTeamlead: 'Your Team Lead',
-    password: 'Password',
-    vacationDays: 'Vacation Days',
-    vacationDaysPerYear: 'Vacation Days per Year',
-    
-    // Placeholders
-    firstNamePlaceholder: 'John',
-    lastNamePlaceholder: 'Doe',
-    
-    // Table
-    name: 'Name',
-    displayName: 'Display Name',
-    
-    // Actions
-    editUser: 'Edit User',
-    resetPassword: 'Reset Password',
-    deactivateUser: 'Deactivate User',
-    activateUser: 'Activate User',
-    regeneratePassword: 'Regenerate Password',
-    
-    // Filter
-    showInactive: 'Show Inactive',
-    searchPlaceholder: 'Search by first or last name...',
-    
-    // Messages
-    userCreated: 'User successfully created',
-    userUpdated: 'User updated',
-    passwordReset: 'Password reset',
-    userDeactivated: 'User deactivated',
-    userActivated: 'User activated',
-    
-    // Password
-    changePassword: 'Change Password',
-    oldPassword: 'Old Password',
-    newPassword: 'New Password',
-    confirmPassword: 'Confirm Password',
-    passwordChanged: 'Password successfully changed',
-    passwordsNotMatch: 'Passwords do not match',
-    passwordTooShort: 'Password must be at least 8 characters',
-    passwordNote: 'Secure password - can be edited'
-  },
-
-  // Organization Chart
-  organization: {
-    title: 'Organization Chart',
-    description: 'Overview of organizational structure and team assignments.',
-    exportOrgChart: 'Export Organization Chart as PDF',
-    exportTeamOverview: 'Export Team Overview as PDF',
-    
-    // Team Management
-    teamManagement: 'Team Management',
-    teams: 'Teams',
-    assignEmployeesToTeams: 'Assign employees to teams',
-    unassignedEmployees: 'Unassigned Employees',
-    assignToTeam: 'Assign Employee to Team',
-    employee: 'Employee',
-    selectEmployee: 'Select Employee...',
-    selectTeamlead: 'Select Team Lead...',
-    assignButton: 'Save Assignment',
-    noEmployeesAssigned: 'No employees assigned',
-    removeFromTeam: 'Remove from team',
-    
-    // Organization Tree
-    orgChart: 'Organization Chart',
-    graphicalRepresentation: 'Graphical representation of organizational structure',
-    
-    // Statistics
-    statistics: 'Statistics',
-    totalEmployees: 'Total Employees',
-    teamleads: 'Team Leads',
-    employees: 'Employees',
-    
-    // PDF
-    orgChartPdf: 'Organization Chart - {company}',
-    teamOverviewPdf: 'Team Overview - {company}',
-    vacationOverviewPdf: 'Vacation Overview - {company}',
-    createdOn: 'Created on',
-    supervisor: 'Supervisor',
-    teamMembers: 'Team Members',
-    notAssigned: 'Not Assigned'
-  },
-
-  // Error Messages
   errors: {
-    genericError: 'An error occurred',
-    networkError: 'Network error',
-    notFound: 'Not found',
-    unauthorized: 'Unauthorized',
-    forbidden: 'Access denied',
-    serverError: 'Server error',
-    validationError: 'Validation error',
-    required: 'This field is required',
-    invalidEmail: 'Invalid email address',
-    invalidDate: 'Invalid date',
-    startDateAfterEndDate: 'Start date must be before end date',
-    noVacationDaysLeft: 'No vacation days available',
     loadingStatistics: 'Error loading statistics',
     creatingPdf: 'Error creating PDF'
   },
 
-  // PDF Texts
-  pdf: {
-    page: 'Page',
-    totalPages: 'Page {current}/{total}',
-    myApprovedVacations: 'My Approved Vacations',
-    teamVacations: 'Team Vacation Overview',
-    allVacations: 'Vacation Overview',
-    vacationAccount: 'Vacation Account',
-    totalApprovedDays: 'Total Approved Vacation Days',
-    totalRequests: 'Total Requests',
-    fullyApproved: 'Fully Approved',
-    pendingManager: 'Pending with Manager',
-    pendingTeamlead: 'Pending with Team Lead',
-    totalCancelledDays: 'Total Cancelled Vacation Days'
-  },
-
-  // Confirmation Dialogs
   confirm: {
-    deleteTitle: 'Confirm Delete',
-    deleteMessage: 'Do you really want to delete this entry?',
-    cancelTitle: 'Confirm Cancel',
-    cancelMessage: 'Do you really want to cancel this action?',
-    logoutTitle: 'Confirm Logout',
-    logoutMessage: 'Do you really want to logout?',
-    resetPasswordTitle: 'Reset Password',
-    resetPasswordMessage: 'Reset password for {name}?'
+    deleteMessage: 'Do you really want to delete this rule?'
   },
 
-  // About Dialog
   about: {
-    title: '{appName}',
+    title: 'About {appName}',
     version: 'Version {version}',
     developedBy: 'Developed by',
     leadDeveloper: 'Lead Developer',
-    aiAssistant: 'AI Assistant by Anthropic',
+    aiAssistant: 'AI Assistant',
     techStack: 'Technology Stack',
-    copyright: '© {year} {company}',
-    madeWith: 'Made with ❤️ in Germany'
+    copyright: '© {year} {company}. All rights reserved.',
+    madeWith: 'Built with ❤️ and cutting-edge technologies',
+    about: 'About'
   }
 }

@@ -3,30 +3,23 @@
     <div class="chart-header">
       <div>
         <h2>{{ t('nav.organization') }}</h2>
-        <p class="description">
-          Überblick über die Organisationsstruktur und Team-Zuordnungen.
-        </p>
+        <p class="description">{{ t('organization.description') }}</p>
       </div>
       <div class="export-buttons">
-        <button @click="exportOrgChart" class="btn-pdf">
-          📄 Organigramm als PDF
-        </button>
-        <button @click="exportTeamOverview" class="btn-pdf">
-          📄 Teamübersicht als PDF
-        </button>
+        <button @click="exportOrgChart" class="btn-pdf">📄 {{ t('organization.exportOrgChart') }}</button>
+        <button @click="exportTeamOverview" class="btn-pdf">📄 {{ t('organization.exportTeamOverview') }}</button>
       </div>
     </div>
 
-    <!-- 1. Team-Verwaltung (OBEN) -->
     <div class="teams-overview">
       <div class="section-header" @click="toggleTeamsSection">
         <div class="header-left">
           <span class="toggle-icon">{{ showTeamsSection ? '▼' : '▶' }}</span>
-          <h3>Team-Verwaltung</h3>
-          <span class="count-badge">{{ teams?.length || 0 }} Teams</span>
+          <h3>{{ t('organization.teamManagement') }}</h3>
+          <span class="count-badge">{{ teams?.length || 0 }} {{ t('organization.teams') }}</span>
         </div>
         <span class="description-collapsed" v-if="!showTeamsSection">
-          Mitarbeiter den Teams zuordnen
+          {{ t('organization.assignEmployeesToTeams') }}
         </span>
       </div>
       
@@ -39,7 +32,7 @@
           </div>
           <div class="team-members">
             <div v-if="!team.members || team.members.length === 0" class="empty-team">
-              Keine Mitarbeiter zugeordnet
+              {{ t('organization.noEmployeesAssigned') }}
             </div>
             <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
               {{ getDisplayName(memberId) }}
@@ -47,7 +40,7 @@
                 v-if="isEditable" 
                 @click="handleRemove(memberId)" 
                 class="remove-btn"
-                title="Aus Team entfernen"
+                :title="t('organization.removeFromTeam')"
               >
                 ✕
               </button>
@@ -58,60 +51,53 @@
       </div>
     </div>
 
-    <!-- 2. Organigramm (UNTEN - EINKLAPPBAR) -->
     <div class="org-tree-section">
       <div class="section-header" @click="toggleOrgTree">
         <div class="header-left">
           <span class="toggle-icon">{{ showOrgTree ? '▼' : '▶' }}</span>
-          <h3>Organigramm</h3>
+          <h3>{{ t('organization.orgChart') }}</h3>
         </div>
         <span class="description-collapsed" v-if="!showOrgTree">
-          Grafische Darstellung der Organisationsstruktur
+          {{ t('organization.graphicalRepresentation') }}
         </span>
       </div>
 
       <div v-show="showOrgTree" class="section-content">
         <div ref="orgTreeRef" class="org-tree">
-          <!-- Manager-Ebene -->
           <div class="manager-level">
             <div v-for="manager in managers" :key="manager.userId" class="org-node manager">
               <div class="node-header">
                 <div class="node-icon">👔</div>
                 <div class="node-info">
                   <div class="node-name">{{ manager.displayName }}</div>
-                  <div class="node-role">Manager</div>
+                  <div class="node-role">{{ t('roles.manager') }}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Verbindungslinie -->
           <div class="org-connector-vertical"></div>
 
-          <!-- Teamlead & Office Ebene -->
           <div class="teamlead-level">
-            <!-- Office (kann mehrere sein) -->
             <div v-for="office in officeUsers" :key="office.userId" class="org-node office">
               <div class="node-header">
                 <div class="node-icon">📋</div>
                 <div class="node-info">
                   <div class="node-name">{{ office.displayName }}</div>
-                  <div class="node-role">Office</div>
+                  <div class="node-role">{{ t('roles.office') }}</div>
                 </div>
               </div>
             </div>
 
-            <!-- Teamleads -->
             <div v-for="teamlead in teamleads" :key="teamlead.userId" class="org-node teamlead">
               <div class="node-header">
                 <div class="node-icon">👨‍💼</div>
                 <div class="node-info">
                   <div class="node-name">{{ teamlead.displayName }}</div>
-                  <div class="node-role">Teamleiter</div>
+                  <div class="node-role">{{ t('roles.teamlead') }}</div>
                 </div>
               </div>
 
-              <!-- Mitarbeiter des Teams -->
               <div v-if="teamlead.teamMembers && teamlead.teamMembers.length > 0" class="team-members-tree">
                 <div class="org-connector-vertical-small"></div>
                 <div class="employees-level">
@@ -128,21 +114,19 @@
               </div>
             </div>
 
-            <!-- Sysadmin (kann mehrere sein) -->
             <div v-for="sysadmin in sysadminUsers" :key="sysadmin.userId" class="org-node sysadmin">
               <div class="node-header">
                 <div class="node-icon">⚙️</div>
                 <div class="node-info">
                   <div class="node-name">{{ sysadmin.displayName }}</div>
-                  <div class="node-role">Sysadmin</div>
+                  <div class="node-role">{{ t('roles.sysadmin') }}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Nicht zugeordnete Mitarbeiter -->
           <div v-if="unassignedEmployees.length > 0" class="unassigned-section">
-            <h4>⚠️ Nicht zugeordnete Mitarbeiter</h4>
+            <h4>⚠️ {{ t('organization.unassignedEmployees') }}</h4>
             <div class="unassigned-list">
               <div v-for="employee in unassignedEmployees" :key="employee.userId" class="org-node employee unassigned">
                 <div class="node-header">
@@ -172,12 +156,10 @@ const props = defineProps<{
 
 const emit = defineEmits(['remove-from-team'])
 
-// State
-const showTeamsSection = ref(false)  // Standard eingeklappt
-const showOrgTree = ref(false)       // Standard eingeklappt
+const showTeamsSection = ref(false)
+const showOrgTree = ref(false)
 const orgTreeRef = ref<HTMLElement | null>(null)
 
-// Toggle Functions
 const toggleTeamsSection = () => {
   showTeamsSection.value = !showTeamsSection.value
 }
@@ -186,7 +168,6 @@ const toggleOrgTree = () => {
   showOrgTree.value = !showOrgTree.value
 }
 
-// Computed
 const managers = computed(() => props.organization?.managers || [])
 const teamleads = computed(() => props.organization?.teamleads || [])
 const officeUsers = computed(() => props.organization?.officeUsers || [])
@@ -219,9 +200,8 @@ const handleRemove = (userId: string) => {
   emit('remove-from-team', userId)
 }
 
-// PDF Export Functions
 const exportOrgChart = async () => {
-  toast.info('PDF-Export wird vorbereitet...')
+  toast.info(t('vacation.pdfGenerating'))
   
   try {
     const { jsPDF } = await import('jspdf')
@@ -241,7 +221,6 @@ const exportOrgChart = async () => {
     
     let y = 45
     
-    // Manager
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Manager', 20, y)
@@ -255,7 +234,6 @@ const exportOrgChart = async () => {
     })
     y += 5
     
-    // Teams
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Teams', 20, y)
@@ -285,15 +263,15 @@ const exportOrgChart = async () => {
     window.open(pdfUrl, '_blank')
     setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
     
-    toast.success('PDF erfolgreich erstellt')
+    toast.success(t('vacation.pdfCreated'))
   } catch (error) {
     console.error('Fehler beim PDF-Export:', error)
-    toast.error('Fehler beim PDF-Export')
+    toast.error(t('errors.creatingPdf'))
   }
 }
 
 const exportTeamOverview = async () => {
-  toast.info('Teamübersicht wird erstellt...')
+  toast.info(t('vacation.pdfGenerating'))
   
   try {
     const { jsPDF } = await import('jspdf')
@@ -345,10 +323,10 @@ const exportTeamOverview = async () => {
     window.open(pdfUrl, '_blank')
     setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
     
-    toast.success('PDF erfolgreich erstellt')
+    toast.success(t('vacation.pdfCreated'))
   } catch (error) {
     console.error('Fehler beim PDF-Export:', error)
-    toast.error('Fehler beim PDF-Export')
+    toast.error(t('errors.creatingPdf'))
   }
 }
 </script>
