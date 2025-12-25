@@ -31,7 +31,9 @@ export const de = {
     date: 'Datum',
     reason: 'Grund',
     status: 'Status',
-    actions: 'Aktionen'
+    actions: 'Aktionen',
+    year: 'Jahr',
+    allYears: 'Alle Jahre'
   },
 
   // Navigation
@@ -73,16 +75,20 @@ export const de = {
     approved: 'Genehmigt',
     rejected: 'Abgelehnt',
     cancelled: 'Abgesagt',
-    teamleadApproved: 'Teamlead genehmigt'
+    teamleadApproved: 'Teamleiter genehmigt'
   },
 
   // Urlaubsverwaltung
   vacation: {
     title: 'Urlaubsverwaltung',
     myVacation: 'Mein Urlaub',
-    teamRequests: 'Team-Anträge',
-    managerApproval: 'Manager-Genehmigung',
+    myRequest: 'Mein Antrag',
+    teamRequests: 'Teamleiter-Ansicht',
+    managerApproval: 'Manager-Ansicht',
     vacationRules: 'Urlaubsregelung',
+    approvedVacations: 'Genehmigte Urlaube',
+    reports: 'Berichte',
+    calendar: 'Kalender',
     
     // Formular
     requestVacation: 'Urlaub beantragen',
@@ -111,6 +117,7 @@ export const de = {
     exportPdf: 'PDF exportieren',
     exportTeamPdf: 'Team-PDF exportieren',
     exportAllPdf: 'Alle Urlaube als PDF exportieren',
+    exportMyApprovedVacations: 'Genehmigte Urlaube exportieren',
     
     // Meldungen
     requestSubmitted: 'Urlaubsantrag erfolgreich eingereicht',
@@ -118,13 +125,64 @@ export const de = {
     requestRejected: 'Urlaubsantrag abgelehnt',
     requestCancelled: 'Urlaub abgesagt',
     pdfCreated: 'PDF erfolgreich erstellt!',
+    pdfGenerating: 'PDF wird erstellt, bitte warten...',
     
     // Halbtags-Regeln
-    halfDayRules: 'Halbtags-Regeln',
+    halfDayRules: 'Halbtags-Regelung',
     addHalfDay: 'Halbtag hinzufügen',
     halfDayDate: 'Datum',
     halfDayDescription: 'Beschreibung',
-    halfDayDescriptionPlaceholder: 'z.B. Heiligabend, Silvester...'
+    halfDayDescriptionPlaceholder: 'z.B. Heiligabend, Silvester...',
+    noHalfDayRules: 'Noch keine Halbtags-Regelungen definiert',
+    
+    // Filter
+    filterByEmployee: 'Mitarbeiter filtern:',
+    filterByYear: 'Jahr:',
+    enterName: 'Name eingeben...',
+    requestsShown: '{shown} von {total} Anträgen',
+    noRequestsForFilter: 'Keine Urlaube für diesen Filter gefunden',
+    noApprovedVacations: 'Keine genehmigten Urlaube',
+    
+    // Übertrag/Carryover
+    carryoverManagement: 'Urlaubstage-Übertrag {action}',
+    carryoverManage: 'verwalten',
+    carryoverOverview: 'Übersicht',
+    carryoverReview: 'Urlaubstage-Übertrag prüfen ({year})',
+    carryoverAdjust: 'Übertrag anpassen',
+    carryoverAdd: 'Übertrag hinzufügen/bearbeiten',
+    carryoverInfo: 'Urlaubstage-Übertrag {year}',
+    carryoverPending: 'Urlaubstage-Übertrag wird geprüft',
+    carryoverApproved: 'Urlaubstage-Übertrag angepasst',
+    carryoverIncluding: 'Inkl. {days} Tage Übertrag aus {year}',
+    carryoverCalculated: 'Berechneter Übertrag:',
+    carryoverApprovedAmount: 'Genehmigter Übertrag:',
+    carryoverNewAmount: 'Neuer Übertrag (Tage) *',
+    carryoverReasonLabel: 'Grund für Anpassung *',
+    carryoverReasonPlaceholder: 'Bitte begründen Sie die Anpassung des Übertrags...',
+    carryoverSave: 'Übertrag speichern',
+    carryoverManagerReviewing: 'Ihr Manager prüft derzeit Ihren berechneten Übertrag von {days} Tagen aus {year}.'
+  },
+
+  // Berichte
+  reports: {
+    title: 'Berichte & Statistiken',
+    annualReport: 'Jahresbericht Urlaube',
+    annualReportDescription: 'Erstellt einen vollständigen Jahresbericht für alle Mitarbeiter mit Gesamtstatistik, individuellen Urlaubsnachweisen und Unterschriftenvorlagen.',
+    selectYear: 'Jahr auswählen:',
+    preview: 'Vorschau Gesamtstatistik {year}',
+    createPdf: 'Jahresbericht als PDF erstellen',
+    creating: 'PDF wird erstellt...',
+    employees: 'Mitarbeiter',
+    totalVacationDays: 'Urlaubstage gesamt',
+    averagePerEmployee: 'Ø pro Mitarbeiter',
+    taken: 'Genommen',
+    remaining: 'Resturlaub',
+    quota: 'Quote',
+    pdfContains: 'Das PDF enthält:',
+    pdfPage1: 'Seite 1: Gesamtstatistik über alle Mitarbeiter',
+    pdfPage2Plus: 'Ab Seite 2: Individueller Nachweis pro Mitarbeiter (alphabetisch sortiert)',
+    pdfSignatures: 'Jede Mitarbeiterseite enthält eine Unterschriftenvorlage zur Bestätigung',
+    loadingStatistics: 'Lade Statistiken...'
   },
 
   // Benutzerverwaltung
@@ -136,15 +194,14 @@ export const de = {
     // Formular
     firstName: 'Vorname',
     lastName: 'Nachname',
-      generated: 'Generierter',
+    generated: 'Generierter',
     username: 'Benutzername',
     role: 'Rolle',
-      yourRole: 'Ihre Rolle',
+    yourRole: 'Ihre Rolle',
     roleSelect: 'Bitte wählen...',
     teamlead: 'Teamleiter',
     teamleadSelect: 'Teamleiter wählen...',
-      yourTeamlead: 'Ihr Teamleiter',
-      // ########################################
+    yourTeamlead: 'Ihr Teamleiter',
     password: 'Passwort',
     vacationDays: 'Urlaubstage',
     vacationDaysPerYear: 'Urlaubstage pro Jahr',
@@ -195,12 +252,20 @@ export const de = {
     
     // Team-Verwaltung
     teamManagement: 'Team-Verwaltung',
+    teams: 'Teams',
+    assignEmployeesToTeams: 'Mitarbeiter den Teams zuordnen',
     unassignedEmployees: 'Nicht zugeordnete Mitarbeiter',
     assignToTeam: 'Mitarbeiter einem Team zuordnen',
     employee: 'Mitarbeiter',
     selectEmployee: 'Mitarbeiter wählen...',
     selectTeamlead: 'Teamleiter wählen...',
     assignButton: 'Zuordnung speichern',
+    noEmployeesAssigned: 'Keine Mitarbeiter zugeordnet',
+    removeFromTeam: 'Aus Team entfernen',
+    
+    // Organigramm Baum
+    orgChart: 'Organigramm',
+    graphicalRepresentation: 'Grafische Darstellung der Organisationsstruktur',
     
     // Statistik
     statistics: 'Statistik',
@@ -231,7 +296,9 @@ export const de = {
     invalidEmail: 'Ungültige E-Mail-Adresse',
     invalidDate: 'Ungültiges Datum',
     startDateAfterEndDate: 'Startdatum muss vor Enddatum liegen',
-    noVacationDaysLeft: 'Keine Urlaubstage mehr verfügbar'
+    noVacationDaysLeft: 'Keine Urlaubstage mehr verfügbar',
+    loadingStatistics: 'Fehler beim Laden der Statistiken',
+    creatingPdf: 'Fehler beim Erstellen des PDFs'
   },
 
   // PDF Texte

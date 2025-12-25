@@ -17,46 +17,17 @@
       </div>
     </div>
 
-    <!-- Team-Verwaltung (nur für Manager/Admin) -->
-    <div v-if="isEditable" class="team-management">
-      <h3>Team-Verwaltung</h3>
-      <div class="management-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{ t('roles.employee') }}</label>
-            <select v-model="selectedEmployee">
-              <option value="">Mitarbeiter wählen...</option>
-              <option v-for="emp in allEmployees" :key="emp.userId" :value="emp.userId">
-                {{ emp.displayName }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label> {{ t('users.teamlead') }}</label>
-            <select v-model="selectedTeamlead">
-              <option value=""> {{ t('users.teamleadSelect') }}</option>
-              <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
-                {{ tl.displayName }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <button
-            @click="handleAssignManual"
-            :disabled="!selectedEmployee || !selectedTeamlead"
-            class="btn-primary"
-        >
-          Zuordnung speichern
-        </button>
-      </div>
-    </div>
-    <!-- Team-Übersicht -->
+    <!-- 1. Team-Verwaltung (OBEN) -->
     <div class="teams-overview">
       <div class="section-header" @click="toggleTeamsSection">
-        <h3>
+        <div class="header-left">
           <span class="toggle-icon">{{ showTeamsSection ? '▼' : '▶' }}</span>
-          Team-Übersicht ({{ teams?.length || 0 }})
-        </h3>
+          <h3>Team-Verwaltung</h3>
+          <span class="count-badge">{{ teams?.length || 0 }} Teams</span>
+        </div>
+        <span class="description-collapsed" v-if="!showTeamsSection">
+          Mitarbeiter den Teams zuordnen
+        </span>
       </div>
       
       <div v-show="showTeamsSection" class="section-content">
@@ -87,72 +58,93 @@
       </div>
     </div>
 
-    <!-- Organigramm Baum -->
-    <div ref="orgTreeRef" class="org-tree">
-      <!-- Manager-Ebene -->
-      <div class="manager-level">
-        <div v-for="manager in managers" :key="manager.userId" class="org-node manager">
-          <div class="node-header">
-            <div class="node-icon">👔</div>
-            <div class="node-info">
-              <div class="node-name">{{ manager.displayName }}</div>
-              <div class="node-role">Manager</div>
-            </div>
-          </div>
+    <!-- 2. Organigramm (UNTEN - EINKLAPPBAR) -->
+    <div class="org-tree-section">
+      <div class="section-header" @click="toggleOrgTree">
+        <div class="header-left">
+          <span class="toggle-icon">{{ showOrgTree ? '▼' : '▶' }}</span>
+          <h3>Organigramm</h3>
         </div>
+        <span class="description-collapsed" v-if="!showOrgTree">
+          Grafische Darstellung der Organisationsstruktur
+        </span>
       </div>
 
-      <!-- Verbindungslinie -->
-      <div class="org-connector-vertical"></div>
-
-      <!-- Teamlead & Office Ebene -->
-      <div class="teamlead-level">
-        <!-- Office (kann mehrere sein) -->
-        <div v-for="office in officeUsers" :key="office.userId" class="org-node office">
-          <div class="node-header">
-            <div class="node-icon">📋</div>
-            <div class="node-info">
-              <div class="node-name">{{ office.displayName }}</div>
-              <div class="node-role">Office</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- System-Admin (kann mehrere sein) -->
-        <div v-for="sysadmin in sysadminUsers" :key="sysadmin.userId" class="org-node sysadmin">
-          <div class="node-header">
-            <div class="node-icon">🔧</div>
-            <div class="node-info">
-              <div class="node-name">{{ sysadmin.displayName }}</div>
-              <div class="node-role">System-Admin</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Teamleads -->
-        <div v-for="teamlead in teamleads" :key="teamlead.userId" class="teamlead-container">
-          <div class="org-node teamlead">
-            <div class="node-header">
-              <div class="node-icon">👥</div>
-              <div class="node-info">
-                <div class="node-name">{{ teamlead.displayName }}</div>
-                <div class="node-role"> {{ t('users.teamlead') }}</div>
+      <div v-show="showOrgTree" class="section-content">
+        <div ref="orgTreeRef" class="org-tree">
+          <!-- Manager-Ebene -->
+          <div class="manager-level">
+            <div v-for="manager in managers" :key="manager.userId" class="org-node manager">
+              <div class="node-header">
+                <div class="node-icon">👔</div>
+                <div class="node-info">
+                  <div class="node-name">{{ manager.displayName }}</div>
+                  <div class="node-role">Manager</div>
+                </div>
               </div>
             </div>
-            <div class="node-actions">
-              {{ getTeamMemberCount(teamlead.userId) }} {{ t('roles.employee') }}
+          </div>
+
+          <!-- Verbindungslinie -->
+          <div class="org-connector-vertical"></div>
+
+          <!-- Teamlead & Office Ebene -->
+          <div class="teamlead-level">
+            <!-- Office (kann mehrere sein) -->
+            <div v-for="office in officeUsers" :key="office.userId" class="org-node office">
+              <div class="node-header">
+                <div class="node-icon">📋</div>
+                <div class="node-info">
+                  <div class="node-name">{{ office.displayName }}</div>
+                  <div class="node-role">Office</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Teamleads -->
+            <div v-for="teamlead in teamleads" :key="teamlead.userId" class="org-node teamlead">
+              <div class="node-header">
+                <div class="node-icon">👨‍💼</div>
+                <div class="node-info">
+                  <div class="node-name">{{ teamlead.displayName }}</div>
+                  <div class="node-role">Teamleiter</div>
+                </div>
+              </div>
+
+              <!-- Mitarbeiter des Teams -->
+              <div v-if="teamlead.teamMembers && teamlead.teamMembers.length > 0" class="team-members-tree">
+                <div class="org-connector-vertical-small"></div>
+                <div class="employees-level">
+                  <div v-for="employee in teamlead.teamMembers" :key="employee.userId" class="org-node employee">
+                    <div class="node-header">
+                      <div class="node-icon">👤</div>
+                      <div class="node-info">
+                        <div class="node-name">{{ employee.displayName }}</div>
+                        <div class="node-role">{{ t('roles.employee') }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sysadmin (kann mehrere sein) -->
+            <div v-for="sysadmin in sysadminUsers" :key="sysadmin.userId" class="org-node sysadmin">
+              <div class="node-header">
+                <div class="node-icon">⚙️</div>
+                <div class="node-info">
+                  <div class="node-name">{{ sysadmin.displayName }}</div>
+                  <div class="node-role">Sysadmin</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Mitarbeiter des Teams -->
-          <div class="employee-level">
-            <div class="org-connector-vertical-short"></div>
-            <div class="employees-container">
-              <div 
-                v-for="employee in getTeamEmployees(teamlead.userId)" 
-                :key="employee.userId" 
-                class="org-node employee"
-              >
+          <!-- Nicht zugeordnete Mitarbeiter -->
+          <div v-if="unassignedEmployees.length > 0" class="unassigned-section">
+            <h4>⚠️ Nicht zugeordnete Mitarbeiter</h4>
+            <div class="unassigned-list">
+              <div v-for="employee in unassignedEmployees" :key="employee.userId" class="org-node employee unassigned">
                 <div class="node-header">
                   <div class="node-icon">👤</div>
                   <div class="node-info">
@@ -166,322 +158,197 @@
         </div>
       </div>
     </div>
-
-
-
-    <!-- Nicht zugeordnete Mitarbeiter (nur im Edit-Modus) -->
-    <div v-if="isEditable && unassignedEmployees && unassignedEmployees.length > 0" class="unassigned-section">
-      <h3>⚠️ Nicht zugeordnete Mitarbeiter</h3>
-      <div class="unassigned-list">
-        <div v-for="emp in unassignedEmployees" :key="emp.userId" class="unassigned-item">
-          <span>{{ emp.displayName }}</span>
-          <select @change="handleAssignFromDropdown($event, emp.userId)" class="assign-select">
-            <option value="">Team zuordnen...</option>
-            <option v-for="tl in teamleads" :key="tl.userId" :value="tl.userId">
-              Team {{ tl.displayName }}
-            </option>
-          </select>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import html2canvas from 'html2canvas'
-import { branding, getPdfHeader } from '~/config/branding'
-
-const toast = useToast()
 const { t } = useI18n()
-const { currentUser } = useAuth()
-const { 
-  assignToTeam, 
-  removeFromTeam,
-  getUnassignedEmployees,
-  getTeamleads,
-  getAllEmployees,
-  orgNodes,
-  fetchOrganization
-} = useOrganization()
+const toast = useToast()
 
-// Daten beim Mounting laden
-onMounted(() => {
-  fetchOrganization()
-})
+const props = defineProps<{
+  organization: any
+  isEditable?: boolean
+}>()
 
-const unassignedEmployees = getUnassignedEmployees
-const teamleads = getTeamleads
-const allEmployees = getAllEmployees
+const emit = defineEmits(['remove-from-team'])
 
-const selectedEmployee = ref('')
-const selectedTeamlead = ref('')
-const showTeamsSection = ref(false)  // Standardmäßig eingeklappt
+// State
+const showTeamsSection = ref(false)  // Standard eingeklappt
+const showOrgTree = ref(false)       // Standard eingeklappt
+const orgTreeRef = ref<HTMLElement | null>(null)
 
+// Toggle Functions
 const toggleTeamsSection = () => {
   showTeamsSection.value = !showTeamsSection.value
 }
 
-// Manager-Nodes (nur Stefan Schulz, nicht admin)
-const managers = computed(() => {
-  return orgNodes.value?.filter(n => n.role === 'manager' && n.userId !== 'admin') || []
-})
-
-// Office-Users (kann mehrere geben!)
-const officeUsers = computed(() => {
-  return orgNodes.value?.filter(n => n.role === 'office') || []
-})
-
-// Sysadmin-Users (kann mehrere geben!)
-const sysadminUsers = computed(() => {
-  return orgNodes.value?.filter(n => n.role === 'sysadmin') || []
-})
-
-// Alle Teams mit Info
-const teams = computed(() => {
-  return teamleads.value?.map(tl => ({
-    teamleadId: tl.userId,
-    teamleadName: tl.displayName,
-    members: orgNodes.value?.filter(n => n.teamId === tl.userId).map(n => n.userId) || []
-  })) || []
-})
-
-// Mitarbeiter eines bestimmten Teams
-const getTeamEmployees = (teamleadId: string) => {
-  return orgNodes.value?.filter(n => n.teamId === teamleadId) || []
+const toggleOrgTree = () => {
+  showOrgTree.value = !showOrgTree.value
 }
 
-// Anzahl Mitarbeiter im Team
-const getTeamMemberCount = (teamleadId: string) => {
-  const employees = getTeamEmployees(teamleadId)
-  return employees?.length || 0
-}
+// Computed
+const managers = computed(() => props.organization?.managers || [])
+const teamleads = computed(() => props.organization?.teamleads || [])
+const officeUsers = computed(() => props.organization?.officeUsers || [])
+const sysadminUsers = computed(() => props.organization?.sysadminUsers || [])
+const unassignedEmployees = computed(() => props.organization?.unassignedEmployees || [])
+const teams = computed(() => props.organization?.teams || [])
 
-// Nur Manager und Admin können bearbeiten
-const isEditable = computed(() => {
-  return currentUser.value?.role === 'manager'
+const allUsers = computed(() => {
+  const users = new Map()
+  
+  managers.value.forEach((u: any) => users.set(u.userId, u))
+  teamleads.value.forEach((u: any) => users.set(u.userId, u))
+  officeUsers.value.forEach((u: any) => users.set(u.userId, u))
+  sysadminUsers.value.forEach((u: any) => users.set(u.userId, u))
+  unassignedEmployees.value.forEach((u: any) => users.set(u.userId, u))
+  
+  teamleads.value.forEach((tl: any) => {
+    tl.teamMembers?.forEach((emp: any) => users.set(emp.userId, emp))
+  })
+  
+  return users
 })
 
 const getDisplayName = (userId: string) => {
-  const node = orgNodes.value?.find(n => n.userId === userId)
-  return node?.displayName || userId
+  const user = allUsers.value.get(userId)
+  return user?.displayName || userId
 }
 
-const handleRemove = async (userId: string) => {
-  if (confirm('Mitarbeiter aus Team entfernen?')) {
-    await removeFromTeam(userId)
-  }
+const handleRemove = (userId: string) => {
+  emit('remove-from-team', userId)
 }
 
-const handleAssignFromDropdown = async (event: Event, userId: string) => {
-  const target = event.target as HTMLSelectElement
-  const teamleadId = target.value
-  if (teamleadId) {
-    await assignToTeam(userId, teamleadId)
-    target.value = ''
-  }
-}
-
-const handleAssignManual = () => {
-  if (selectedEmployee.value && selectedTeamlead.value) {
-    assignToTeam(selectedEmployee.value, selectedTeamlead.value)
-    selectedEmployee.value = ''
-    selectedTeamlead.value = ''
-  }
-}
-
-// Refs
-const orgTreeRef = ref<HTMLElement | null>(null)
-
-// PDF Export: Organigramm
+// PDF Export Functions
 const exportOrgChart = async () => {
-  if (!orgTreeRef.value) {
-    toast.error('Organigramm konnte nicht gefunden werden')
-    return
-  }
+  toast.info('PDF-Export wird vorbereitet...')
   
   try {
-    toast.info('PDF wird erstellt...')
-    
-    // Organigramm als Canvas rendern
-    const canvas = await html2canvas(orgTreeRef.value, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      useCORS: true
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
     })
     
-    const imgData = canvas.toDataURL('image/png')
-    const imgWidth = canvas.width
-    const imgHeight = canvas.height
-    
-    // PDF im Querformat erstellen
-    const doc = new jsPDF({ orientation: 'landscape', format: 'a4', unit: 'px' })
-    
-    const pdfWidth = doc.internal.pageSize.getWidth()
-    const pdfHeight = doc.internal.pageSize.getHeight()
-    
-    // Bild skalieren um ins PDF zu passen
-    const ratio = Math.min(
-      (pdfWidth - 40) / imgWidth,
-      (pdfHeight - 80) / imgHeight
-    )
-    
-    const scaledWidth = imgWidth * ratio
-    const scaledHeight = imgHeight * ratio
-    
-    // Zentrieren
-    const xOffset = (pdfWidth - scaledWidth) / 2
-    const yOffset = 50
-    
-    // Logo
-    const pdfHeader = getPdfHeader()
-    try {
-      doc.addImage(pdfHeader.logo, 'PNG', pdfWidth - 50, 10, pdfHeader.logoWidth, pdfHeader.logoHeight)
-    } catch (error) {
-      console.warn('Logo konnte nicht geladen werden')
-    }
-    
-    // Titel
     doc.setFontSize(18)
-    doc.text(t('nav.organization')  + `- ${branding.company.name}`, 20, 25)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Organigramm', 148, 20, { align: 'center' })
     
-    doc.setFontSize(11)
-    doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 35)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 148, 28, { align: 'center' })
     
-    // Organigramm-Bild
-    doc.addImage(imgData, 'PNG', xOffset, yOffset, scaledWidth, scaledHeight)
+    let y = 45
     
-    // Seitenzahl
-    doc.setFontSize(9)
-    doc.setTextColor(128, 128, 128)
-    const pageText = 'Seite 1/1'
-    const textWidth = doc.getTextWidth(pageText)
-    doc.text(pageText, (pdfWidth - textWidth) / 2, pdfHeight - 10)
+    // Manager
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Manager', 20, y)
+    y += 8
     
-    // PDF in neuem Tab öffnen
-    const pdfBlob = doc.output('blob')
-    const pdfUrl = URL.createObjectURL(pdfBlob)
-    window.open(pdfUrl, '_blank')
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    managers.value.forEach((m: any) => {
+      doc.text('- ' + m.displayName, 25, y)
+      y += 6
+    })
+    y += 5
     
-    toast.success('Organigramm-PDF erfolgreich erstellt!')
-  } catch (error) {
-    console.error('Fehler beim PDF-Export:', error)
-    toast.error('Fehler beim PDF-Export')
-  }
-}
-
-// PDF Export: Teamübersicht
-const exportTeamOverview = () => {
-  try {
-    const doc = new jsPDF({ orientation: 'landscape', format: 'a4' })
+    // Teams
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Teams', 20, y)
+    y += 8
     
-    // Logo
-    const pdfHeader = getPdfHeader()
-    try {
-      doc.addImage(pdfHeader.logo, 'PNG', 260, 10, pdfHeader.logoWidth, pdfHeader.logoHeight)
-    } catch (error) {
-      console.warn('Logo konnte nicht geladen werden')
-    }
-    
-    doc.setFontSize(18)
-    doc.text(`Teamübersicht - ${branding.company.name}`, 14, 20)
-    
-    doc.setFontSize(11)
-    doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 28)
-    
-    let currentY = 40
-    
-    // Für jeden Teamleiter eine Sektion
-    for (const teamlead of teamleads.value) {
-      const teamMembers = getTeamEmployees(teamlead.userId)
+    doc.setFontSize(10)
+    teamleads.value.forEach((tl: any) => {
+      doc.setFont('helvetica', 'bold')
+      doc.text('Team ' + tl.displayName + ':', 25, y)
+      y += 6
       
-      // Team Header
-      doc.setFontSize(14)
-      doc.setFont('arial', 'bold')
-      doc.text(`Team: ${teamlead.displayName}`, 14, currentY)
-      doc.setFont('arial', 'normal')
-      doc.setFontSize(10)
-      
-      currentY += 8
-      
-      // Team-Mitglieder Tabelle
-      const teamData = teamMembers.map(e => [
-        e.displayName,
-        e.username,
-        t('roles.employee')
-      ])
-      
-      autoTable(doc, {
-        startY: currentY,
-        head: [[t('users.name'), t('users.username'), t('users.role')]],
-        body: teamData,
-        theme: 'grid',
-        headStyles: { fillColor: [102, 126, 234] },
-        styles: { fontSize: 10, cellPadding: 3 },
-        margin: { left: 20 }
-      })
-      
-      currentY = (doc as any).lastAutoTable.finalY + 15
-      
-      // Neue Seite wenn nicht mehr genug Platz
-      if (currentY > 170) {
-        doc.addPage()
-        currentY = 20
+      doc.setFont('helvetica', 'normal')
+      if (tl.teamMembers && tl.teamMembers.length > 0) {
+        tl.teamMembers.forEach((emp: any) => {
+          doc.text('  - ' + emp.displayName, 30, y)
+          y += 5
+        })
+      } else {
+        doc.text('  (Keine Mitarbeiter)', 30, y)
+        y += 5
       }
-    }
+      y += 3
+    })
     
-    // Nicht zugeordnete Mitarbeiter
-    const unassigned = unassignedEmployees.value
-    if (unassigned.length > 0) {
-      doc.setFontSize(14)
-      doc.setFont('arial', 'bold')
-      doc.text('Nicht zugeordnete Mitarbeiter', 14, currentY)
-      doc.setFont('arial', 'normal')
-      doc.setFontSize(10)
-      
-      currentY += 8
-      
-      const unassignedData = unassigned.map(e => [
-        e.displayName,
-        e.username,
-        t('roles.employee')
-      ])
-      
-      autoTable(doc, {
-        startY: currentY,
-        head: [[t('users.name'), t('users.username'), t('users.role')]],
-        body: unassignedData,
-        theme: 'grid',
-        headStyles: { fillColor: [239, 68, 68] },
-        styles: { fontSize: 10, cellPadding: 3 },
-        margin: { left: 20 }
-      })
-    }
-    
-    // Seitenzahlen
-    const pageCount = (doc as any).internal.getNumberOfPages()
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i)
-      doc.setFontSize(9)
-      doc.setTextColor(128, 128, 128)
-      const pageText = `Seite ${i}/${pageCount}`
-      const pageWidth = doc.internal.pageSize.getWidth()
-      const textWidth = doc.getTextWidth(pageText)
-      doc.text(pageText, (pageWidth - textWidth) / 2, doc.internal.pageSize.getHeight() - 10)
-    }
-    
-    // PDF in neuem Tab öffnen
     const pdfBlob = doc.output('blob')
     const pdfUrl = URL.createObjectURL(pdfBlob)
     window.open(pdfUrl, '_blank')
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
     
-    toast.success('Teamübersicht-PDF erfolgreich erstellt!')
+    toast.success('PDF erfolgreich erstellt')
   } catch (error) {
     console.error('Fehler beim PDF-Export:', error)
     toast.error('Fehler beim PDF-Export')
   }
 }
 
+const exportTeamOverview = async () => {
+  toast.info('Teamübersicht wird erstellt...')
+  
+  try {
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+    
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Teamübersicht', 105, 20, { align: 'center' })
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 28, { align: 'center' })
+    
+    let y = 45
+    
+    teams.value.forEach((team: any) => {
+      if (y > 250) {
+        doc.addPage()
+        y = 20
+      }
+      
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Team ' + team.teamleadName, 20, y)
+      y += 8
+      
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      
+      if (team.members && team.members.length > 0) {
+        team.members.forEach((memberId: string) => {
+          doc.text('- ' + getDisplayName(memberId), 25, y)
+          y += 6
+        })
+      } else {
+        doc.text('(Keine Mitarbeiter)', 25, y)
+        y += 6
+      }
+      
+      y += 10
+    })
+    
+    const pdfBlob = doc.output('blob')
+    const pdfUrl = URL.createObjectURL(pdfBlob)
+    window.open(pdfUrl, '_blank')
+    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
+    
+    toast.success('PDF erfolgreich erstellt')
+  } catch (error) {
+    console.error('Fehler beim PDF-Export:', error)
+    toast.error('Fehler beim PDF-Export')
+  }
+}
 </script>

@@ -3,7 +3,6 @@ import type { Translation } from './de'
 
 /**
  * Brazilian Portuguese Translations
- * Traduções em Português Brasileiro
  */
 export const ptBr: Translation = {
   // Geral
@@ -34,7 +33,9 @@ export const ptBr: Translation = {
     date: 'Data',
     reason: 'Motivo',
     status: 'Status',
-    actions: 'Ações'
+    actions: 'Ações',
+    year: 'Ano',
+    allYears: 'Todos os Anos'
   },
 
   // Navegação
@@ -83,9 +84,13 @@ export const ptBr: Translation = {
   vacation: {
     title: 'Gerenciamento de Férias',
     myVacation: 'Minhas Férias',
-    teamRequests: 'Solicitações da Equipe',
-    managerApproval: 'Aprovação do Gerente',
+    myRequest: 'Minha Solicitação',
+    teamRequests: 'Visão do Líder de Equipe',
+    managerApproval: 'Visão do Gerente',
     vacationRules: 'Regras de Férias',
+    approvedVacations: 'Férias Aprovadas',
+    reports: 'Relatórios',
+    calendar: 'Calendário',
     
     // Formulário
     requestVacation: 'Solicitar Férias',
@@ -114,6 +119,7 @@ export const ptBr: Translation = {
     exportPdf: 'Exportar PDF',
     exportTeamPdf: 'Exportar PDF da Equipe',
     exportAllPdf: 'Exportar Todas as Férias em PDF',
+    exportMyApprovedVacations: 'Exportar Férias Aprovadas',
     
     // Mensagens
     requestSubmitted: 'Solicitação de férias enviada com sucesso',
@@ -121,13 +127,64 @@ export const ptBr: Translation = {
     requestRejected: 'Solicitação de férias rejeitada',
     requestCancelled: 'Férias canceladas',
     pdfCreated: 'PDF criado com sucesso!',
+    pdfGenerating: 'Criando PDF, por favor aguarde...',
     
     // Regras de Meio Dia
     halfDayRules: 'Regras de Meio Dia',
     addHalfDay: 'Adicionar Meio Dia',
     halfDayDate: 'Data',
     halfDayDescription: 'Descrição',
-    halfDayDescriptionPlaceholder: 'ex: Véspera de Natal, Véspera de Ano Novo...'
+    halfDayDescriptionPlaceholder: 'ex: Véspera de Natal, Véspera de Ano Novo...',
+    noHalfDayRules: 'Nenhuma regra de meio dia definida ainda',
+    
+    // Filtro
+    filterByEmployee: 'Filtrar por funcionário:',
+    filterByYear: 'Ano:',
+    enterName: 'Digite o nome...',
+    requestsShown: '{shown} de {total} solicitações',
+    noRequestsForFilter: 'Nenhuma férias encontrada para este filtro',
+    noApprovedVacations: 'Nenhuma férias aprovada',
+    
+    // Saldo Anterior
+    carryoverManagement: 'Saldo de Dias de Férias {action}',
+    carryoverManage: 'gerenciar',
+    carryoverOverview: 'visão geral',
+    carryoverReview: 'Revisar Saldo de Dias de Férias ({year})',
+    carryoverAdjust: 'Ajustar Saldo',
+    carryoverAdd: 'Adicionar/Editar Saldo',
+    carryoverInfo: 'Saldo de Dias de Férias {year}',
+    carryoverPending: 'Saldo de Dias de Férias em Revisão',
+    carryoverApproved: 'Saldo de Dias de Férias Ajustado',
+    carryoverIncluding: 'Incl. {days} dias de saldo de {year}',
+    carryoverCalculated: 'Saldo Calculado:',
+    carryoverApprovedAmount: 'Saldo Aprovado:',
+    carryoverNewAmount: 'Novo Saldo (Dias) *',
+    carryoverReasonLabel: 'Motivo do Ajuste *',
+    carryoverReasonPlaceholder: 'Por favor, explique o motivo do ajuste do saldo...',
+    carryoverSave: 'Salvar Saldo',
+    carryoverManagerReviewing: 'Seu gerente está revisando seu saldo calculado de {days} dias de {year}.'
+  },
+
+  // Relatórios
+  reports: {
+    title: 'Relatórios e Estatísticas',
+    annualReport: 'Relatório Anual de Férias',
+    annualReportDescription: 'Cria um relatório anual completo para todos os funcionários com estatísticas gerais, registros individuais de férias e modelos de assinatura.',
+    selectYear: 'Selecionar ano:',
+    preview: 'Visualizar Estatísticas Gerais {year}',
+    createPdf: 'Criar Relatório Anual como PDF',
+    creating: 'Criando PDF...',
+    employees: 'Funcionários',
+    totalVacationDays: 'Total de Dias de Férias',
+    averagePerEmployee: 'Média por Funcionário',
+    taken: 'Usados',
+    remaining: 'Restantes',
+    quota: 'Quota',
+    pdfContains: 'O PDF contém:',
+    pdfPage1: 'Página 1: Estatísticas gerais para todos os funcionários',
+    pdfPage2Plus: 'A partir da página 2: Registro individual por funcionário (ordenado alfabeticamente)',
+    pdfSignatures: 'Cada página de funcionário inclui um modelo de assinatura para confirmação',
+    loadingStatistics: 'Carregando estatísticas...'
   },
 
   // Gerenciamento de Usuários
@@ -140,14 +197,13 @@ export const ptBr: Translation = {
     firstName: 'Nome',
     lastName: 'Sobrenome',
     username: 'Nome de Usuário',
-      generated: 'gerado',
+    generated: 'gerado',
     role: 'Função',
-      yourRole: 'Sua função',
-
+    yourRole: 'Sua função',
     roleSelect: 'Por favor, selecione...',
     teamlead: 'Líder de Equipe',
     teamleadSelect: 'Selecionar Líder de Equipe...',
-      yourTeamlead: 'Sua Líder de Equipe',
+    yourTeamlead: 'Seu Líder de Equipe',
     password: 'Senha',
     vacationDays: 'Dias de Férias',
     vacationDaysPerYear: 'Dias de Férias por Ano',
@@ -198,12 +254,20 @@ export const ptBr: Translation = {
     
     // Gerenciamento de Equipe
     teamManagement: 'Gerenciamento de Equipe',
+    teams: 'Equipes',
+    assignEmployeesToTeams: 'Atribuir funcionários às equipes',
     unassignedEmployees: 'Funcionários Não Atribuídos',
     assignToTeam: 'Atribuir Funcionário à Equipe',
     employee: 'Funcionário',
     selectEmployee: 'Selecionar Funcionário...',
     selectTeamlead: 'Selecionar Líder de Equipe...',
     assignButton: 'Salvar Atribuição',
+    noEmployeesAssigned: 'Nenhum funcionário atribuído',
+    removeFromTeam: 'Remover da equipe',
+    
+    // Árvore Organizacional
+    orgChart: 'Organograma',
+    graphicalRepresentation: 'Representação gráfica da estrutura organizacional',
     
     // Estatísticas
     statistics: 'Estatísticas',
@@ -234,7 +298,9 @@ export const ptBr: Translation = {
     invalidEmail: 'Endereço de e-mail inválido',
     invalidDate: 'Data inválida',
     startDateAfterEndDate: 'A data de início deve ser anterior à data de término',
-    noVacationDaysLeft: 'Não há dias de férias disponíveis'
+    noVacationDaysLeft: 'Não há dias de férias disponíveis',
+    loadingStatistics: 'Erro ao carregar estatísticas',
+    creatingPdf: 'Erro ao criar PDF'
   },
 
   // Textos do PDF
