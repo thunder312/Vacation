@@ -3,9 +3,9 @@
     <ToastContainer />
 
     <div class="header">
-      <h1>Urlaubsantrags-System</h1>
+      <h1>{{ t('appName') }}</h1>
       <div class="header-actions">
-        <span class="user-greeting">Angemeldet als: <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
+        <span class="user-greeting">{{ t('login.loggedInAs') }} <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
         
         <!-- Language Switcher -->
         <LanguageSwitcher />
@@ -18,13 +18,13 @@
           
           <div v-if="showUserMenu" class="dropdown-menu">
             <button @click="openPasswordModal" class="dropdown-item">
-              🔑 Passwort ändern
+              🔑 {{ t('login.changePassword') }}
             </button>
             <button @click="openAboutModal" class="dropdown-item">
-              ℹ️ Über
+              ℹ️ {{ t('footer.about') }}
             </button>
             <button @click="handleLogout" class="dropdown-item logout">
-              🚪 Abmelden
+              🚪 {{ t('login.logout') }}
             </button>
           </div>
         </div>
@@ -35,7 +35,7 @@
     <div v-if="showPasswordModal" class="modal-overlay" @click.self="closePasswordModal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Passwort ändern</h2>
+          <h2>{{ t('login.changePassword') }}</h2>
           <button @click="closePasswordModal" class="modal-close">✕</button>
         </div>
         
@@ -585,7 +585,7 @@ const allTeamRequests = computed(() => {
 const allRequests = getAllRequests()
 
 const visibleTabs = computed(() => {
-  const tabs = [{ id: 'antrag', label: 'Mein Antrag', count: 0 }]
+  const tabs = [{ id: 'antrag', label: t('tabs.myRequest'), count: 0 }]
 
   if (currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager') {
     tabs.push({
@@ -603,12 +603,12 @@ const visibleTabs = computed(() => {
     })
     tabs.push({
       id: 'halftimes',
-      label: 'Urlaubsregelung',
+      label: t('tabs.vacationRules'),
       count: 0
     })
     tabs.push({
       id: 'users',
-      label: 'Mitarbeiterverwaltung',
+      label: t('tabs.employeeManagement'),
       count: 0
     })
   }
@@ -624,7 +624,7 @@ const visibleTabs = computed(() => {
   if (currentUser.value?.role === 'manager' || currentUser.value?.role === 'office') {
     tabs.push({
       id: 'reports',
-      label: 'Berichte',
+      label: t('tabs.reports'),
       count: 0
     })
   }
@@ -632,21 +632,21 @@ const visibleTabs = computed(() => {
   // Urlaubskalender für alle
   tabs.push({
     id: 'calendar',
-    label: 'Kalender',
+    label: t('tabs.calendar'),
     count: 0
   })
 
   // Office sieht: Alle Tabs (readonly außer eigene Anträge)
   if (currentUser.value?.role === 'office') {
     return [
-      { id: 'antrag', label: 'Mein Antrag', count: 0 },
-      { id: 'overview', label: 'Übersicht', count: 0 },
-      { id: 'teamlead', label: 'Teamleiter-Ansicht', count: 0 },
-      { id: 'manager', label: 'Manager-Ansicht', count: 0 },
-      { id: 'halftimes', label: 'Urlaubsregelung', count: 0 },
+      { id: 'antrag', label: t('tabs.myRequest'), count: 0 },
+      { id: 'overview', label: t('tabs.overview'), count: 0 },
+      { id: 'teamlead', label: t('tabs.teamleadView'), count: 0 },
+      { id: 'manager', label: t('tabs.managerView'), count: 0 },
+      { id: 'halftimes', label: t('tabs.vacationRules'), count: 0 },
       { id: 'organization', label: t('nav.organization'), count: 0 },
-      { id: 'reports', label: 'Berichte', count: 0 },
-      { id: 'calendar', label: 'Kalender', count: 0 }
+      { id: 'reports', label: t('tabs.reports'), count: 0 },
+      { id: 'calendar', label: t('tabs.calendar'), count: 0 }
     ]
   }
 

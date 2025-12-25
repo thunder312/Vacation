@@ -231,6 +231,19 @@ export const de = {
     about: 'Über'
   },
 
+  tabs: {
+    myRequest: 'Mein Antrag',
+    overview: 'Übersicht',
+    teamleadView: 'Teamleiter-Ansicht',
+    managerView: 'Manager-Ansicht',
+    vacationRules: 'Urlaubsregelung',
+    employeeManagement: 'Mitarbeiterverwaltung',
+    reports: 'Berichte',
+    calendar: 'Kalender'
+  },
+
+  appName: 'Urlaubsantrags-System',
+
   pdf: {
     totalPages: 'Seite {current}/{total}',
     myApprovedVacations: 'Meine genehmigten Urlaube',

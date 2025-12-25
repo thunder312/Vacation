@@ -231,6 +231,19 @@ export const en = {
     about: 'About'
   },
 
+  tabs: {
+    myRequest: 'My Request',
+    overview: 'Overview',
+    teamleadView: 'Team Lead View',
+    managerView: 'Manager View',
+    vacationRules: 'Vacation Rules',
+    employeeManagement: 'Employee Management',
+    reports: 'Reports',
+    calendar: 'Calendar'
+  },
+
+  appName: 'Vacation Request System',
+
   pdf: {
     totalPages: 'Page {current}/{total}',
     myApprovedVacations: 'My Approved Vacations',

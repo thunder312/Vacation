@@ -1,8 +1,8 @@
 export const useLocale = () => {
-  const { locale, setLocale } = useI18n()
+  const i18n = useI18n()
 
   const saveLocale = (newLocale: string) => {
-    setLocale(newLocale)
+    i18n.setLocale(newLocale as 'de' | 'en' | 'pt-br')
     if (process.client) {
       localStorage.setItem('user-locale', newLocale)
     }
@@ -12,15 +12,15 @@ export const useLocale = () => {
     if (process.client) {
       const savedLocale = localStorage.getItem('user-locale')
       if (savedLocale) {
-        setLocale(savedLocale)
+        i18n.setLocale(savedLocale as 'de' | 'en' | 'pt-br')
         return savedLocale
       }
     }
-    return locale.value
+    return i18n.locale.value
   }
 
   return {
-    locale,
+    locale: i18n.locale,  // Gebe das originale ref zurück, nicht destrukturiert!
     saveLocale,
     loadLocale
   }

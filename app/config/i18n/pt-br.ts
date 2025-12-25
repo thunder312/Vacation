@@ -231,6 +231,19 @@ export const ptBr = {
     about: 'Sobre'
   },
 
+  tabs: {
+    myRequest: 'Minha Solicitação',
+    overview: 'Visão Geral',
+    teamleadView: 'Visão do Líder de Equipe',
+    managerView: 'Visão do Gerente',
+    vacationRules: 'Regras de Férias',
+    employeeManagement: 'Gestão de Funcionários',
+    reports: 'Relatórios',
+    calendar: 'Calendário'
+  },
+
+  appName: 'Sistema de Solicitação de Férias',
+
   pdf: {
     totalPages: 'Página {current}/{total}',
     myApprovedVacations: 'Minhas Férias Aprovadas',

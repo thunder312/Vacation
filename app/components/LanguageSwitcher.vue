@@ -1,5 +1,5 @@
 <template>
-  <div class="language-dropdown">
+  <div class="language-dropdown" ref="dropdownRef">
     <button @click="toggleDropdown" class="lang-dropdown-btn">
       <span class="current-lang-flag">{{ currentFlag }}</span>
       <span class="current-lang-code">{{ locale.toUpperCase() }}</span>
@@ -25,6 +25,7 @@
 const { locale, saveLocale, loadLocale } = useLocale()
 
 const isOpen = ref(false)
+const dropdownRef = ref<HTMLElement | null>(null)
 
 const languages = [
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -48,7 +49,7 @@ const selectLanguage = (code: string) => {
 
 const handleClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
-  if (!target.closest('.language-dropdown')) {
+  if (dropdownRef.value && !dropdownRef.value.contains(target)) {
     isOpen.value = false
   }
 }

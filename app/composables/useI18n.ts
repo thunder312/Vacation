@@ -15,7 +15,7 @@ export const useI18n = () => {
   const locale = useState<Locale>('app-locale', () => {
     // Initial von localStorage laden
     if (import.meta.client) {
-      const saved = localStorage.getItem('app-locale') as Locale
+      const saved = localStorage.getItem('user-locale') as Locale
       if (saved && (saved === 'de' || saved === 'en' || saved === 'pt-br')) {
         return saved
       }
@@ -26,7 +26,7 @@ export const useI18n = () => {
   // Watch für automatisches Speichern bei Änderung (nur client-side)
   if (import.meta.client) {
     watchEffect(() => {
-      localStorage.setItem('app-locale', locale.value)
+      localStorage.setItem('user-locale', locale.value)
       console.log('✅ Language changed to:', locale.value)
     })
   }
@@ -78,22 +78,8 @@ export const useI18n = () => {
   
   return {
     t,
-    locale: readonly(locale),
+    locale,  // KEIN readonly() - muss beschreibbar sein!
     setLocale,
     availableLocales
   }
 }
-
-/**
- * Beispiel-Verwendung:
- * 
- * <script setup>
- * const { t, locale, setLocale } = useI18n()
- * </script>
- * 
- * <template>
- *   <h1>{{ t('login.title') }}</h1>
- *   <button @click="setLocale('en')">English</button>
- *   <button @click="setLocale('de')">Deutsch</button>
- * </template>
- */
