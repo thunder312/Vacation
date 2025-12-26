@@ -27,7 +27,7 @@
             class="btn-secondary"
             :disabled="!selectedDate"
           >
-            🔍 {{ t('organization.employees') }} suchen
+            {{icons.actions.search}} {{ t('organization.employees') }} suchen
           </button>
         </div>
       </div>
@@ -36,7 +36,7 @@
         <h4>2. Betroffene {{ t('organization.employees') }} auswählen</h4>
         
         <div v-if="employeesOnVacation.length === 0" class="empty-state">
-          ℹ️ Keine {{ t('organization.employees') }} im Urlaub am {{ formatDate(selectedDate) }}
+          {{`icons.ui.info`}} Keine {{ t('organization.employees') }} im Urlaub am {{ formatDate(selectedDate) }}
         </div>
 
         <div v-else class="employees-list">
@@ -106,7 +106,7 @@
         </div>
 
         <div class="cancellation-preview">
-          <h5>📋 Vorschau:</h5>
+          <h5>{{icons.roles.office}} Vorschau:</h5>
           <ul>
             <li><strong>{{ t('common.date') }}:</strong> {{ formatDate(selectedDate) }}</li>
             <li><strong>Betroffene:</strong> {{ selectedEmployees.length }} {{ t('organization.employees') }}</li>
@@ -121,20 +121,20 @@
             class="btn-primary"
             :disabled="!canSubmit || submitting"
           >
-            {{ submitting ? '⏳ Wird verarbeitet...' : '✅ Rückbuchung durchführen' }}
+            {{ submitting ? icons.ui.loading + ' Wird verarbeitet...' : '{{icons.actions.reject}} Rückbuchung durchführen' }}
           </button>
           <button 
             @click="resetForm"
             class="btn-secondary"
             :disabled="submitting"
           >
-            ❌ Zurücksetzen
+            {{`icons.ui.error`}} Zurücksetzen
           </button>
         </div>
       </div>
 
       <div v-if="loading" class="loading-state">
-        ⏳ {{ t('common.loading') }}
+        {{`icons.ui.loading`}} {{ t('common.loading') }}
       </div>
     </div>
 
@@ -147,10 +147,10 @@
         <div class="modal-body">
           <p><strong>Möchten Sie wirklich fortfahren?</strong></p>
           <ul class="confirm-details">
-            <li>📅 {{ t('common.date') }}: <strong>{{ formatDate(selectedDate) }}</strong></li>
-            <li>👥 {{ t('organization.employees') }}: <strong>{{ selectedEmployees.length }}</strong></li>
+            <li>{{ icons.ui.calendar }} {{ t('common.date') }}: <strong>{{ formatDate(selectedDate) }}</strong></li>
+            <li>{{ icons.roles.teamlead}} {{ t('organization.employees') }}: <strong>{{ selectedEmployees.length }}</strong></li>
             <li>⏱️ {{ t('common.days') }} pro Person: <strong>{{ daysToCancel }}</strong></li>
-            <li>📊 Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} {{ t('vacation.vacationDays') }}</strong></li>
+            <li>{{`icons.ui.report`}} Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} {{ t('vacation.vacationDays') }}</strong></li>
           </ul>
           <p class="warning-text">
             ⚠️ Diese Aktion kann bestehende Urlaubsanträge aufteilen oder kürzen.
@@ -158,10 +158,10 @@
         </div>
         <div class="modal-footer">
           <button @click="showConfirmModal = false" class="btn-secondary">
-            ❌ {{ t('common.cancel') }}
+            {{`icons.ui.error`}} {{ t('common.cancel') }}
           </button>
           <button @click="confirmCancellation" class="btn-danger">
-            ✅ Ja, zurückbuchen
+            {{icons.actions.reject}} Ja, zurückbuchen
           </button>
         </div>
       </div>
@@ -173,6 +173,7 @@
 const { t } = useI18n()
 const toast = useToast()
 import { formatDate } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
 
 const showSection = ref(false)
 const selectedDate = ref('')

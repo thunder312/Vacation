@@ -13,7 +13,7 @@
         <!-- User Dropdown Menu -->
         <div class="user-dropdown">
           <button @click="toggleUserMenu" class="user-menu-btn">
-            👤 {{ currentUser?.username }} ▼
+            {{icons.roles.employee}} {{ currentUser?.username }} ▼
           </button>
           
           <div v-if="showUserMenu" class="dropdown-menu">
@@ -21,7 +21,7 @@
               🔑 {{ t('login.changePassword') }}
             </button>
             <button @click="openAboutModal" class="dropdown-item">
-              ℹ️ {{ t('footer.about') }}
+              {{`icons.ui.info`}} {{ t('footer.about') }}
             </button>
             <button @click="handleLogout" class="dropdown-item logout">
               🚪 {{ t('login.logout') }}
@@ -162,7 +162,7 @@
               class="btn-pdf"
               :disabled="!approvedUserRequests || approvedUserRequests.length === 0"
           >
-            📄 {{ t('vacation.exportPdf') }}
+            {{`icons.actions.pdf`}} {{ t('vacation.exportPdf') }}
           </button>
         </div>
 
@@ -187,7 +187,7 @@
         <div class="pdf-export-section">
           <h3>{{ t('vacation.exportTeamVacations') }}</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
-            📄  {{ t('vacation.exportTeamPdf') }}
+            {{`icons.actions.pdf`}}  {{ t('vacation.exportTeamPdf') }}
           </button>
         </div>
 
@@ -214,7 +214,7 @@
         <div class="pdf-export-section">
           <h3>{{ t('vacation.exportAllVacations') }}</h3>
           <button @click="handleExportAllVacations" class="btn-pdf">
-            📄  {{ t('vacation.exportAllPdf') }}
+            {{`icons.actions.pdf`}}  {{ t('vacation.exportAllPdf') }}
           </button>
         </div>
 
@@ -290,6 +290,7 @@
 
 <script setup lang="ts">
 import { calculateWorkdays } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
 
 // KEINE Middleware - Auth-Check ist in onMounted
 

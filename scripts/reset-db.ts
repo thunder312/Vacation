@@ -8,6 +8,7 @@
 import { resetDatabase } from '../server/database/schema'
 import { seedDatabase } from '../server/database/seed'
 import { closeDb } from '../server/database/db'
+import { icons } from '../app/config/icons'
 
 console.log('🔄 Setze Datenbank zurück...\n')
 
@@ -19,9 +20,9 @@ async function reset() {
     // 2. Seed-Daten einfügen
     await seedDatabase()
     
-    console.log('\n✅ Datenbank erfolgreich zurückgesetzt!')
+    console.log('\n' + icons.actions.activate + ' Datenbank erfolgreich zurückgesetzt!')
   } catch (error) {
-    console.error('\n❌ Fehler beim Reset:', error)
+    console.error('\n' + icons.ui.error + ' Fehler beim Reset:', error)
     throw error
   } finally {
     closeDb()

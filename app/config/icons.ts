@@ -73,7 +73,9 @@ export const icons = {
     approved: '✓✓',     // Vollständig genehmigt
     pending: '⏳',      // Ausstehend
     rejected: '✗',      // Abgelehnt
-    cancelled: '🚫'     // Abgesagt
+    cancelled: '🚫',     // Abgesagt
+      seeding: '🌱', // seeding
+      input: '📝' // input / login
   },
 
   /**

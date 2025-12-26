@@ -1,5 +1,6 @@
 // server/api/vacation/cancel-days.post.ts
 import { query, run } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -72,7 +73,7 @@ export default defineEventHandler(async (event) => {
           WHERE id = ?
         `, [`[Admin-Rückbuchung] ${description}`, request.id])
 
-        console.log(`✅ Cancelled complete vacation for ${userId} (${totalDays} days)`)
+        console.log(icons.actions.activate + ' Cancelled complete vacation for ${userId} (${totalDays} days)')
         affectedRequests++
         continue
       }
@@ -95,7 +96,7 @@ export default defineEventHandler(async (event) => {
           request.id
         ])
 
-        console.log(`✅ Shortened vacation start for ${userId}`)
+        console.log(icons.actions.activate + ' hortened vacation start for ${userId}')
         affectedRequests++
         continue
       }
@@ -118,7 +119,7 @@ export default defineEventHandler(async (event) => {
           request.id
         ])
 
-        console.log(`✅ Shortened vacation end for ${userId}`)
+        console.log(icons.actions.activate + ' Shortened vacation end for ${userId}')
         affectedRequests++
         continue
       }
@@ -161,11 +162,11 @@ export default defineEventHandler(async (event) => {
         ])
       }
 
-      console.log(`✅ Split vacation for ${userId} into 2 parts`)
+      console.log(icons.actions.activate + ' Split vacation for ${userId} into 2 parts')
       affectedRequests++
     }
 
-    console.log(`✅ Successfully cancelled days for ${affectedRequests}/${userIds.length} employees`)
+    console.log(icons.actions.activate + ' Successfully cancelled days for ${affectedRequests}/${userIds.length} employees')
 
     return {
       success: true,
@@ -174,10 +175,10 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('❌ ERROR in POST /api/vacation/cancel-days:', error)
-    console.error('❌ Error message:', error.message)
-    console.error('❌ Error stack:', error.stack)
-    console.error('❌ Request data:', { date, userIds, daysToCancel, description })
+    console.error(icons.ui.error + ' ERROR in POST /api/vacation/cancel-days:', error)
+    console.error(icons.ui.error + ' Error message:', error.message)
+    console.error(icons.ui.error + ' Error stack:', error.stack)
+    console.error(icons.ui.error + ' Request data:', { date, userIds, daysToCancel, description })
     
     throw createError({
       statusCode: 500,

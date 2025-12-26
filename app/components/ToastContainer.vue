@@ -8,8 +8,8 @@
           @click="remove(toast.id)"
       >
         <div class="toast-icon">
-          <span v-if="toast.type === 'success'">✓</span>
-          <span v-else-if="toast.type === 'error'">✗</span>
+          <span v-if="toast.type === 'success'">{{icons.actions.approve}}</span>
+          <span v-else-if="toast.type === 'error'">{{icons.actions.reject}}</span>
           <span v-else-if="toast.type === 'warning'">⚠</span>
           <span v-else>ℹ</span>
         </div>
@@ -21,5 +21,6 @@
 </template>
 
 <script setup lang="ts">
+import { icons } from '~/config/icons'
 const { toasts, remove } = useToast()
 </script>

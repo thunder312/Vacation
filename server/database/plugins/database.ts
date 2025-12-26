@@ -1,5 +1,6 @@
 // server/plugins/database.ts
 import { initSchema } from '../schema'
+import {icons} from "~/config/icons";
 
 /**
  * Nitro Plugin: Wird beim Server-Start ausgeführt
@@ -12,9 +13,9 @@ export default defineNitroPlugin(() => {
     // Schema erstellen (falls noch nicht vorhanden)
     initSchema()
     
-    console.log('✅ Datenbank bereit')
+    console.log(icons.actions.activate + ' Datenbank bereit')
   } catch (error) {
-    console.error('❌ Fehler beim Initialisieren der Datenbank:', error)
+    console.error('{{`icons.ui.error`}} Fehler beim Initialisieren der Datenbank:', error)
     throw error
   }
 })

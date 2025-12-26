@@ -1,12 +1,13 @@
 // server/api/users/schema.get.ts
 import { query } from '../../database/db'
+import { icons } from '~/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
     // Prüfe Tabellenstruktur
     const schema = query<any>(`PRAGMA table_info(users)`)
     
-    console.log('📋 Users table schema:')
+    console.log(icons.roles.office + ' Users table schema:')
     schema.forEach((col: any) => {
       console.log(`  - ${col.name} (${col.type})`)
     })
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // Hole einen Beispiel-User
     const sampleUser = query<any>(`SELECT * FROM users LIMIT 1`)
     
-    console.log('👤 Sample user fields:', Object.keys(sampleUser[0] || {}))
+    console.log(icons.roles.employee + ' Sample user fields:', Object.keys(sampleUser[0] || {}))
     
     return {
       schema,

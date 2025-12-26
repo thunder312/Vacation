@@ -1,5 +1,6 @@
 // server/api/year-transition/execute.post.ts
 import { query, run, transaction } from '../../database/db'
+import {icons} from "~/config/icons";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
         VALUES ('last_year_transition', ?, datetime('now'))
       `, [currentYear.toString()])
 
-      console.log(`✅ Year transition completed for ${updatedCount} users`)
+      console.log(icons.actions.activate + ' Year transition completed for ${updatedCount} users')
     })
 
     return {

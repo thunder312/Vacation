@@ -1,5 +1,6 @@
 // server/api/carryover/approve.post.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
         updatedAt = datetime('now')
     `, [userId, year, carryoverDays, carryoverDays])
 
-    console.log(`✅ Approved carryover for ${userId}: ${carryoverDays} days (${year})`)
+    console.log(icons.actions.activate + '  Approved carryover for ${userId}: ${carryoverDays} days (${year})')
 
     return { 
       success: true,
@@ -56,7 +57,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('❌ ERROR in POST /api/carryover/approve:', error)
+    console.error(icons.ui.error + ' ERROR in POST /api/carryover/approve:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Bestätigen des Übertrags: ' + error.message

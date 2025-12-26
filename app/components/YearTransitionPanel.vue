@@ -4,7 +4,7 @@
         <span class="toggle-icon">{{ showSection ? '▼' : '▶' }}</span>
         Jahreswechsel
         <div v-if="transitionStatus?.needed">⚠️</div>
-        <div v-else>✅</div>
+        <div v-else>{{icons.actions.reject}}</div>
       </h3>
       <p v-if="!showSection" class="description-collapsed">
         {{ t('vacation.vacationDays') }} für das neue Jahr vorbereiten
@@ -25,7 +25,7 @@
           </p>
         </div>
         <div v-else class="alert alert-success">
-          <strong>✅ Jahreswechsel durchgeführt</strong>
+          <strong>{{icons.actions.reject}} Jahreswechsel durchgeführt</strong>
           <p>Jahreswechsel für {{ transitionStatus.currentYear }} bereits abgeschlossen.</p>
         </div>
       </div>
@@ -36,7 +36,7 @@
           class="btn btn-primary"
           :disabled="loading"
         >
-          {{ loading ? t('common.loading') : '🔍 Jahreswechsel-Preview anzeigen' }}
+          {{ loading ? t('common.loading') : icons.actions.search+ 'Jahreswechsel-Preview anzeigen' }}
         </button>
       </div>
     </div>
@@ -50,7 +50,7 @@
 
         <div class="modal-body">
           <div class="info-box">
-            <strong>ℹ️ Was passiert beim Jahreswechsel?</strong>
+            <strong>{{`icons.ui.info`}} Was passiert beim Jahreswechsel?</strong>
             <ul>
               <li>Verbleibende {{ t('vacation.vacationDays') }} werden berechnet</li>
               <li>Alle verbleibenden {{ t('common.days') }} werden ins neue Jahr übertragen</li>
@@ -106,7 +106,7 @@
               class="btn btn-danger"
               :disabled="executing"
             >
-              {{ executing ? '⏳ Wird ausgeführt...' : '✅ Jahreswechsel durchführen' }}
+              {{ executing ? icons.ui.loading + ' Wird ausgeführt...' : icons.actions.reject + ' Jahreswechsel durchführen' }}
             </button>
           </div>
         </div>
@@ -115,6 +115,9 @@
 </template>
 
 <script setup lang="ts">
+
+import { icons } from '~/config/icons'
+
 const { t } = useI18n()
 const toast = useToast()
 

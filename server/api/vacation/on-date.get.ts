@@ -1,5 +1,6 @@
 // server/api/vacation/on-date.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -33,11 +34,11 @@ export default defineEventHandler(async (event) => {
       ORDER BY vr.displayName
     `, [date])
 
-    console.log(`✅ Found ${vacations.length} employees on vacation on ${date}`)
+    console.log(icons.actions.activate + ' Found ${vacations.length} employees on vacation on ${date}')
     return vacations
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/vacation/on-date:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/vacation/on-date:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden: ' + error.message

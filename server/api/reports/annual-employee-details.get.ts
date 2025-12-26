@@ -1,5 +1,6 @@
 // server/api/reports/annual-employee-details.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -84,12 +85,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log(`✅ Annual report: Loaded ${employees.length} employees for year ${year}`)
+    console.log(icons.actions.activate + ' Annual report: Loaded ${employees.length} employees for year ${year}')
     
     return employees
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/reports/annual-employee-details:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/reports/annual-employee-details:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden der Mitarbeiterdaten: ' + error.message

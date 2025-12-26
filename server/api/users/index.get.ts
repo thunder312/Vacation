@@ -1,5 +1,6 @@
 // server/api/users/index.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
     return users
     
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/users:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/users:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden der Benutzer: ' + error.message

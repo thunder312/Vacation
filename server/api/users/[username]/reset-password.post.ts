@@ -1,6 +1,7 @@
 // server/api/users/[username]/reset-password.post.ts
 import { execute, queryOne } from '../../../database/db'
 import bcrypt from 'bcrypt'
+import { icons } from '../../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('✓ User found:', user.username)
+    console.log(icons.actions.approve + ' User found:', user.username)
 
     // Passwort hashen
     const hashedPassword = await bcrypt.hash(body.password, 10)
@@ -44,7 +45,7 @@ export default defineEventHandler(async (event) => {
       WHERE username = ?
     `, [hashedPassword, username])
 
-    console.log('✓ Password updated')
+    console.log(icons.actions.approve + ' Password updated')
 
     return { 
       success: true, 
@@ -55,7 +56,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
-    console.error('❌ Error resetting password:', error)
+    console.error(icons.ui.error + 'Error resetting password:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Zurücksetzen des Passworts'

@@ -1,6 +1,7 @@
 // server/database/db.ts
 import Database from 'better-sqlite3'
 import { join } from 'path'
+import { icons } from '../../app/config/icons'
 
 let db: Database.Database | null = null
 
@@ -13,7 +14,7 @@ export function getDb(): Database.Database {
     db = new Database(dbPath)
     db.pragma('journal_mode = WAL') // Write-Ahead Logging für bessere Concurrency
     db.pragma('foreign_keys = ON')  // Foreign Keys aktivieren
-    console.log('✅ Datenbank verbunden:', dbPath)
+    console.log(icons.actions.activate + ' Datenbank verbunden:', dbPath)
   }
   return db
 }
@@ -27,7 +28,7 @@ export function query<T = any>(sql: string, params: any[] = []): T[] {
     const stmt = db.prepare(sql)
     return stmt.all(...params) as T[]
   } catch (error) {
-    console.error('❌ Query Error:', error)
+    console.error(icons.ui.error + ' Query Error:', error)
     console.error('SQL:', sql)
     console.error('Params:', params)
     throw error
@@ -43,7 +44,7 @@ export function queryOne<T = any>(sql: string, params: any[] = []): T | null {
     const stmt = db.prepare(sql)
     return (stmt.get(...params) as T) || null
   } catch (error) {
-    console.error('❌ QueryOne Error:', error)
+    console.error(icons.ui.error + ' QueryOne Error:', error)
     console.error('SQL:', sql)
     console.error('Params:', params)
     throw error
@@ -59,7 +60,7 @@ export function run(sql: string, params: any[] = []): Database.RunResult {
     const stmt = db.prepare(sql)
     return stmt.run(...params)
   } catch (error) {
-    console.error('❌ Run Error:', error)
+    console.error(icons.ui.error + ' Run Error:', error)
     console.error('SQL:', sql)
     console.error('Params:', params)
     throw error
@@ -87,6 +88,6 @@ export function closeDb(): void {
   if (db) {
     db.close()
     db = null
-    console.log('✅ Datenbank geschlossen')
+    console.log(icons.actions.activate + ' Datenbank geschlossen')
   }
 }

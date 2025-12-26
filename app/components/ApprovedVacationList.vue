@@ -17,7 +17,7 @@
       <!-- Filter -->
       <div class="filter-bar">
         <div class="filter-group">
-          <label>🔍 Mitarbeiter filtern:</label>
+          <label>{{icons.actions.search}} Mitarbeiter filtern:</label>
           <input 
             v-model="searchQuery" 
             type="text" 
@@ -27,7 +27,7 @@
         </div>
         
         <div class="filter-group">
-          <label>📅 Jahr:</label>
+          <label>{{ icons.ui.calendar }} Jahr:</label>
           <select v-model="selectedYear" class="filter-select">
             <option value="">Alle Jahre</option>
             <option v-for="year in availableYears" :key="year" :value="year">
@@ -61,6 +61,7 @@
 
 <script setup lang="ts">
 import { calculateWorkdays } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
 
 const props = defineProps<{
   requests: any[]

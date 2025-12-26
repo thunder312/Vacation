@@ -3,7 +3,7 @@
   <div v-if="carryoverInfo" class="carryover-info-banner" :class="carryoverInfo.status">
     <!-- Bestätigt / Nicht angepasst -->
     <div v-if="carryoverInfo.status === 'approved'" class="info-content success">
-      <div class="info-icon">✅</div>
+      <div class="info-icon">{{icons.actions.approve}}</div>
       <div class="info-text">
         <strong>{{ t('vacation.carryoverInfo', { year: currentYear }) }}</strong>
         <p>
@@ -34,7 +34,7 @@
 
     <!-- Ausstehend -->
     <div v-else-if="carryoverInfo.status === 'pending'" class="info-content pending">
-      <div class="info-icon">⏳</div>
+      <div class="info-icon">{{`icons.ui.loading`}}</div>
       <div class="info-text">
         <strong>{{ t('vacation.carryoverPending') }}</strong>
         <p>
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { icons } from '~/config/icons'
 const { t } = useI18n()
 const currentYear = new Date().getFullYear()
 const carryoverInfo = ref<any>(null)

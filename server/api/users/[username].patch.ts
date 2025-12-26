@@ -1,12 +1,13 @@
 // server/api/users/[username].patch.ts
 import { execute, queryOne } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
     const username = getRouterParam(event, 'username')
     const body = await readBody(event)
 
-    console.log('🔧 PATCH /api/users/' + username)
+    console.log(icons.roles.sysadmin + ' PATCH /api/users/' + username)
     console.log('📝 Body:', body)
 
     if (!username) {
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('✓ User gefunden:', user.username)
+    console.log(icons.actions.approve + ' User gefunden:', user.username)
 
     // UPDATE users Tabelle
     const userUpdates: string[] = []
@@ -54,11 +55,11 @@ export default defineEventHandler(async (event) => {
       userParams.push(username)
 
       const sql = `UPDATE users SET ${userUpdates.join(', ')} WHERE username = ?`
-      console.log('📊 SQL:', sql)
-      console.log('📊 Params:', userParams)
+      console.log('SQL:', sql)
+      console.log('Params:', userParams)
 
       execute(sql, userParams)
-      console.log('✓ users table updated')
+      console.log(icons.actions.approve + 'users table updated')
     }
 
     // UPDATE organization Tabelle (teamId)
@@ -74,13 +75,13 @@ export default defineEventHandler(async (event) => {
           SET teamId = ?, managerId = ?
           WHERE userId = ?
         `, [teamId, teamId, username])
-        console.log('✓ organization table updated')
+        console.log(icons.actions.approve + ' organization table updated')
       } else {
         execute(`
           INSERT INTO organization (userId, teamId, managerId)
           VALUES (?, ?, ?)
         `, [username, teamId, teamId])
-        console.log('✓ organization entry created')
+        console.log(icons.actions.approve + ' organization entry created')
       }
     }
 
@@ -103,17 +104,17 @@ export default defineEventHandler(async (event) => {
         SET managerId = ?
         WHERE userId = ?
       `, [managerId, username])
-      console.log('✓ organization managerId updated')
+      console.log(icons.actions.approve + ' organization managerId updated')
     }
 
-    console.log('✅ Update completed successfully')
+    console.log(icons.actions.activate + ' Update completed successfully')
     return { success: true, message: 'Benutzer aktualisiert' }
 
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    console.error('❌ Error updating user:', error)
+    console.error(icons.ui.error + ' Error updating user:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Aktualisieren des Benutzers'

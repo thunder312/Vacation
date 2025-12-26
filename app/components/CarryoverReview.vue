@@ -83,14 +83,14 @@
 
           <div v-if="carryover.status === 'pending'" class="card-actions">
             <button @click="approveCarryover(carryover)" class="btn btn-success">
-              ✅ Bestätigen ({{ carryover.originalDays }} {{ t('common.days') }})
+              {{icons.actions.approve}} Bestätigen ({{ carryover.originalDays }} {{ t('common.days') }})
             </button>
-            <button @click="openAdjustModal(carryover)" class="btn btn-warning">✏️ Anpassen</button>
+            <button @click="openAdjustModal(carryover)" class="btn btn-warning">{{icons.actions.edit}} Anpassen</button>
           </div>
 
           <div v-else class="card-footer">
             <small v-if="carryover.status === 'approved'">
-              ✅ Bestätigt von {{ carryover.approvedBy }} am {{ formatDate(carryover.approvedAt) }}
+              {{icons.actions.approve}} Bestätigt von {{ carryover.approvedBy }} am {{ formatDate(carryover.approvedAt) }}
             </small>
           </div>
         </div>
@@ -125,7 +125,7 @@
 
             <div class="modal-actions">
               <button type="button" @click="closeAdjustModal" class="btn btn-secondary">{{ t('common.cancel') }}</button>
-              <button type="submit" class="btn btn-warning" :disabled="saving">{{ saving ? 'Speichert...' : '💾 ' + t('vacation.carryoverSave') }}</button>
+              <button type="submit" class="btn btn-warning" :disabled="saving">{{ saving ? 'Speichert...' : icons.actions.save  + ' ' + t('vacation.carryoverSave') }}</button>
             </div>
           </form>
         </div>
@@ -134,6 +134,8 @@
 </template>
 
 <script setup lang="ts">
+
+import { icons } from '~/config/icons'
 const toast = useToast()
 const { currentUser } = useAuth()
 const { t } = useI18n()

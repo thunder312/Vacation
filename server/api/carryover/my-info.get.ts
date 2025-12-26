@@ -1,5 +1,6 @@
 // server/api/carryover/my-info.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -80,7 +81,7 @@ export default defineEventHandler(async (event) => {
     return null
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/carryover/my-info:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/carryover/my-info:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden der Übertrag-Information: ' + error.message

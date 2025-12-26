@@ -1,13 +1,14 @@
 // scripts/check-db-content.ts
 import { getDb } from '../server/database/db'
+import { icons } from '../app/config/icons'
 
 const db = getDb()
 
-console.log('\n📊 DATENBANK-INHALT:\n')
+console.log('\n DATENBANK-INHALT:\n')
 
 // Users
 const users = db.prepare('SELECT username, role FROM users').all()
-console.log('👥 USERS:', users.length)
+console.log( icons.roles.teamlead + ' USERS:', users.length)
 users.forEach(u => console.log(`  - ${u.username} (${u.role})`))
 
 // Vacation Requests
@@ -27,7 +28,7 @@ halfDays.forEach(h => console.log(`  - ${h.date}: ${h.description}`))
 
 // Carryover
 const carryover = db.prepare('SELECT userId, year, carryoverDays FROM carryover').all()
-console.log('\n📊 CARRYOVER:', carryover.length)
+console.log('\n CARRYOVER:', carryover.length)
 carryover.forEach(c => console.log(`  - ${c.userId} (${c.year}): ${c.carryoverDays} {{ t('common.days') }}`))
 
-console.log('\n✅ Fertig!\n')
+console.log('\n' + icons.actions.activate + ' Fertig!\n')

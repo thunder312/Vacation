@@ -15,13 +15,15 @@
       >
         <img :src="lang.flagImage" :alt="lang.code" class="lang-flag" />
         <span class="lang-name">{{ lang.name }}</span>
-        <span v-if="currentCode === lang.code" class="checkmark">✓</span>
+        <span v-if="currentCode === lang.code" class="checkmark">{{icons.actions.approve}}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { icons } from '~/config/icons'
+
 const { locale, saveLocale, loadLocale } = useLocale()
 
 const isOpen = ref(false)

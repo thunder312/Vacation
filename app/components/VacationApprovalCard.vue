@@ -14,7 +14,7 @@
     <p v-if="request.reason" class="request-reason">{{ request.reason }}</p>
 
     <div v-if="showTeamleadApproval && request.teamleadApprovalDate" class="approval-info">
-      <small>✓ Genehmigt von {{ t('roles.teamlead') }} am {{ formatDate(request.teamleadApprovalDate) }}</small>
+      <small>{{icons.actions.approve}} Genehmigt von {{ t('roles.teamlead') }} am {{ formatDate(request.teamleadApprovalDate) }}</small>
     </div>
 
     <div class="request-footer">
@@ -26,10 +26,10 @@
 
     <div v-if="canApprove" class="approval-actions">
       <button @click="emit('approve', request.id, approvalLevel || 'teamlead')" class="approve-btn">
-        ✓ {{ t('vacation.approve') }}
+        {{icons.actions.approve}} {{ t('vacation.approve') }}
       </button>
       <button @click="emit('reject', request.id)" class="reject-btn">
-        ✗  {{ t('vacation.reject') }}
+        {{icons.actions.reject}}  {{ t('vacation.reject') }}
       </button>
     </div>
 
@@ -44,6 +44,7 @@
 <script setup lang="ts">
 import type { VacationRequest } from '~/types/vacation'
 import { formatDate, calculateDays, calculateWorkdays, getStatusTextWithIcon } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
 
 const { t } = useI18n()
 

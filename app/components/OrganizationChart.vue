@@ -6,8 +6,8 @@
         <p class="description">{{ t('organization.description') }}</p>
       </div>
       <div class="export-buttons">
-        <button @click="exportOrgChart" class="btn-pdf">📄 {{ t('organization.exportOrgChart') }}</button>
-        <button @click="exportTeamOverview" class="btn-pdf">📄 {{ t('organization.exportTeamOverview') }}</button>
+        <button @click="exportOrgChart" class="btn-pdf">{{`icons.actions.pdf`}} {{ t('organization.exportOrgChart') }}</button>
+        <button @click="exportTeamOverview" class="btn-pdf">{{`icons.actions.pdf`}} {{ t('organization.exportTeamOverview') }}</button>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
         <div ref="teamsGridRef" class="teams-grid">
         <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
           <div class="team-header">
-            <h4>👥 Team {{ team.teamleadName }}</h4>
+            <h4>{{ icons.roles.teamlead}} Team {{ team.teamleadName }}</h4>
             <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
           </div>
           <div class="team-members">
@@ -67,7 +67,7 @@
           <div class="manager-level">
             <div v-for="manager in managers" :key="manager.userId" class="org-node manager">
               <div class="node-header">
-                <div class="node-icon">👔</div>
+                <div class="node-icon">{{ icons.roles.manager }}</div>
                 <div class="node-info">
                   <div class="node-name">{{ manager.displayName }}</div>
                   <div class="node-role">{{ t('roles.manager') }}</div>
@@ -81,7 +81,7 @@
           <div class="teamlead-level">
             <div v-for="office in officeUsers" :key="office.userId" class="org-node office">
               <div class="node-header">
-                <div class="node-icon">📋</div>
+                <div class="node-icon">{{icons.roles.office}}</div>
                 <div class="node-info">
                   <div class="node-name">{{ office.displayName }}</div>
                   <div class="node-role">{{ t('roles.office') }}</div>
@@ -103,7 +103,7 @@
                 <div class="employees-level">
                   <div v-for="employee in teamlead.teamMembers" :key="employee.userId" class="org-node employee">
                     <div class="node-header">
-                      <div class="node-icon">👤</div>
+                      <div class="node-icon">{{icons.roles.employee}}</div>
                       <div class="node-info">
                         <div class="node-name">{{ employee.displayName }}</div>
                         <div class="node-role">{{ t('roles.employee') }}</div>
@@ -116,7 +116,7 @@
 
             <div v-for="sysadmin in sysadminUsers" :key="sysadmin.userId" class="org-node sysadmin">
               <div class="node-header">
-                <div class="node-icon">⚙️</div>
+                <div class="node-icon">{{ icons.actions.settings }}</div>
                 <div class="node-info">
                   <div class="node-name">{{ sysadmin.displayName }}</div>
                   <div class="node-role">{{ t('roles.sysadmin') }}</div>
@@ -130,7 +130,7 @@
             <div class="unassigned-list">
               <div v-for="employee in unassignedEmployees" :key="employee.userId" class="org-node employee unassigned">
                 <div class="node-header">
-                  <div class="node-icon">👤</div>
+                  <div class="node-icon">{{icons.roles.employee}}</div>
                   <div class="node-info">
                     <div class="node-name">{{ employee.displayName }}</div>
                     <div class="node-role">{{ t('roles.employee') }}</div>
@@ -148,6 +148,7 @@
 <script setup lang="ts">
 
 import { exportOrgChart as exportOrgChartPdf, exportTeamOverview as exportTeamOverviewPdf } from '~/utils/pdf'
+import { icons } from '~/config/icons'
 
 const { t } = useI18n()
 const toast = useToast()

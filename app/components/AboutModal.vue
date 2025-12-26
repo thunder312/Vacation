@@ -92,7 +92,7 @@
                   <span class="tech-name">SQLite</span>
                 </div>
                 <div class="tech-item">
-                  <span class="tech-icon">📄</span>
+                  <span class="tech-icon">{{`icons.actions.pdf`}}</span>
                   <span class="tech-name">jsPDF</span>
                 </div>
                 <div class="tech-item">
@@ -120,6 +120,7 @@
 
 <script setup lang="ts">
 import { branding } from '~/config/branding'
+import { icons } from '~/config/icons'
 const { t } = useI18n()
 
 const props = defineProps<{

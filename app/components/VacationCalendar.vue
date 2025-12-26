@@ -37,7 +37,7 @@
     </div>
 
     <div v-if="loading" class="loading-state">
-      ⏳ {{ t('common.loading') }}
+      {{`icons.ui.loading`}} {{ t('common.loading') }}
     </div>
 
     <div v-else class="calendar-container">

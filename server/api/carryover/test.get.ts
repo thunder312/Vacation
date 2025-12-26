@@ -1,5 +1,6 @@
 // server/api/carryover/test.get.ts
 import { query } from '../../database/db'
+import { icons } from '~/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,8 +9,8 @@ export default defineEventHandler(async (event) => {
       SELECT name FROM sqlite_master WHERE type='table'
     `)
     
-    console.log('🔍 TEST: Tabellen gefunden:', tables.length)
-    tables.forEach((t: any) => console.log('  📋', t.name))
+    console.log(icons.actions.search + ' TEST: Tabellen gefunden:', tables.length)
+    tables.forEach((t: any) => console.log(icons.roles.office , t.name))
     
     // Prüfe ob users Tabelle existiert
     const hasUsers = tables.some((t: any) => t.name === 'users')
@@ -32,8 +33,8 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error: any) {
-    console.error('🔍 TEST ERROR:', error.message)
-    console.error('🔍 TEST STACK:', error.stack)
+    console.error(icons.actions.search + ' TEST ERROR:', error.message)
+    console.error(icons.actions.search + ' TEST STACK:', error.stack)
     
     return {
       error: error.message,

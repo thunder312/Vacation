@@ -2,6 +2,7 @@
 import { de } from '~/config/i18n/de'
 import { en } from '~/config/i18n/en'
 import { ptBr } from '~/config/i18n/pt-br'
+import { icons } from '~/config/icons'
 
 type Locale = 'de' | 'en' | 'pt-br'
 
@@ -27,7 +28,7 @@ export const useI18n = () => {
   if (import.meta.client) {
     watchEffect(() => {
       localStorage.setItem('user-locale', locale.value)
-      console.log('✅ Language changed to:', locale.value)
+      console.log(icons.actions.activate + ' Language changed to:', locale.value)
     })
   }
   

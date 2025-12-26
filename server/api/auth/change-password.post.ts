@@ -1,6 +1,7 @@
 // server/api/auth/change-password.post.ts
 import { execute, queryOne } from '../../database/db'
 import bcrypt from 'bcrypt'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -56,14 +57,14 @@ export default defineEventHandler(async (event) => {
     // Altes Passwort prüfen
     const isValidPassword = await bcrypt.compare(oldPassword, user.password)
     if (!isValidPassword) {
-      console.log('❌ Old password incorrect')
+      console.log(icons.ui.error + ' Old password incorrect')
       throw createError({
         statusCode: 401,
         message: 'Altes Passwort ist falsch'
       })
     }
 
-    console.log('✓ Old password correct')
+    console.log('{{icons.actions.approve}} Old password correct')
 
     // Neues Passwort hashen
     const hashedPassword = await bcrypt.hash(newPassword, 10)
@@ -75,7 +76,7 @@ export default defineEventHandler(async (event) => {
       WHERE username = ?
     `, [hashedPassword, username])
 
-    console.log('✓ Password updated')
+    console.log(icons.actions.approve + ' Password updated')
 
     return { 
       success: true, 
@@ -86,7 +87,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
-    console.error('❌ Error changing password:', error)
+    console.error(icons.ui.error + ' Error changing password:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Ändern des Passworts'

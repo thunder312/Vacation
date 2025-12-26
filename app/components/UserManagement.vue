@@ -88,7 +88,7 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              :placeholder="'🔍 ' + t('users.searchPlaceholder')"
+              :placeholder="icons.actions.search + t('users.searchPlaceholder')"
               class="search-input"
             />
           </div>
@@ -177,8 +177,8 @@
                     </select>
                   </div>
                   <div class="edit-actions">
-                    <button @click="saveEdit" class="btn-save">💾 {{ t('common.save') }}</button>
-                    <button @click="cancelEdit" class="btn-cancel">❌ {{ t('common.cancel') }}</button>
+                    <button @click="saveEdit" class="btn-save">{{ icons.actions.save }} {{ t('common.save') }}</button>
+                    <button @click="cancelEdit" class="btn-cancel">{{`icons.ui.error`}} {{ t('common.cancel') }}</button>
                   </div>
                 </div>
               </td>
@@ -198,7 +198,7 @@
               <td class="center">{{ user.vacationDays }} {{ t('common.days') }}</td>
               <td>{{ user.teamleadId ? getTeamleadName(user.teamleadId) : '—' }}</td>
               <td class="center">
-                <span v-if="user.isActive" class="status-active">✓ {{ t('status.active') }}</span>
+                <span v-if="user.isActive" class="status-active">{{icons.actions.approve}} {{ t('status.active') }}</span>
                 <span v-else class="status-inactive">○ {{ t('status.inactive') }}</span>
               </td>
               <td class="actions-cell">
@@ -208,7 +208,7 @@
                   class="btn-icon"
                   :title="t('users.editUser')"
                 >
-                  ✏️
+                  {{icons.actions.edit}}
                 </button>
                 <button
                   v-if="user.role !== 'manager'"
@@ -224,7 +224,7 @@
                   class="btn-icon"
                   :title="user.isActive ? t('users.deactivateUser') : t('users.activateUser')"
                 >
-                  {{ user.isActive ? '🚫' : '✓' }}
+                  {{ user.isActive ? icons.actions.deactivate : icons.actions.approve }}
                 </button>
               </td>
             </template>
@@ -237,6 +237,7 @@
 </template>
 <script setup lang="ts">
 import VacationCancellation from './VacationCancellation.vue'
+import { icons } from '~/config/icons'
 
 const toast = useToast()
 const { currentUser } = useAuth()

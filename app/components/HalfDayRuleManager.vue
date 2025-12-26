@@ -48,7 +48,7 @@
             class="delete-btn" 
             :title="t('common.delete')"
           >
-            🗑️
+            {{ icons.actions.delete }}
           </button>
         </div>
         <div class="rule-footer">
@@ -61,7 +61,7 @@
 
     <!-- Info-Box -->
     <div class="info-box">
-      <h4>ℹ️ Hinweis</h4>
+      <h4>{{`icons.ui.info`}} Hinweis</h4>
       <p>
         Halbtage werden automatisch bei der Berechnung der Urlaubstage berücksichtigt. 
         Ein definierter Halbtag zählt als 0,5 Urlaubstage statt 1 voller Tag.
@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import { formatDate } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
 
 const { t } = useI18n()
 const { addHalfDayRule, removeHalfDayRule, halfDayRules } = useHalfDayRules()

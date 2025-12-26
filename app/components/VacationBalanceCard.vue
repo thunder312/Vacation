@@ -3,7 +3,7 @@
     <h3>{{ t('vacation.myVacation') }} {{ balance.year }}</h3>
     
     <div v-if="balance.carryoverDays > 0" class="carryover-info">
-      ℹ️ {{ t('vacation.carryoverIncluding', { days: balance.carryoverDays, year: balance.year - 1 }) }}
+      {{`icons.ui.info`}} {{ t('vacation.carryoverIncluding', { days: balance.carryoverDays, year: balance.year - 1 }) }}
     </div>
 
     <div class="balance-overview">
@@ -38,7 +38,7 @@
     </div>
 
     <div v-if="balance.remainingDays < 0" class="balance-error">
-      ❌ Sie haben {{ Math.abs(balance.remainingDays) }} {{ t('common.days') }} zu viel beantragt!
+      {{`icons.ui.error`}} Sie haben {{ Math.abs(balance.remainingDays) }} {{ t('common.days') }} zu viel beantragt!
     </div>
 
     <div class="balance-progress">
@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import type { VacationBalance } from '~/types/vacation'
+import { icons } from '~/config/icons'
 
 const { t } = useI18n()
 

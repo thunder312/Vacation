@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import type { OrgNode as OrgNodeType } from '~/types/vacation'
+import { icons } from '~/config/icons'
 
 const props = defineProps<{
   node: OrgNodeType & { children?: OrgNodeType[] }
@@ -47,10 +48,11 @@ const { t } = useI18n()
 
 const roleIcon = computed(() => {
   switch (props.node.role) {
-    case 'manager': return '👔'
-    case 'teamlead': return '👥'
-    case 'employee': return '👤'
-    case 'office': return '📋'
+    case 'manager': return icons.roles.manager
+    case 'teamlead': return icons.roles.teamlead
+    case 'employee': return icons.roles.employee
+    case 'office': return icons.roles.office
+    case 'sysadmin': return icons.roles.sysadmin
     default: return '•'
   }
 })

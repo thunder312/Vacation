@@ -1,5 +1,6 @@
 // server/api/carryover/adjust.post.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -42,7 +43,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('❌ ERROR in POST /api/carryover/adjust:', error)
+    console.error(icons.ui.error + ' ERROR in POST /api/carryover/adjust:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Anpassen des Übertrags: ' + error.message

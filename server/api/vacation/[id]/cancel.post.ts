@@ -1,5 +1,6 @@
 // server/api/vacation/[id]/cancel.post.ts
 import { execute, queryOne } from '../../../database/db'
+import { icons } from '../../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -37,7 +38,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('✓ Request found:', request.userId, request.startDate, '-', request.endDate)
+    console.log(icons.actions.approve + ' Request found:', request.userId, request.startDate, '-', request.endDate)
 
     // Berechne Urlaubstage (Arbeitstage zwischen Start und Ende)
     const calculateWorkdays = (start: string, end: string): number => {
@@ -59,7 +60,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const daysToRefund = calculateWorkdays(request.startDate, request.endDate)
-    console.log(`📊 Days to refund: ${daysToRefund}`)
+    console.log(`Days to refund: ${daysToRefund}`)
 
     // Grund für Absage hinzufügen (an bestehenden Grund anhängen)
     const updatedReason = cancellationReason 
@@ -75,7 +76,7 @@ export default defineEventHandler(async (event) => {
       WHERE id = ?
     `, [updatedReason, id])
 
-    console.log('✓ Request cancelled')
+    console.log(icons.actions.approve + ' Request cancelled')
 
     // Urlaubstage zurückbuchen
     // Hole aktuelles Guthaben
@@ -99,12 +100,12 @@ export default defineEventHandler(async (event) => {
           SET carryoverDays = carryoverDays + ?
           WHERE userId = ? AND year = ?
         `, [daysToRefund, request.userId, currentYear])
-        console.log(`✓ Carryover updated: +${daysToRefund} days`)
+        console.log(icons.actions.approve + ` Carryover updated: +${daysToRefund} days`)
       }
       // Wenn kein Carryover existiert, werden die Tage automatisch im nächsten Jahr verfügbar
     }
 
-    console.log('✅ Vacation cancelled successfully')
+    console.log(icons.actions.activate + ' acation cancelled successfully')
 
     return {
       success: true,
@@ -116,7 +117,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
-    console.error('❌ Error cancelling vacation:', error)
+    console.error(icons.ui.error + ' Error cancelling vacation:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Absagen des Urlaubs'

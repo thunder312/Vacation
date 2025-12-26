@@ -1,6 +1,7 @@
 // server/database/seed.ts
 import { getDb } from './db'
 import bcrypt from 'bcrypt'
+import {icons} from "~/config/icons";
 
 /**
  * Fügt Test-Daten in die Datenbank ein
@@ -51,7 +52,7 @@ export async function seedDatabase(): Promise<void> {
     )
   }
 
-  console.log(`✅ ${users.length} Benutzer erstellt`)
+  console.log(icons.actions.activate +  '${users.length} Benutzer erstellt')
 
   // Organization Struktur
   const insertOrg = db.prepare(`
@@ -73,7 +74,7 @@ export async function seedDatabase(): Promise<void> {
     insertOrg.run(org.userId, org.teamId, org.managerId)
   }
 
-  console.log(`✅ Organization-Struktur erstellt`)
+  console.log(icons.actions.activate + '  Organization-Struktur erstellt')
 
   // Beispiel Carryover Daten
   const insertCarryover = db.prepare(`
@@ -91,7 +92,7 @@ export async function seedDatabase(): Promise<void> {
     insertCarryover.run(co.userId, co.year, co.days)
   }
 
-  console.log(`✅ ${carryovers.length} Carryover-Einträge erstellt`)
+  console.log(icons.actions.activate + '  ${carryovers.length} Carryover-Einträge erstellt')
 
   // Beispiel Vacation Requests
   const insertVacation = db.prepare(`
@@ -133,10 +134,10 @@ export async function seedDatabase(): Promise<void> {
     )
   }
 
-  console.log(`✅ ${vacations.length} Vacation Requests erstellt`)
+  console.log(icons.actions.activate + ' ${vacations.length} Vacation Requests erstellt')
 
-  console.log('🌱 Seeding abgeschlossen!')
-  console.log('📝 Test-Login: admin / password123')
+  console.log(icons.status.seeding + ' Seeding abgeschlossen!')
+  console.log(icons.status.input + ' Test-Login: admin / password123')
 }
 
 /**

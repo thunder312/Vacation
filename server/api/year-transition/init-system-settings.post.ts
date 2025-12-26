@@ -1,5 +1,6 @@
 // server/api/year-transition/init-system-settings.post.ts
 import { run } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 /**
  * Initialisiert system_settings Tabelle und setzt Jahr 2025
@@ -22,14 +23,14 @@ export default defineEventHandler(async (event) => {
       VALUES ('last_year_transition', '2025', datetime('now'))
     `)
 
-    console.log('✅ system_settings initialisiert mit Jahr 2025')
+    console.log(icons.actions.activate + ' system_settings initialisiert mit Jahr 2025')
 
     return {
       success: true,
       message: 'system_settings Tabelle erstellt und Jahr 2025 gesetzt'
     }
   } catch (error: any) {
-    console.error('❌ Fehler bei Initialisierung:', error)
+    console.error(icons.ui.error + ' Fehler bei Initialisierung:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler bei Initialisierung: ' + error.message

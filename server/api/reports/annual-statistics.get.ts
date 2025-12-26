@@ -1,5 +1,6 @@
 // server/api/reports/annual-statistics.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -101,7 +102,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/reports/annual-statistics:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/reports/annual-statistics:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden der Statistiken: ' + error.message

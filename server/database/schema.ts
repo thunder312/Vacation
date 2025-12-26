@@ -1,5 +1,6 @@
 // server/database/schema.ts
 import { getDb } from './db'
+import { icons } from '~/config/icons'
 
 /**
  * Erstellt alle Datenbank-Tabellen
@@ -94,7 +95,7 @@ export function initSchema(): void {
     )
   `)
 
-  console.log('✅ Datenbank-Schema initialisiert')
+  console.log(icons.actions.activate + ' Datenbank-Schema initialisiert')
 }
 
 /**

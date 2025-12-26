@@ -1,5 +1,6 @@
 // server/api/vacation/calendar.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -67,7 +68,7 @@ export default defineEventHandler(async (event) => {
     return Array.from(employeeMap.values())
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/vacation/calendar:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/vacation/calendar:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden des Kalenders: ' + error.message

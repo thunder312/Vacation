@@ -1,5 +1,6 @@
 // server/api/carryover/review.get.ts
 import { query } from '../../database/db'
+import { icons } from '../../../app/config/icons'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -60,11 +61,11 @@ export default defineEventHandler(async (event) => {
       approvedAt: null
     }))
 
-    console.log(`✅ Loaded ${result.length} carryover entries for year ${year}`)
+    console.log(icons.actions.activate + ' Loaded ${result.length} carryover entries for year ${year}')
     return result
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/carryover/review:', error)
+    console.error(icons.ui.error + ' ERROR in GET /api/carryover/review:', error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Laden der Überträge: ' + error.message
