@@ -59,6 +59,15 @@ export const icons = {
     pending: '⏳',      // Ausstehend
     rejected: '✗',      // Abgelehnt
     cancelled: '🚫'     // Abgesagt
+  },
+
+  /**
+   * Sprach-Flaggen
+   */
+  flags: {
+    de: '🇩🇪',         // Deutschland
+    en: '🇬🇧',         // Großbritannien
+    'pt-br': '🇧🇷'     // Brasilien
   }
 }
 
@@ -69,6 +78,7 @@ export type IconRole = keyof typeof icons.roles
 export type IconAction = keyof typeof icons.actions
 export type IconUI = keyof typeof icons.ui
 export type IconStatus = keyof typeof icons.status
+export type IconFlag = keyof typeof icons.flags
 
 /**
  * Helper-Funktion um Icons zu holen
@@ -77,7 +87,8 @@ export const getIcon = {
   role: (role: IconRole) => icons.roles[role] || '?',
   action: (action: IconAction) => icons.actions[action] || '?',
   ui: (ui: IconUI) => icons.ui[ui] || '?',
-  status: (status: IconStatus) => icons.status[status] || '?'
+  status: (status: IconStatus) => icons.status[status] || '?',
+  flag: (flag: IconFlag) => icons.flags[flag] || '🏳️'
 }
 
 /**
@@ -88,6 +99,11 @@ export const getIcon = {
  *     manager: '/icons/roles/manager.svg',
  *     teamlead: '/icons/roles/teamlead.svg',
  *     ...
+ *   },
+ *   flags: {
+ *     de: '/icons/flags/de.svg',
+ *     en: '/icons/flags/en.svg',
+ *     'pt-br': '/icons/flags/br.svg'
  *   }
  * }
  */

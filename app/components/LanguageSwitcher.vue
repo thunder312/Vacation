@@ -1,9 +1,9 @@
 <template>
   <div class="language-dropdown" ref="dropdownRef">
     <button @click="toggleDropdown" class="lang-dropdown-btn">
-      <span class="current-lang-flag">{{ currentFlag }}</span>
-      <span class="current-lang-code">{{ locale.toUpperCase() }}</span>
-      <span class="dropdown-arrow">▼</span>
+      <img :src="getFlagImage(currentCode)" :alt="currentCode" class="current-lang-flag" />
+      <span class="current-lang-code">{{ currentCode.toUpperCase() }}</span>
+      <span class="dropdown-arrow">{{ isOpen ? '▲' : '▼' }}</span>
     </button>
     
     <div v-if="isOpen" class="lang-dropdown-menu">
@@ -11,11 +11,11 @@
         v-for="lang in languages" 
         :key="lang.code"
         @click="selectLanguage(lang.code)"
-        :class="['lang-option', { active: locale === lang.code }]"
+        :class="['lang-option', { active: currentCode === lang.code }]"
       >
-        <span class="lang-flag">{{ lang.flag }}</span>
+        <img :src="lang.flagImage" :alt="lang.code" class="lang-flag" />
         <span class="lang-name">{{ lang.name }}</span>
-        <span v-if="locale === lang.code" class="checkmark">✓</span>
+        <span v-if="currentCode === lang.code" class="checkmark">✓</span>
       </button>
     </div>
   </div>
@@ -28,15 +28,29 @@ const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
 const languages = [
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'pt-br', name: 'Português', flag: '🇧🇷' }
+  { 
+    code: 'de', 
+    name: 'Deutsch',
+    flagImage: '/flags/de.png'
+  },
+  { 
+    code: 'en', 
+    name: 'English',
+    flagImage: '/flags/gb.png'
+  },
+  { 
+    code: 'pt-br', 
+    name: 'Português',
+    flagImage: '/flags/br.png'
+  }
 ]
 
-const currentFlag = computed(() => {
-  const lang = languages.find(l => l.code === locale.value)
-  return lang?.flag || '🇩🇪'
-})
+const currentCode = computed(() => locale.value || 'de')
+
+const getFlagImage = (code: string) => {
+  const lang = languages.find(l => l.code === code)
+  return lang?.flagImage || '/flags/de.png'
+}
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
