@@ -27,15 +27,20 @@ export const icons = {
    */
   actions: {
     edit: '✏️',         // Bearbeiten
+    save: '💾',         // Speichern
+    delete: '🗑️',       // Löschen
+    cancel: '❌',       // Abbrechen
     password: '🔑',     // Passwort zurücksetzen
     regenerate: '🔄',   // Passwort neu generieren
     deactivate: '🚫',   // Deaktivieren
     activate: '✅',     // Aktivieren
-    cancel: '🚫',       // Urlaub absagen
+    cancelVacation: '🚫', // Urlaub absagen
     approve: '✓',       // Genehmigen
     reject: '✗',        // Ablehnen
     pdf: '📄',          // PDF Export
-    logout: '🚪'        // Abmelden
+    logout: '🚪',       // Abmelden
+    search: '🔍',       // Suchen
+    settings: '⚙️'      // Einstellungen
   },
 
   /**
@@ -46,14 +51,24 @@ export const icons = {
     collapse: '▶',      // Sektion eingeklappt
     sortUp: '▲',        // Sortierung aufsteigend
     sortDown: '▼',      // Sortierung absteigend
-    search: '🔍'        // Suche
+    loading: '⏳',      // Lädt
+    info: 'ℹ️',         // Information
+    warning: '⚠️',      // Warnung
+    error: '❌',        // Fehler
+    success: '✓',       // Erfolg
+    calendar: '📅',     // Kalender
+    report: '📊',       // Bericht/Report
+    theme: {
+      light: '☀️',      // Hell-Modus
+      dark: '🌙'        // Dunkel-Modus
+    }
   },
 
   /**
    * Status-Icons
    */
   status: {
-    active: '✓',        // {{ t('status.active') }}
+    active: '✓',        // Aktiv
     inactive: '○',      // Inaktiv
     approved: '✓✓',     // Vollständig genehmigt
     pending: '⏳',      // Ausstehend
@@ -65,9 +80,9 @@ export const icons = {
    * Sprach-Flaggen
    */
   flags: {
-    de: '🇩🇪',         // Deutschland
-    en: '🇬🇧',         // Großbritannien
-    'pt-br': '🇧🇷'     // Brasilien
+    de: '/flags/de.png',      // Deutschland
+    en: '/flags/gb.png',      // Großbritannien
+    'pt-br': '/flags/br.png'  // Brasilien
   }
 }
 
