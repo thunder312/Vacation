@@ -24,7 +24,9 @@ export const de = {
     required: 'Erforderlich',
     user: 'Benutzer',
     reason: 'Grund',
-    allYears: 'Alle Jahre'
+    remark: 'Bemerkung',
+    allYears: 'Alle Jahre',
+      total: 'gesamt'
   },
 
   app: {
@@ -267,6 +269,12 @@ export const de = {
     modal: {
       warning: 'Achtung',
         cancelVacation: 'Der genehmigte Urlaub wird abgesagt und die Urlaubstage werden dem Mitarbeiter zurückgebucht.',
+    },
+    calendar: {
+        approvedVacation: 'Genehmigter Urlaub',
+        weekend: 'Wochenende',
+        holiday: 'Feiertag',
+        noVacationMonth: 'Keine Urlaubsanträge in diesem Monat'
     }
 }
 

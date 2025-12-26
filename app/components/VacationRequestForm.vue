@@ -14,7 +14,7 @@
       </div>
 
       <div class="form-group">
-        <label>{{ t('common.reason') }} / Bemerkung</label>
+        <label>{{ t('common.reason') }} / {{ t('common.remark') }}</label>
         <textarea v-model="reason" rows="3" :placeholder="t('common.optional')"></textarea>
       </div>
 

@@ -24,7 +24,9 @@ export const ptBr = {
     required: 'Obrigatório',
     user: 'Usuário',
     reason: 'Motivo',
-    allYears: 'Todos os Anos'
+      remark: 'Observação',
+    allYears: 'Todos os Anos',
+      total: 'total'
   },
 
   app: {
@@ -267,6 +269,12 @@ export const ptBr = {
     modal: {
         warning: 'Aviso',
         cancelVacation: 'As férias aprovadas foram canceladas e os dias de férias foram creditados de volta ao funcionário.'
+    },
+    calendar: {
+        approvedVacation: 'Férias aprovadas',
+        weekend: 'Fim de semana',
+        holiday: 'Feriado',
+        noVacationMonth: 'Nenhum pedido de férias neste mês.'
     }
 }
 

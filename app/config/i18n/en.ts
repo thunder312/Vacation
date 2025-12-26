@@ -24,7 +24,9 @@ export const en = {
     required: 'Required',
     user: 'User',
     reason: 'Reason',
-    allYears: 'All Years'
+      remark: 'Remark',
+    allYears: 'All Years',
+      total: 'total'
   },
 
   app: {
@@ -268,6 +270,12 @@ export const en = {
     modal: {
         warning: 'Warning',
         cancelVacation: 'The approved vacation is cancelled and the vacation days are credited back to the employee.'
+    },
+    calendar: {
+        approvedVacation: 'Approved vacation',
+        weekend: 'Weekend',
+        holiday: 'Holiday',
+        noVacationMonth: 'No vacation requests this month'
     }
 }
 

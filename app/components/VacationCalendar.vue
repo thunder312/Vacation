@@ -24,15 +24,15 @@
     <div class="legend">
       <div class="legend-item">
         <span class="legend-color approved"></span>
-        <span>Genehmigter Urlaub</span>
+        <span>{{ t('calendar.approvedVacation') }}</span>
       </div>
       <div class="legend-item">
         <span class="legend-color weekend"></span>
-        <span>Wochenende</span>
+        <span>{{ t('calendar.weekend') }}</span>
       </div>
       <div class="legend-item">
         <span class="legend-color holiday"></span>
-        <span>Feiertag</span>
+        <span>{{ t('calendar.holiday') }}</span>
       </div>
     </div>
 
@@ -58,7 +58,7 @@
         </div>
 
         <div v-if="employeesWithVacation.length === 0" class="empty-state">
-          Keine Urlaubsanträge in diesem Monat
+          {{t('calendar.noVacationMonth')}}
         </div>
         
         <div v-else class="calendar-body">
@@ -91,6 +91,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const toast = useToast()
+const { locale } = useLocale()
 
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
@@ -116,7 +117,7 @@ const daysInMonth = computed(() => {
     days.push({
       date: dateStr,
       day: d,
-      weekday: date.toLocaleDateString('de-DE', { weekday: 'short' }),
+      weekday: date.toLocaleDateString(locale.value, { weekday: 'short' }),
       isWeekend: date.getDay() === 0 || date.getDay() === 6,
       isHoliday: false
     })
@@ -127,7 +128,7 @@ const daysInMonth = computed(() => {
 
 const getMonthName = (month: number) => {
   const date = new Date(2000, month - 1, 1)
-  return date.toLocaleDateString('de-DE', { month: 'long' })
+  return date.toLocaleDateString(locale.value, { month: 'long' })
 }
 
 const getDayClass = (day: any) => {
@@ -138,8 +139,8 @@ const getDayClass = (day: any) => {
 }
 
 const getDayTitle = (day: any) => {
-  if (day.isHoliday) return 'Feiertag'
-  if (day.isWeekend) return 'Wochenende'
+  if (day.isHoliday) return t('calendar.holiday')
+  if (day.isWeekend) return t('calendar.weekend')
   return ''
 }
 

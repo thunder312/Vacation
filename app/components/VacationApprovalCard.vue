@@ -20,7 +20,7 @@
     <div class="request-footer">
       <small>
         {{ t('vacation.vacationDays') }}: {{ vacationDays }}
-        ({{ calculateDays(request.startDate, request.endDate) }} {{ t('common.days') }} gesamt)
+        ({{ calculateDays(request.startDate, request.endDate) }} {{ t('common.days') }} {{ t('common.total')}})
       </small>
     </div>
 
