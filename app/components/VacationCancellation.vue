@@ -36,7 +36,7 @@
         <h4>2. Betroffene {{ t('organization.employees') }} auswählen</h4>
         
         <div v-if="employeesOnVacation.length === 0" class="empty-state">
-          {{`icons.ui.info`}} Keine {{ t('organization.employees') }} im Urlaub am {{ formatDate(selectedDate) }}
+          {{icons.ui.info}} Keine {{ t('organization.employees') }} im Urlaub am {{ formatDate(selectedDate) }}
         </div>
 
         <div v-else class="employees-list">
@@ -150,7 +150,7 @@
             <li>{{ icons.ui.calendar }} {{ t('common.date') }}: <strong>{{ formatDate(selectedDate) }}</strong></li>
             <li>{{ icons.roles.teamlead}} {{ t('organization.employees') }}: <strong>{{ selectedEmployees.length }}</strong></li>
             <li>⏱️ {{ t('common.days') }} pro Person: <strong>{{ daysToCancel }}</strong></li>
-            <li>{{`icons.ui.report`}} Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} {{ t('vacation.vacationDays') }}</strong></li>
+            <li>{{icons.ui.report}} Gesamt: <strong>{{ selectedEmployees.length * (daysToCancel || 0) }} {{ t('vacation.vacationDays') }}</strong></li>
           </ul>
           <p class="warning-text">
             ⚠️ Diese Aktion kann bestehende Urlaubsanträge aufteilen oder kürzen.

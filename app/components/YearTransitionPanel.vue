@@ -50,7 +50,7 @@
 
         <div class="modal-body">
           <div class="info-box">
-            <strong>{{`icons.ui.info`}} Was passiert beim Jahreswechsel?</strong>
+            <strong>{{icons.ui.info}} Was passiert beim Jahreswechsel?</strong>
             <ul>
               <li>Verbleibende {{ t('vacation.vacationDays') }} werden berechnet</li>
               <li>Alle verbleibenden {{ t('common.days') }} werden ins neue Jahr übertragen</li>

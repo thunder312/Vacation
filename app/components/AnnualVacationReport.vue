@@ -1,7 +1,7 @@
 <template>
   <div class="annual-vacation-report">
     <div class="report-card">
-      <h3>{{`icons.ui.report`}} {{ t('reports.annualReport') }}</h3>
+      <h3>{{icons.ui.report}} {{ t('reports.annualReport') }}</h3>
       <p class="description">
         {{ t('reports.annualReportDescription') }}
       </p>
@@ -64,13 +64,13 @@
           class="btn-pdf"
           :disabled="loading || !statistics || generating"
         >
-          {{ generating ? icons.ui.loading + t('reports.creating') : '{{`icons.actions.pdf`}} ' + t('reports.createPdf') }}
+          {{ generating ? icons.ui.loading + t('reports.creating') : icons.actions.pdf + t('reports.createPdf') }}
         </button>
       </div>
 
       <!-- Info -->
       <div class="report-info">
-        <strong>{{`icons.ui.info`}} {{ t('reports.pdfContains') }}</strong>
+        <strong>{{icons.ui.info}} {{ t('reports.pdfContains') }}</strong>
         <ul>
           <li>{{ t('reports.pdfPage1') }}</li>
           <li>{{ t('reports.pdfPage2Plus') }}</li>

@@ -3,7 +3,7 @@
     <h3>{{ t('vacation.myVacation') }} {{ balance.year }}</h3>
     
     <div v-if="balance.carryoverDays > 0" class="carryover-info">
-      {{`icons.ui.info`}} {{ t('vacation.carryoverIncluding', { days: balance.carryoverDays, year: balance.year - 1 }) }}
+      {{icons.ui.info}} {{ t('vacation.carryoverIncluding', { days: balance.carryoverDays, year: balance.year - 1 }) }}
     </div>
 
     <div class="balance-overview">

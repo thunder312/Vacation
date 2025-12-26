@@ -92,7 +92,7 @@
                   <span class="tech-name">SQLite</span>
                 </div>
                 <div class="tech-item">
-                  <span class="tech-icon">{{`icons.actions.pdf`}}</span>
+                  <span class="tech-icon">{{ icons.actions.pdf }}</span>
                   <span class="tech-name">jsPDF</span>
                 </div>
                 <div class="tech-item">

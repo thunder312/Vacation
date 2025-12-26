@@ -6,8 +6,8 @@
         <p class="description">{{ t('organization.description') }}</p>
       </div>
       <div class="export-buttons">
-        <button @click="exportOrgChart" class="btn-pdf">{{`icons.actions.pdf`}} {{ t('organization.exportOrgChart') }}</button>
-        <button @click="exportTeamOverview" class="btn-pdf">{{`icons.actions.pdf`}} {{ t('organization.exportTeamOverview') }}</button>
+        <button @click="exportOrgChart" class="btn-pdf">{{ icons.actions.pdf }} {{ t('organization.exportOrgChart') }}</button>
+        <button @click="exportTeamOverview" class="btn-pdf"> {{ icons.actions.pdf}} {{ t('organization.exportTeamOverview') }}</button>
       </div>
     </div>
 
@@ -126,7 +126,7 @@
           </div>
 
           <div v-if="unassignedEmployees.length > 0" class="unassigned-section">
-            <h4>⚠️ {{ t('organization.unassignedEmployees') }}</h4>
+            <h4>{{ icons.ui.warning }} {{ t('organization.unassignedEmployees') }}</h4>
             <div class="unassigned-list">
               <div v-for="employee in unassignedEmployees" :key="employee.userId" class="org-node employee unassigned">
                 <div class="node-header">
