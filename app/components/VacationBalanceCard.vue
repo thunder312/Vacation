@@ -50,7 +50,7 @@
         ></div>
       </div>
       <div class="progress-label">
-        {{ Math.round(progressPercentage) }}% genutzt
+        {{ Math.round(progressPercentage) }}% {{t('vacation.used')}}
       </div>
     </div>
   </div>

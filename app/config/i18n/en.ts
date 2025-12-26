@@ -57,7 +57,8 @@ export const en = {
     confirmPassword: 'Confirm New Password',
     passwordMismatch: 'Passwords do not match',
     passwordChanged: 'Password changed successfully',
-    passwordChangeError: 'Error changing password'
+    passwordChangeError: 'Error changing password',
+      min8characters: 'at least 8 characters'
   },
 
   roles: {
@@ -142,7 +143,13 @@ export const en = {
     halfDayDate: 'Date',
     halfDayDescription: 'Description',
     halfDayDescriptionPlaceholder: 'e.g. Christmas Eve',
-    noHalfDayRules: 'No half-day rules defined yet'
+    noHalfDayRules: 'No half-day rules defined yet',
+      used: 'used',
+        cancellationReason: 'e.g. urgent client meeting, project postponement...',
+        cancellationReasonRemark: 'This reason will be displayed to the employee.',
+      noVacationsFinalApproval: 'No outstanding vacation requests awaiting final approval.',
+      allVacationsOverview: 'Overview of all vacation requests',
+      reportsStatistics: 'Reports and Statistics'
   },
 
   organization: {
@@ -159,7 +166,9 @@ export const en = {
     unassignedEmployees: 'Unassigned Employees',
     description: 'Overview of organizational structure and team assignments.',
     exportOrgChart: 'Export Org Chart as PDF',
-    exportTeamOverview: 'Export Team Overview as PDF'
+    exportTeamOverview: 'Export Team Overview as PDF',
+      createdOn: 'created on',
+      used: 'used'
   },
 
   users: {
@@ -256,6 +265,10 @@ export const en = {
     totalApprovedDays: 'Total Approved Days',
     totalCancelledDays: 'Total Cancelled Days'
   },
+    modal: {
+        warning: 'Warning',
+        cancelVacation: 'The approved vacation is cancelled and the vacation days are credited back to the employee.'
+    }
 }
 
 export default en

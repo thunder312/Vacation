@@ -57,7 +57,8 @@ export const de = {
     confirmPassword: 'Neues Passwort bestätigen',
     passwordMismatch: 'Passwörter stimmen nicht überein',
     passwordChanged: 'Passwort erfolgreich geändert',
-    passwordChangeError: 'Fehler beim Ändern des Passworts'
+    passwordChangeError: 'Fehler beim Ändern des Passworts',
+      min8characters: 'min. 8 Zeichen',
   },
 
   roles: {
@@ -142,7 +143,12 @@ export const de = {
     halfDayDate: 'Datum',
     halfDayDescription: 'Beschreibung',
     halfDayDescriptionPlaceholder: 'z.B. Heiligabend',
-    noHalfDayRules: 'Noch keine Halbtags-Regelungen definiert'
+    noHalfDayRules: 'Noch keine Halbtags-Regelungen definiert',
+      cancellationReason: 'z.B. Dringender Kundentermin, Projektverschiebung...',
+      cancellationReasonRemark: 'Dieser Grund wird dem Mitarbeiter angezeigt.',
+      noVacationsFinalApproval: ' Keine ausstehenden Urlaubsanträge für finale Genehmigung.',
+      allVacationsOverview: 'Übersicht aller Urlaubsanträge',
+      reportsStatistics: 'Berichte & Statistiken'
   },
 
   organization: {
@@ -159,7 +165,9 @@ export const de = {
     unassignedEmployees: 'Nicht zugeordnete Mitarbeiter',
     description: 'Überblick über die Organisationsstruktur und Team-Zuordnungen.',
     exportOrgChart: 'Organigramm als PDF',
-    exportTeamOverview: 'Teamübersicht als PDF'
+    exportTeamOverview: 'Teamübersicht als PDF',
+      createdOn: 'erstellt am',
+      used: 'genutzt'
   },
 
   users: {
@@ -256,6 +264,10 @@ export const de = {
     totalApprovedDays: 'Genehmigte Tage gesamt',
     totalCancelledDays: 'Abgesagte Tage gesamt'
   },
+    modal: {
+      warning: 'Achtung',
+        cancelVacation: 'Der genehmigte Urlaub wird abgesagt und die Urlaubstage werden dem Mitarbeiter zurückgebucht.',
+    }
 }
 
 export default de

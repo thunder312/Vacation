@@ -41,7 +41,7 @@
         
         <form @submit.prevent="handleChangePassword" class="password-form">
           <div class="form-group">
-            <label>Altes Passwort *</label>
+            <label>{{ t('login.oldPassword') }} *</label>
             <input 
               v-model="passwordForm.oldPassword" 
               type="password" 
@@ -51,7 +51,7 @@
           </div>
           
           <div class="form-group">
-            <label>Neues Passwort * (min. 8 Zeichen)</label>
+            <label>{{ t('login.newPassword') }} * ({{ t('login.min8characters') }})</label>
             <input 
               v-model="passwordForm.newPassword" 
               type="password" 
@@ -62,7 +62,7 @@
           </div>
           
           <div class="form-group">
-            <label>Neues Passwort bestätigen *</label>
+            <label>{{ t('login.confirmPassword')}} *</label>
             <input 
               v-model="passwordForm.confirmPassword" 
               type="password" 
@@ -98,7 +98,7 @@
         </div>
         
         <div class="modal-body">
-          <p><strong>Achtung:</strong> Der genehmigte Urlaub wird abgesagt und die {{ t('vacation.vacationDays') }} werden dem {{ t('organization.employee') }} zurückgebucht.</p>
+          <p><strong>{{t('modal.warning')}}:</strong> {{t('modal.cancelVacation')}}</p>
           
           <form @submit.prevent="confirmCancelRequest" class="cancel-form">
             <div class="form-group">
@@ -106,9 +106,9 @@
               <textarea 
                 v-model="cancellationReason" 
                 rows="4"
-                placeholder="z.B. Dringender Kundentermin, Projektverschiebung..."
+                placeholder="t('vacation.cancellationReason')"
               ></textarea>
-              <small>Dieser Grund wird dem {{ t('organization.employee') }} angezeigt.</small>
+              <small>{{ t('vacation.cancellationReasonRemark') }}</small>
             </div>
             
             <div class="modal-actions">
@@ -156,20 +156,20 @@
         <VacationRequestForm @submit="handleSubmitRequest" />
 
         <div class="pdf-export-section">
-          <h3>Genehmigte Urlaube exportieren</h3>
+          <h3>{{ t('vacation.exportApprovedVacations')}}</h3>
           <button
               @click="handleExportMyVacations"
               class="btn-pdf"
               :disabled="!approvedUserRequests || approvedUserRequests.length === 0"
           >
-            📄 Als PDF exportieren
+            📄 {{ t('vacation.exportPdf') }}
           </button>
         </div>
 
         <div class="requests-list">
-          <h2>Meine Urlaubsanträge</h2>
+          <h2>{{t('vacation.myRequests')}}</h2>
           <div v-if="!userRequests || userRequests.length === 0" class="empty-state">
-            Noch keine Urlaubsanträge vorhanden
+            {{t('vacation.noRequests')}}
           </div>
           <VacationRequestCard
               v-for="request in userRequests || []"
@@ -182,17 +182,17 @@
 
       <!-- Tab 2: Teamleiter (nur für teamleiter und chef) -->
       <div v-show="activeTab === 'teamlead'" class="tab-content">
-        <h2>Urlaubsanträge zur Genehmigung ( {{ t('users.teamlead') }})</h2>
+        <h2>{{ t('vacation.requestsForApproval') }} ({{ t('users.teamlead') }})</h2>
 
         <div class="pdf-export-section">
-          <h3>Team-Urlaube exportieren</h3>
+          <h3>{{ t('vacation.exportTeamVacations') }}</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
             📄  {{ t('vacation.exportTeamPdf') }}
           </button>
         </div>
 
         <div v-if="!pendingTeamleadRequests || pendingTeamleadRequests.length === 0" class="empty-state">
-          Keine ausstehenden Urlaubsanträge
+          {{ t('vacation.noPendingRequests') }}
         </div>
         <template v-else>
           <VacationApprovalCard
@@ -209,10 +209,10 @@
 
       <!-- Tab 3: Manager (nur für chef) -->
       <div v-show="activeTab === 'manager'" class="tab-content">
-        <h2>Urlaubsanträge zur finalen Genehmigung (Manager)</h2>
+        <h2>{{ t('vacation.requestsForFinalApproval')}} ({{t('roles.manager')}})</h2>
 
         <div class="pdf-export-section">
-          <h3>Alle Urlaube exportieren</h3>
+          <h3>{{ t('vacation.exportAllVacations') }}</h3>
           <button @click="handleExportAllVacations" class="btn-pdf">
             📄  {{ t('vacation.exportAllPdf') }}
           </button>
@@ -231,7 +231,7 @@
           />
         </template>
         <div v-else class="empty-state">
-          Keine ausstehenden Urlaubsanträge für finale Genehmigung
+         {{t('vacation.noVacationsFinalApproval')}}
         </div>
 
         <!-- Genehmigte Urlaube (können abgesagt werden) -->
@@ -259,9 +259,9 @@
 
       <!-- Tab: Übersicht (nur für office) -->
       <div v-show="activeTab === 'overview'" class="tab-content">
-        <h2>Übersicht aller Urlaubsanträge</h2>
+        <h2>{{t('vacation.allVacationsOverview')}}</h2>
         <div v-if="!allRequests.value || allRequests.value.length === 0" class="empty-state">
-          Keine Urlaubsanträge vorhanden
+          {{t('vacation.noRequests')}}
         </div>
         <VacationRequestCard
             v-for="request in allRequests.value || []"
@@ -278,7 +278,7 @@
 
       <!-- Tab: Berichte (für Manager und Office) -->
       <div v-show="activeTab === 'reports'" class="tab-content">
-        <h2>Berichte & Statistiken</h2>
+        <h2>{{t('vacation.reportsStatistics')}}</h2>
         <AnnualVacationReport />
       </div>
     </div>

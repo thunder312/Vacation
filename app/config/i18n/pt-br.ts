@@ -57,7 +57,8 @@ export const ptBr = {
     confirmPassword: 'Confirmar Nova Senha',
     passwordMismatch: 'As senhas não coincidem',
     passwordChanged: 'Senha alterada com sucesso',
-    passwordChangeError: 'Erro ao alterar senha'
+    passwordChangeError: 'Erro ao alterar senha',
+      min8characters: 'pelo menos 8 caracteres'
   },
 
   roles: {
@@ -142,7 +143,13 @@ export const ptBr = {
     halfDayDate: 'Data',
     halfDayDescription: 'Descrição',
     halfDayDescriptionPlaceholder: 'ex: Véspera de Natal',
-    noHalfDayRules: 'Nenhuma regra de meio dia definida ainda'
+    noHalfDayRules: 'Nenhuma regra de meio dia definida ainda',
+      used: 'utilizado',
+      cancellationReason: 'ex: Reunião urgente com cliente, adiamento de projeto...',
+      cancellationReasonRemark: 'Essa razão será exibida ao funcionário.',
+      noVacationsFinalApproval: 'Não há pedidos de férias pendentes aguardando aprovação final.',
+      allVacationsOverview: 'Visão geral de todos os pedidos de férias',
+      reportsStatistics: 'Relatórios e Estatísticas'
   },
 
   organization: {
@@ -159,7 +166,8 @@ export const ptBr = {
     unassignedEmployees: 'Funcionários Não Atribuídos',
     description: 'Visão geral da estrutura organizacional e atribuições de equipe.',
     exportOrgChart: 'Exportar Organograma como PDF',
-    exportTeamOverview: 'Exportar Visão Geral da Equipe como PDF'
+    exportTeamOverview: 'Exportar Visão Geral da Equipe como PDF',
+      createdOn: 'criado em'
   },
 
   users: {
@@ -256,6 +264,10 @@ export const ptBr = {
     totalApprovedDays: 'Total de Dias Aprovados',
     totalCancelledDays: 'Total de Dias Cancelados'
   },
+    modal: {
+        warning: 'Aviso',
+        cancelVacation: 'As férias aprovadas foram canceladas e os dias de férias foram creditados de volta ao funcionário.'
+    }
 }
 
 export default ptBr

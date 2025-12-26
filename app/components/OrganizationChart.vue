@@ -22,7 +22,7 @@
           {{ t('organization.assignEmployeesToTeams') }}
         </span>
       </div>
-      
+
       <div v-show="showTeamsSection" class="section-content">
         <div ref="teamsGridRef" class="teams-grid">
         <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
@@ -36,9 +36,9 @@
             </div>
             <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
               {{ getDisplayName(memberId) }}
-              <button 
-                v-if="isEditable" 
-                @click="handleRemove(memberId)" 
+              <button
+                v-if="isEditable"
+                @click="handleRemove(memberId)"
                 class="remove-btn"
                 :title="t('organization.removeFromTeam')"
               >
@@ -146,6 +146,9 @@
 </template>
 
 <script setup lang="ts">
+
+import { exportOrgChart as exportOrgChartPdf, exportTeamOverview as exportTeamOverviewPdf } from '~/utils/pdf'
+
 const { t } = useI18n()
 const toast = useToast()
 
@@ -162,14 +165,14 @@ const orgTreeRef = ref<HTMLElement | null>(null)
 const teamsGridRef = ref<HTMLElement | null>(null)
 
 // Lade Organization-Daten wenn nicht als Prop übergeben
-const { 
-  orgNodes, 
-  getTeams, 
-  getManager, 
-  getTeamleads, 
-  getAllEmployees, 
+const {
+  orgNodes,
+  getTeams,
+  getManager,
+  getTeamleads,
+  getAllEmployees,
   getUnassignedEmployees,
-  fetchOrganization 
+  fetchOrganization
 } = useOrganization()
 
 // Transformiere orgNodes zu erwarteter Struktur
@@ -177,7 +180,7 @@ const organization = computed(() => {
   if (props.organization) {
     return props.organization
   }
-  
+
   // Gruppiere orgNodes nach Rolle
   const nodes = orgNodes.value || []
   return {
@@ -221,17 +224,17 @@ const teams = computed(() => organization.value?.teams || [])
 
 const allUsers = computed(() => {
   const users = new Map()
-  
+
   managers.value.forEach((u: any) => users.set(u.userId, u))
   teamleads.value.forEach((u: any) => users.set(u.userId, u))
   officeUsers.value.forEach((u: any) => users.set(u.userId, u))
   sysadminUsers.value.forEach((u: any) => users.set(u.userId, u))
   unassignedEmployees.value.forEach((u: any) => users.set(u.userId, u))
-  
+
   teamleads.value.forEach((tl: any) => {
     tl.teamMembers?.forEach((emp: any) => users.set(emp.userId, emp))
   })
-  
+
   return users
 })
 
@@ -250,79 +253,16 @@ const exportOrgChart = async () => {
     return
   }
 
-  // Stelle sicher, dass das Organigramm sichtbar ist
   if (!showOrgTree.value) {
     showOrgTree.value = true
     await nextTick()
-    // Warte kurz damit das CSS gerendert wird
     await new Promise(resolve => setTimeout(resolve, 500))
   }
 
   toast.info(t('vacation.pdfGenerating'))
-  
+
   try {
-    // Importiere html2canvas
-    const html2canvas = (await import('html2canvas')).default
-    
-    // Erstelle Screenshot vom Organigramm
-    const canvas = await html2canvas(orgTreeRef.value, {
-      scale: 2, // Höhere Auflösung
-      backgroundColor: '#ffffff',
-      logging: false,
-      useCORS: true
-    })
-    
-    const imgData = canvas.toDataURL('image/png')
-    
-    // Erstelle PDF
-    const { jsPDF } = await import('jspdf')
-    
-    // Berechne Dimensionen
-    const imgWidth = canvas.width
-    const imgHeight = canvas.height
-    const ratio = imgWidth / imgHeight
-    
-    // A4 Landscape: 297mm x 210mm
-    const pdfWidth = 297
-    const pdfHeight = 210
-    const margin = 20
-    
-    let finalWidth = pdfWidth - (2 * margin)
-    let finalHeight = finalWidth / ratio
-    
-    // Wenn zu hoch, an Höhe anpassen
-    if (finalHeight > pdfHeight - (2 * margin)) {
-      finalHeight = pdfHeight - (2 * margin)
-      finalWidth = finalHeight * ratio
-    }
-    
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    })
-    
-    // Titel
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Organigramm', pdfWidth / 2, 15, { align: 'center' })
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), pdfWidth / 2, 22, { align: 'center' })
-    
-    // Bild zentriert einfügen
-    const x = (pdfWidth - finalWidth) / 2
-    const y = 30
-    
-    doc.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight)
-    
-    // PDF öffnen
-    const pdfBlob = doc.output('blob')
-    const pdfUrl = URL.createObjectURL(pdfBlob)
-    window.open(pdfUrl, '_blank')
-    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
-    
+    await exportOrgChartPdf(orgTreeRef.value, t)
     toast.success(t('vacation.pdfCreated'))
   } catch (error) {
     console.error('Fehler beim PDF-Export:', error)
@@ -336,117 +276,21 @@ const exportTeamOverview = async () => {
     return
   }
 
-  // Stelle sicher, dass die Team-Section sichtbar ist
   if (!showTeamsSection.value) {
     showTeamsSection.value = true
     await nextTick()
-    // Warte kurz damit das CSS gerendert wird
     await new Promise(resolve => setTimeout(resolve, 500))
   }
 
   toast.info(t('vacation.pdfGenerating'))
-  
+
   try {
-    // Importiere html2canvas
-    const html2canvas = (await import('html2canvas')).default
-    
-    // Erstelle Screenshot von der Team-Grid
-    const canvas = await html2canvas(teamsGridRef.value, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      useCORS: true
-    })
-    
-    const imgData = canvas.toDataURL('image/png')
-    
-    // Erstelle PDF
-    const { jsPDF } = await import('jspdf')
-    
-    // Berechne Dimensionen
-    const imgWidth = canvas.width
-    const imgHeight = canvas.height
-    const ratio = imgWidth / imgHeight
-    
-    // A4 Portrait: 210mm x 297mm
-    const pdfWidth = 210
-    const pdfHeight = 297
-    const margin = 15
-    
-    let finalWidth = pdfWidth - (2 * margin)
-    let finalHeight = finalWidth / ratio
-    
-    // Mehrere Seiten wenn das Bild zu hoch ist
-    const maxHeightPerPage = pdfHeight - 50
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    })
-    
-    // Titel auf erster Seite
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Teamübersicht', pdfWidth / 2, 15, { align: 'center' })
-    
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), pdfWidth / 2, 22, { align: 'center' })
-    
-    // Statistik
-    const totalTeams = teams.value.length
-    const totalMembers = teams.value.reduce((sum: number, t: any) => sum + (t.members?.length || 0), 0)
-    doc.setFontSize(9)
-    doc.text(`${totalTeams} Teams | ${totalMembers} Mitarbeiter`, pdfWidth / 2, 28, { align: 'center' })
-    
-    // Wenn das Bild auf eine Seite passt
-    if (finalHeight <= maxHeightPerPage) {
-      const x = margin
-      const y = 35
-      doc.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight)
-    } else {
-      // Bild auf mehrere Seiten aufteilen
-      let currentY = 0
-      let pageNum = 0
-      
-      while (currentY < imgHeight) {
-        if (pageNum > 0) {
-          doc.addPage()
-        }
-        
-        const sourceY = currentY
-        const sourceHeight = Math.min(imgHeight - currentY, (maxHeightPerPage / finalHeight) * imgHeight)
-        const destHeight = (sourceHeight / imgHeight) * finalHeight
-        
-        // Canvas-Ausschnitt erstellen
-        const tempCanvas = document.createElement('canvas')
-        tempCanvas.width = imgWidth
-        tempCanvas.height = sourceHeight
-        const tempCtx = tempCanvas.getContext('2d')
-        
-        if (tempCtx) {
-          tempCtx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight)
-          const tempImgData = tempCanvas.toDataURL('image/png')
-          
-          const startY = pageNum === 0 ? 35 : 15
-          doc.addImage(tempImgData, 'PNG', margin, startY, finalWidth, destHeight)
-        }
-        
-        currentY += sourceHeight
-        pageNum++
-      }
-    }
-    
-    // PDF öffnen
-    const pdfBlob = doc.output('blob')
-    const pdfUrl = URL.createObjectURL(pdfBlob)
-    window.open(pdfUrl, '_blank')
-    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
-    
+    await exportTeamOverviewPdf(teamsGridRef.value, teams.value, t)
     toast.success(t('vacation.pdfCreated'))
   } catch (error) {
     console.error('Fehler beim PDF-Export:', error)
     toast.error(t('errors.creatingPdf'))
   }
 }
+
 </script>
