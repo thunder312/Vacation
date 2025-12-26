@@ -82,6 +82,8 @@
 </template>
 
 <script setup lang="ts">
+import { exportAnnualReport } from '~/utils/pdf'
+
 const toast = useToast()
 const { t } = useI18n()
 
@@ -120,41 +122,22 @@ const loadStatistics = async () => {
 
 // PDF generieren
 const generateReport = async () => {
-  if (!statistics.value) return
+  if (!statistics.value) {
+    toast.error(t('reports.noData'))
+    return
+  }
   
   generating.value = true
   toast.info(t('vacation.pdfGenerating'))
   
   try {
-    const { jsPDF } = await import('jspdf')
-    const autoTable = (await import('jspdf-autotable')).default
-    
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    })
-    
-    // Seite 1: Gesamtstatistik
-    generateOverviewPage(doc, statistics.value)
-    
-    // Ab Seite 2: Mitarbeiter-Seiten
+    // Hole Mitarbeiter-Details
     const employees = await $fetch('/api/reports/annual-employee-details', {
       params: { year: selectedYear.value }
     })
     
-    employees.forEach((employee: any, index: number) => {
-      if (index > 0 || true) {
-        doc.addPage()
-      }
-      generateEmployeePage(doc, employee, selectedYear.value, autoTable)
-    })
-    
-    // PDF in neuem Tab öffnen
-    const pdfBlob = doc.output('blob')
-    const pdfUrl = URL.createObjectURL(pdfBlob)
-    window.open(pdfUrl, '_blank')
-    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
+    // Generiere PDF
+    await exportAnnualReport(statistics.value, selectedYear.value, employees)
     
     toast.success(t('vacation.pdfCreated'))
   } catch (err: any) {
@@ -163,171 +146,6 @@ const generateReport = async () => {
   } finally {
     generating.value = false
   }
-}
-
-// Seite 1: Gesamtstatistik
-const generateOverviewPage = (doc: any, stats: any) => {
-  const year = selectedYear.value
-  const yearStr = String(year)
-  
-  doc.setFontSize(20)
-  doc.setFont('helvetica', 'bold')
-  doc.text('URLAUBSBERICHT ' + yearStr, 105, 20, { align: 'center' })
-  
-  doc.setFontSize(14)
-  doc.text('Gesamtstatistik', 105, 30, { align: 'center' })
-  
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
-  const dateStr = new Date().toLocaleDateString('de-DE')
-  doc.text('Erstellt am: ' + dateStr, 105, 38, { align: 'center' })
-  
-  doc.setLineWidth(0.5)
-  doc.line(20, 42, 190, 42)
-  
-  let y = 55
-  
-  doc.setFontSize(12)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Übersicht', 20, y)
-  y += 10
-  
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
-  doc.text('Mitarbeiteranzahl: ' + String(stats.totalEmployees), 25, y)
-  y += 6
-  doc.text('Urlaubstage gesamt: ' + String(stats.totalVacationDays) + ' Tage', 25, y)
-  y += 6
-  doc.text('Durchschnitt pro Mitarbeiter: ' + String(stats.averagePerEmployee) + ' Tage', 25, y)
-  y += 12
-  
-  doc.text('Genommener Urlaub: ' + String(stats.takenDays) + ' Tage (' + String(stats.takenPercentage) + '%)', 25, y)
-  y += 6
-  doc.text('Resturlaub: ' + String(stats.remainingDays) + ' Tage (' + String(100 - stats.takenPercentage) + '%)', 25, y)
-  y += 15
-  
-  doc.setFont('helvetica', 'bold')
-  doc.text('Status der Anträge', 20, y)
-  y += 10
-  
-  doc.setFont('helvetica', 'normal')
-  doc.text('Genehmigt: ' + String(stats.approvedRequests) + ' Anträge', 25, y)
-  y += 6
-  doc.text('Ausstehend: ' + String(stats.pendingRequests) + ' Anträge', 25, y)
-  y += 15
-  
-  if (stats.topMonths && stats.topMonths.length > 0) {
-    doc.setFont('helvetica', 'bold')
-    doc.text('Häufigste Urlaubsmonate', 20, y)
-    y += 10
-    
-    doc.setFont('helvetica', 'normal')
-    stats.topMonths.slice(0, 5).forEach((month: any) => {
-      doc.text(String(month.name) + ': ' + String(month.days) + ' Tage', 25, y)
-      y += 6
-    })
-  }
-  
-  doc.setFontSize(8)
-  doc.setTextColor(128)
-  doc.text('Vertraulich - Nur für internen Gebrauch', 105, 280, { align: 'center' })
-}
-
-// Mitarbeiter-Seite
-const generateEmployeePage = (doc: any, employee: any, year: number, autoTable: any) => {
-  const displayName = String(employee.displayName || 'Unbekannt')
-  const entitlement = String(employee.entitlement || 0)
-  const carryover = String(employee.carryover || 0)
-  const total = String(employee.total || 0)
-  const taken = String(employee.taken || 0)
-  const remaining = String(employee.remaining || 0)
-  const yearStr = String(year)
-  const lastYearStr = String(year - 1)
-  
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.text('URLAUBSNACHWEIS ' + yearStr, 105, 20, { align: 'center' })
-  
-  doc.setFontSize(14)
-  doc.text(displayName, 105, 30, { align: 'center' })
-  
-  doc.setLineWidth(0.5)
-  doc.line(20, 35, 190, 35)
-  
-  let y = 48
-  
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
-  doc.text('Urlaubsanspruch: ' + entitlement + ' Tage', 20, y)
-  y += 6
-  doc.text('Übertrag aus ' + lastYearStr + ': ' + carryover + ' Tage', 20, y)
-  y += 6
-  doc.setFont('helvetica', 'bold')
-  doc.text('Gesamt verfügbar: ' + total + ' Tage', 20, y)
-  y += 10
-  
-  doc.setFont('helvetica', 'normal')
-  doc.text('Genommener Urlaub: ' + taken + ' Tage', 20, y)
-  y += 6
-  doc.text('Resturlaub: ' + remaining + ' Tage', 20, y)
-  y += 12
-  
-  doc.setFont('helvetica', 'bold')
-  doc.text('URLAUBSÜBERSICHT:', 20, y)
-  y += 5
-  
-  if (employee.vacations && employee.vacations.length > 0) {
-    const tableData = employee.vacations.map((v: any) => [
-      v.startDate,
-      v.endDate,
-      v.days.toString(),
-      v.reason || '-'
-    ])
-    
-    autoTable(doc, {
-      startY: y,
-      head: [['Von', 'Bis', 'Tage', 'Grund']],
-      body: tableData,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [66, 139, 202] },
-      margin: { left: 20, right: 20 }
-    })
-    
-    y = (doc as any).lastAutoTable.finalY + 15
-  } else {
-    doc.setFont('helvetica', 'italic')
-    doc.text('Keine Urlaube in diesem Jahr', 25, y + 5)
-    y += 20
-  }
-  
-  doc.setLineWidth(0.3)
-  doc.line(20, y, 190, y)
-  y += 10
-  
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'bold')
-  doc.text('BESTÄTIGUNG', 105, y, { align: 'center' })
-  y += 10
-  
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(9)
-  doc.text('Ich bestätige die Richtigkeit der Urlaubserfassung', 20, y)
-  y += 5
-  doc.text('für das Jahr ' + yearStr + '.', 20, y)
-  y += 15
-  
-  doc.text('Ort, Datum: _______________________', 20, y)
-  y += 20
-  
-  doc.text('Unterschrift Mitarbeiter: _______________________', 20, y)
-  y += 20
-  
-  doc.text('Unterschrift Vorgesetzter: _______________________', 20, y)
-  
-  doc.setFontSize(7)
-  doc.setTextColor(128)
-  const pageNum = String(doc.internal.getNumberOfPages())
-  doc.text('Seite ' + pageNum, 105, 285, { align: 'center' })
 }
 
 onMounted(() => {
