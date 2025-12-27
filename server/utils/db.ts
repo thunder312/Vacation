@@ -1,8 +1,8 @@
-// server/server/utils/db.ts
+// server/utils/db.ts
 import Database from 'better-sqlite3'
 import { join } from 'path'
 
-// Datenbankpfad - KORREKT in server/database/
+// Datenbankpfad
 const dbPath = join(process.cwd(), 'server', 'database', 'sqlite.db')
 
 // Datenbank initialisieren
@@ -13,16 +13,19 @@ db.pragma('journal_mode = WAL')
 
 // Tabellen erstellen falls sie nicht existieren
 export const initializeDatabase = () => {
-  // Users Tabelle
+  // Users Tabelle - MIT firstName und lastName, OHNE displayName
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-      username TEXT PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      displayName TEXT NOT NULL,
+      firstName TEXT NOT NULL,
+      lastName TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'employee',
       vacationDays INTEGER NOT NULL DEFAULT 30,
       isActive INTEGER NOT NULL DEFAULT 1,
-      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `)
 
@@ -42,7 +45,7 @@ export const initializeDatabase = () => {
     )
   `)
 
-  // Organization Tabelle (Team-Zuordnungen)
+  // Organization Tabelle
   db.exec(`
     CREATE TABLE IF NOT EXISTS organization (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,7 +57,7 @@ export const initializeDatabase = () => {
     )
   `)
 
-  // Carryover Tabelle (Urlaubsübertrag)
+  // Carryover Tabelle
   db.exec(`
     CREATE TABLE IF NOT EXISTS carryover (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +73,7 @@ export const initializeDatabase = () => {
     )
   `)
 
-  // Half Day Rules Tabelle (Halbtags-Regelungen)
+  // Half Day Rules Tabelle
   db.exec(`
     CREATE TABLE IF NOT EXISTS half_day_rules (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

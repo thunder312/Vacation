@@ -1,13 +1,15 @@
-// server/types/database.ts
+// server/database/types.ts
 
 export interface DbUser {
   username: string
   password: string
-  displayName: string
+  firstName: string
+  lastName: string
   role: 'employee' | 'teamlead' | 'manager' | 'office' | 'sysadmin'
   vacationDays: number
   isActive: number // SQLite uses 0/1 for boolean
   createdAt: string
+  updatedAt?: string
 }
 
 export interface DbVacationRequest {

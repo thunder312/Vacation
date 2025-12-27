@@ -3,10 +3,10 @@ import type { UserRole } from '~/types/vacation'
 
 interface User {
   username: string
-  firstName: string | null
-  lastName: string | null
+  firstName: string
+  lastName: string
+  displayName: string  // = lastName
   role: UserRole
-  displayName: string
   vacationDays?: number
 }
 
@@ -43,7 +43,6 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
-      // Call logout endpoint to clear cookie
       await $fetch('/api/auth/logout', {
         method: 'POST'
       })

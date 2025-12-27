@@ -5,7 +5,7 @@
     <div class="header">
       <h1>{{ t('appName') }}</h1>
       <div class="header-actions">
-        <span class="user-greeting">{{ t('login.loggedInAs') }} <strong>{{ currentUser?.displayName || 'Benutzer' }}</strong></span>
+        <span class="user-greeting">{{ t('login.loggedInAs') }} <strong>{{ currentUser?.displayName || currentUser?.username }}</strong></span>
         
         <!-- Language Switcher -->
         <LanguageSwitcher />

@@ -2,7 +2,7 @@
 import { db } from '../../utils/db'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import type { DbUser } from '../../types/database'
+import type { DbUser } from '../../database/types'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
       {
         username: user.username,
         role: user.role,
-        displayName: user.displayName
+        displayName: user.lastName  // displayName = lastName
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -64,14 +64,14 @@ export default defineEventHandler(async (event) => {
       maxAge: 60 * 60 * 24 * 7 // 7 days
     })
 
+    // Response - displayName = lastName
     return {
-      success: true,
-      user: {
-        username: user.username,
-        displayName: user.displayName,
-        role: user.role,
-        vacationDays: user.vacationDays
-      }
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      displayName: user.lastName,  // displayName = lastName
+      role: user.role,
+      vacationDays: user.vacationDays
     }
   } catch (error: any) {
     if (error.statusCode) {
