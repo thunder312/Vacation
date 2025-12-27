@@ -279,3 +279,58 @@ export const ptBr = {
 }
 
 export default ptBr
+,
+  admin: {
+    database: 'Banco de Dados',
+    databaseDescription: 'Gerenciar banco de dados: Backup, limpeza e importação',
+    
+    // Backup
+    databaseBackup: 'Backup do Banco de Dados',
+    backupDescription: 'Criar um backup completo de todas as tabelas do banco de dados',
+    createBackup: 'Criar Backup',
+    downloadLastBackup: 'Baixar Último Backup',
+    lastBackup: 'Último Backup',
+    creating: 'Criando...',
+    backupCreated: 'Backup criado com sucesso',
+    backupError: 'Erro ao criar backup',
+    backupDownloaded: 'Backup baixado',
+    downloadError: 'Erro ao baixar',
+    
+    // Clear Database
+    clearDatabase: 'Limpar Banco de Dados',
+    clearWarning: 'AVISO: Esta ação excluirá todos os dados, exceto o usuário admin!',
+    clearConfirmText: 'Entendo que todos os dados serão excluídos',
+    clearConfirmDialog: 'Tem certeza de que deseja limpar o banco de dados? Esta ação não pode ser desfeita!',
+    clearDatabaseBtn: 'Limpar Banco de Dados Agora',
+    clearing: 'Limpando...',
+    databaseCleared: 'Banco de dados limpo com sucesso',
+    clearError: 'Erro ao limpar banco de dados',
+    
+    // Import
+    importUsers: 'Importar Usuários',
+    importDescription: 'Importar vários usuários de um arquivo Excel',
+    downloadTemplate: 'Baixar Modelo',
+    downloadExcelTemplate: 'Baixar Modelo Excel',
+    uploadFile: 'Enviar Arquivo',
+    preview: 'Prévia',
+    username: 'Nome de Usuário',
+    displayName: 'Nome de Exibição',
+    role: 'Função',
+    teamleadUsername: 'Líder de Equipe',
+    vacationDays: 'Dias de Férias',
+    andMore: 'e mais {count}...',
+    importUsersBtn: 'Importar Usuários',
+    importing: 'Importando...',
+    importSuccess: 'Importação bem-sucedida',
+    importError: 'Falha na importação',
+    importSuccessMessage: '{count} usuários importados com sucesso',
+    importErrorMessage: 'Erro ao importar usuários',
+    usersImported: '{count} usuários importados',
+    importFailed: 'Falha na importação',
+    templateDownloaded: 'Modelo baixado',
+    fileLoaded: '{count} usuários carregados',
+    fileParseError: 'Erro ao ler arquivo'
+  }
+}
+
+export default ptBr

@@ -87,9 +87,10 @@
         </form>
       </div>
     </div>
+    <!-- About Modal -->
+    <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
 
     <!-- Urlaub absagen Modal -->
-
     <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
       <div class="modal-content">
         <div class="modal-header">
@@ -98,36 +99,33 @@
         </div>
         
         <div class="modal-body">
-          <p><strong>{{t('modal.warning')}}:</strong> {{t('modal.cancelVacation')}}</p>
+          <div class="warning-box">
+            <strong>{{ t('modal.warning') }}:</strong>
+            <p>{{ t('modal.cancelVacation') }}</p>
+          </div>
           
-          <form @submit.prevent="confirmCancelRequest" class="cancel-form">
-            <div class="form-group">
-              <label>{{ t('vacation.cancelReason') }} ({{ t('common.optional') }})</label>
-              <textarea 
-                v-model="cancellationReason" 
-                rows="4"
-                placeholder="t('vacation.cancellationReason')"
-              ></textarea>
-              <small>{{ t('vacation.cancellationReasonRemark') }}</small>
-            </div>
-            
-            <div class="modal-actions">
-              <button type="button" @click="closeCancelModal" class="btn-secondary">
-                {{ t('common.cancel') }}
-              </button>
-              <button type="submit" class="btn-danger">
-                🚫 {{ t('vacation.cancel') }}
-              </button>
-            </div>
-          </form>
+          <div class="form-group">
+            <label>{{ t('vacation.cancelReason') }} *</label>
+            <textarea
+              v-model="cancelForm.reason"
+              required
+              rows="4"
+              :placeholder="t('vacation.cancellationReason')"
+            ></textarea>
+            <small class="help-text">{{ t('vacation.cancellationReasonRemark') }}</small>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" @click="closeCancelModal" class="btn-secondary">
+            {{ t('common.cancel') }}
+          </button>
+          <button @click="confirmCancelRequest" class="btn-danger">
+            ❌ {{ t('vacation.cancel') }}
+          </button>
         </div>
       </div>
     </div>
-
-
-
-    <!-- Carryover Info Banner (Mitarbeiter sieht seine Übertrag-Info) -->
-    <CarryoverInfo />
 
     <div class="tabs">
       <button
@@ -180,21 +178,18 @@
         </div>
       </div>
 
-      <!-- Tab 2: Teamleiter (nur für teamleiter und chef) -->
+      <!-- Tab 2: Teamleiter (nur für teamlead/manager) -->
       <div v-show="activeTab === 'teamlead'" class="tab-content">
-        <h2>{{ t('vacation.requestsForApproval') }} ({{ t('users.teamlead') }})</h2>
+        <h2>{{t('vacation.requestsForApproval')}} ({{t('roles.teamlead')}})</h2>
 
         <div class="pdf-export-section">
           <h3>{{ t('vacation.exportTeamVacations') }}</h3>
           <button @click="handleExportTeamVacations" class="btn-pdf">
-            {{icons.actions.pdf}}  {{ t('vacation.exportTeamPdf') }}
+            {{icons.actions.pdf}} {{ t('vacation.exportTeamPdf') }}
           </button>
         </div>
 
-        <div v-if="!pendingTeamleadRequests || pendingTeamleadRequests.length === 0" class="empty-state">
-          {{ t('vacation.noPendingRequests') }}
-        </div>
-        <template v-else>
+        <template v-if="pendingTeamleadRequests && pendingTeamleadRequests.length > 0">
           <VacationApprovalCard
               v-for="request in pendingTeamleadRequests"
               :key="request.id"
@@ -246,7 +241,6 @@
         <HalfDayRuleManager />
       </div>
 
-
       <!-- Tab 6: Organigramm (nur für manager/admin) -->
       <div v-show="activeTab === 'organization'" class="tab-content">
         <OrganizationChart />
@@ -278,143 +272,131 @@
 
       <!-- Tab: Berichte (für Manager und Office) -->
       <div v-show="activeTab === 'reports'" class="tab-content">
-        <h2>{{t('vacation.reportsStatistics')}}</h2>
         <AnnualVacationReport />
       </div>
-    </div>
 
-    <!-- About Modal -->
-    <AboutModal v-model="showAbout" />
+      <!-- Tab: Admin Datenbank (nur für admin) -->
+      <div v-show="activeTab === 'admin'" class="tab-content">
+        <DatabaseAdmin />
+      </div>
+    </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { calculateWorkdays } from '~/utils/dateHelpers'
 import { icons } from '~/config/icons'
+import { calculateWorkdays } from '~/utils/dateHelpers'
+import { exportApprovedVacations, exportTeamVacations, exportManagerVacations } from '~/utils/pdf'
 
-// KEINE Middleware - Auth-Check ist in onMounted
-
+const { currentUser, isAuthenticated, logout, initAuth } = useAuth()
+const toast = useToast()
 const { t } = useI18n()
 
-// Auth
-const { currentUser, isAuthenticated, logout, initAuth } = useAuth()
+// Theme
+const { currentTheme, initTheme, toggleTheme } = useTheme()
 
-const handleLogout = () => {
-  logout()
-  navigateTo('/login')
-}
-
-const activeTab = ref('antrag')
-
-// Composables mit Fetch-Funktionen
+// Vacation Requests
 const {
-  fetchRequests,
   submitRequest,
   approveRequest,
   rejectRequest,
   cancelRequest,
   getUserRequests,
   getApprovedUserRequests,
-  getPendingTeamleadRequests,
-  getPendingManagerRequests,
-  getAllTeamRequests,
-  getAllRequests
+  getTeamRequests,
+  getManagerRequests,
+  getAllRequests,
+  getApprovedRequests,
+  fetchRequests
 } = useVacationRequests()
 
-const { fetchOrganization } = useOrganization()
-const { fetchHalfDayRules, halfDayDates } = useHalfDayRules()
+// Organization
+const { orgNodes, teamleads, fetchOrganization } = useOrganization()
 
-const {
-  exportMyApprovedVacations,
-  exportTeamVacations,
-  exportAllVacations
-} = usePdfExport()
+// Half Day Rules
+const { halfDayDates, fetchHalfDayRules } = useHalfDayRules()
 
-const toast = useToast()
-
-const { currentTheme, toggleTheme, initTheme } = useTheme()
-
-// User Menu State
+// State
+const activeTab = ref('antrag')
 const showUserMenu = ref(false)
-const showAbout = ref(false)
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value
-}
-
-const openAboutModal = () => {
-  showUserMenu.value = false
-  showAbout.value = true
-}
-
-// Passwort ändern Modal
 const showPasswordModal = ref(false)
+const showAboutModal = ref(false)
+const showCancelModal = ref(false)
+const cancelRequestId = ref<number | null>(null)
+
 const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
 })
+
+const cancelForm = ref({
+  reason: ''
+})
+
 const passwordError = ref('')
 
-// Urlaub absagen Modal
-const showCancelModal = ref(false)
-const cancelRequestId = ref<number | null>(null)
-const cancellationReason = ref('')
+// User Menu
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
 
+// Password Modal
+const openPasswordModal = () => {
+  showUserMenu.value = false
+  showPasswordModal.value = true
+  passwordForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+  passwordError.value = ''
+}
+
+const closePasswordModal = () => {
+  showPasswordModal.value = false
+  passwordForm.value = { oldPassword: '', newPassword: '', confirmPassword: '' }
+  passwordError.value = ''
+}
+
+// About Modal
+const openAboutModal = () => {
+  showUserMenu.value = false
+  showAboutModal.value = true
+}
+
+const closeAboutModal = () => {
+  showAboutModal.value = false
+}
+
+// Cancel Modal
 const handleCancelRequest = (requestId: number) => {
   cancelRequestId.value = requestId
-  cancellationReason.value = ''
+  cancelForm.value.reason = ''
   showCancelModal.value = true
 }
 
 const closeCancelModal = () => {
   showCancelModal.value = false
   cancelRequestId.value = null
-  cancellationReason.value = ''
+  cancelForm.value.reason = ''
 }
 
 const confirmCancelRequest = async () => {
-  if (cancelRequestId.value === null) return
-
-  const success = await cancelRequest(cancelRequestId.value, cancellationReason.value || undefined)
-  
-  if (success) {
-    closeCancelModal()
-    await fetchRequests()  // Liste neu laden
-  }
-}
-
-const openPasswordModal = () => {
-  showUserMenu.value = false
-  showPasswordModal.value = true
-  passwordError.value = ''
-  passwordForm.value = {
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  }
-}
-
-const closePasswordModal = () => {
-  showPasswordModal.value = false
-  passwordForm.value = {
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  }
-  passwordError.value = ''
-}
-
-const handleChangePassword = async () => {
-  passwordError.value = ''
-  
-  // Validierung
-  if (passwordForm.value.newPassword.length < 8) {
-    passwordError.value = 'Neues Passwort muss mindestens 8 Zeichen lang sein'
+  if (!cancelRequestId.value || !cancelForm.value.reason.trim()) {
+    toast.error('Bitte geben Sie einen Grund an')
     return
   }
-  
+
+  await cancelRequest(cancelRequestId.value, cancelForm.value.reason)
+  closeCancelModal()
+}
+
+// Logout
+const handleLogout = () => {
+  logout()
+  navigateTo('/login')
+}
+
+// Passwort ändern
+const handleChangePassword = async () => {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    passwordError.value = 'Passwörter stimmen nicht überein'
+    passwordError.value = t('login.passwordMismatch')
     return
   }
   
@@ -457,9 +439,6 @@ watch([activeTab, usersLastUpdated], ([newTab, lastUpdate]) => {
     fetchOrganization()
   }
 })
-
-// User-Management neu laden wenn zum Tab gewechselt wird ODER Organigramm geändert wurde
-// (wird in UserManagement.vue implementiert)
 
 // Urlaubskonto des aktuellen Users
 const { getCurrentUserBalance } = useVacationBalance()
@@ -523,67 +502,32 @@ const pendingTeamleadRequests = computed(() => {
   if (currentUser.value.role === 'manager') {
     const { orgNodes } = useOrganization()
     return pending.filter(r => {
-      const user = orgNodes.value?.find(n => n.userId === r.userId)
-      // Keine Office- oder Teamleiter-Anträge hier (die sind im Manager-Tab)
-      return user?.role === 'employee'
-    })
-  } 
-  
-  // Teamleiter nur ihr Team (nicht ihre eigenen Anträge!)
-  if (currentUser.value.role === 'teamlead') {
-    const { getTeamMembers } = useOrganization()
-    const teamMemberIds = getTeamMembers(currentUser.value.username).value?.map(m => m.userId) || []
-    return pending.filter(r => teamMemberIds.includes(r.userId))
-  }
-  
-  // Office sieht alle Employee pending (readonly)
-  if (currentUser.value.role === 'office') {
-    const { orgNodes } = useOrganization()
-    return pending.filter(r => {
-      const user = orgNodes.value?.find(n => n.userId === r.userId)
-      return user?.role === 'employee'
+      const requester = orgNodes.value.find(n => n.userId === r.userId)
+      return requester && requester.role !== 'office' && requester.role !== 'teamlead'
     })
   }
   
-  return []
+  // Teamlead sieht nur pending requests seines Teams
+  const myTeamMembers = orgNodes.value
+    .filter(n => n.teamleadId === currentUser.value.username)
+    .map(n => n.userId)
+  
+  return pending.filter(r => myTeamMembers.includes(r.userId))
 })
 
 const pendingManagerRequests = computed(() => {
-  const requests = getAllRequests()
-  const allReqs = requests.value || []
-  
-  // Manager & Office sehen:
-  // 1. Anträge mit status 'teamlead_approved' (normale Employee nach Teamleiter-Genehmigung)
-  // 2. Anträge mit status 'pending' von Office, Teamleitern oder SysAdmin (die haben keinen Teamleiter)
-  return allReqs.filter(r => {
-    if (r.status === 'teamlead_approved') return true
-    
-    // Office, Teamleiter & SysAdmin-Anträge (pending) direkt zum Manager
-    if (r.status === 'pending') {
-      const { orgNodes } = useOrganization()
-      const user = orgNodes.value?.find(n => n.userId === r.userId)
-      return user?.role === 'office' || user?.role === 'teamlead' || user?.role === 'sysadmin'
-    }
-    
-    return false
-  })
-})
-
-// Genehmigte Urlaube (für Absagen-Funktion)
-const approvedRequests = computed(() => {
-  const requests = getAllRequests()
-  const allReqs = requests.value || []
-  
-  return allReqs.filter(r => r.status === 'approved')
-    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-})
-
-const allTeamRequests = computed(() => {
-  if (!currentUser.value?.username) return []
-  return getAllTeamRequests(currentUser.value.username).value
+  if (!currentUser.value?.username || currentUser.value.role !== 'manager') return []
+  return getManagerRequests().value
 })
 
 const allRequests = getAllRequests()
+
+const approvedRequests = computed(() => {
+  if (!currentUser.value || currentUser.value.role !== 'manager') return []
+  return getApprovedRequests().value
+})
+
+const isAdmin = computed(() => currentUser.value?.username === 'admin')
 
 const visibleTabs = computed(() => {
   const tabs = [{ id: 'antrag', label: t('tabs.myRequest'), count: 0 }]
@@ -637,9 +581,18 @@ const visibleTabs = computed(() => {
     count: 0
   })
 
+  // Admin Tab nur für admin
+  if (isAdmin.value) {
+    tabs.push({
+      id: 'admin',
+      label: t('admin.database'),
+      count: 0
+    })
+  }
+
   // Office sieht: Alle Tabs (readonly außer eigene Anträge)
   if (currentUser.value?.role === 'office') {
-    return [
+    const officeTabs = [
       { id: 'antrag', label: t('tabs.myRequest'), count: 0 },
       { id: 'overview', label: t('tabs.overview'), count: 0 },
       { id: 'teamlead', label: t('tabs.teamleadView'), count: 0 },
@@ -649,6 +602,10 @@ const visibleTabs = computed(() => {
       { id: 'reports', label: t('tabs.reports'), count: 0 },
       { id: 'calendar', label: t('tabs.calendar'), count: 0 }
     ]
+    if (isAdmin.value) {
+      officeTabs.push({ id: 'admin', label: t('admin.database'), count: 0 })
+    }
+    return officeTabs
   }
 
   return tabs
@@ -675,18 +632,68 @@ const handleReject = async (requestId: number) => {
   await rejectRequest(requestId)
 }
 
+// PDF Export Handlers
 const handleExportMyVacations = () => {
-  if (!currentUser.value?.username) return
-  exportMyApprovedVacations(currentUser.value.username)
+  if (!currentUser.value || !approvedUserRequests.value.length || !userBalance.value) return
+  
+  toast.info(t('vacation.pdfGenerating'))
+  
+  try {
+    exportApprovedVacations(
+      currentUser.value.displayName,
+      approvedUserRequests.value,
+      userBalance.value,
+      halfDayDates.value,
+      t
+    )
+    toast.success(t('vacation.pdfCreated'))
+  } catch (error) {
+    console.error('PDF Export Error:', error)
+    toast.error(t('errors.creatingPdf'))
+  }
 }
 
 const handleExportTeamVacations = () => {
-  if (!currentUser.value?.username) return
-  exportTeamVacations(currentUser.value.username)
+  if (!currentUser.value) return
+  
+  const teamRequests = getTeamRequests(currentUser.value.username).value
+  if (!teamRequests.length) return
+  
+  toast.info(t('vacation.pdfGenerating'))
+  
+  try {
+    exportTeamVacations(
+      currentUser.value.displayName,
+      teamRequests,
+      halfDayDates.value,
+      t
+    )
+    toast.success(t('vacation.pdfCreated'))
+  } catch (error) {
+    console.error('PDF Export Error:', error)
+    toast.error(t('errors.creatingPdf'))
+  }
 }
 
 const handleExportAllVacations = () => {
-  if (!currentUser.value?.username) return
-  exportAllVacations(currentUser.value.username)
+  if (!currentUser.value || currentUser.value.role !== 'manager') return
+  
+  const managerRequests = getAllRequests().value
+  if (!managerRequests.length) return
+  
+  toast.info(t('vacation.pdfGenerating'))
+  
+  try {
+    exportManagerVacations(
+      currentUser.value.displayName,
+      managerRequests,
+      halfDayDates.value,
+      t
+    )
+    toast.success(t('vacation.pdfCreated'))
+  } catch (error) {
+    console.error('PDF Export Error:', error)
+    toast.error(t('errors.creatingPdf'))
+  }
 }
 </script>

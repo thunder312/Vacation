@@ -279,3 +279,58 @@ export const de = {
 }
 
 export default de
+,
+  admin: {
+    database: 'Datenbank',
+    databaseDescription: 'Verwalten Sie die Datenbank: Backup, Bereinigung und Import',
+    
+    // Backup
+    databaseBackup: 'Datenbank-Backup',
+    backupDescription: 'Erstellen Sie ein vollständiges Backup aller Datenbank-Tabellen',
+    createBackup: 'Backup erstellen',
+    downloadLastBackup: 'Letztes Backup herunterladen',
+    lastBackup: 'Letztes Backup',
+    creating: 'Erstelle...',
+    backupCreated: 'Backup erfolgreich erstellt',
+    backupError: 'Fehler beim Erstellen des Backups',
+    backupDownloaded: 'Backup heruntergeladen',
+    downloadError: 'Fehler beim Herunterladen',
+    
+    // Clear Database
+    clearDatabase: 'Datenbank leeren',
+    clearWarning: 'ACHTUNG: Diese Aktion löscht alle Daten außer dem Admin-Benutzer!',
+    clearConfirmText: 'Ich verstehe, dass alle Daten gelöscht werden',
+    clearConfirmDialog: 'Sind Sie sicher, dass Sie die Datenbank leeren möchten? Diese Aktion kann nicht rückgängig gemacht werden!',
+    clearDatabaseBtn: 'Datenbank jetzt leeren',
+    clearing: 'Lösche...',
+    databaseCleared: 'Datenbank erfolgreich geleert',
+    clearError: 'Fehler beim Leeren der Datenbank',
+    
+    // Import
+    importUsers: 'Benutzer importieren',
+    importDescription: 'Importieren Sie mehrere Benutzer aus einer Excel-Datei',
+    downloadTemplate: 'Vorlage herunterladen',
+    downloadExcelTemplate: 'Excel-Vorlage herunterladen',
+    uploadFile: 'Datei hochladen',
+    preview: 'Vorschau',
+    username: 'Benutzername',
+    displayName: 'Anzeigename',
+    role: 'Rolle',
+    teamleadUsername: 'Teamleiter',
+    vacationDays: 'Urlaubstage',
+    andMore: 'und {count} weitere...',
+    importUsersBtn: 'Benutzer importieren',
+    importing: 'Importiere...',
+    importSuccess: 'Import erfolgreich',
+    importError: 'Import fehlgeschlagen',
+    importSuccessMessage: '{count} Benutzer erfolgreich importiert',
+    importErrorMessage: 'Fehler beim Importieren der Benutzer',
+    usersImported: '{count} Benutzer importiert',
+    importFailed: 'Import fehlgeschlagen',
+    templateDownloaded: 'Vorlage heruntergeladen',
+    fileLoaded: '{count} Benutzer geladen',
+    fileParseError: 'Fehler beim Lesen der Datei'
+  }
+}
+
+export default de

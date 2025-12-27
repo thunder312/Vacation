@@ -280,3 +280,58 @@ export const en = {
 }
 
 export default en
+,
+  admin: {
+    database: 'Database',
+    databaseDescription: 'Manage database: Backup, cleanup, and import',
+    
+    // Backup
+    databaseBackup: 'Database Backup',
+    backupDescription: 'Create a complete backup of all database tables',
+    createBackup: 'Create Backup',
+    downloadLastBackup: 'Download Last Backup',
+    lastBackup: 'Last Backup',
+    creating: 'Creating...',
+    backupCreated: 'Backup created successfully',
+    backupError: 'Error creating backup',
+    backupDownloaded: 'Backup downloaded',
+    downloadError: 'Download error',
+    
+    // Clear Database
+    clearDatabase: 'Clear Database',
+    clearWarning: 'WARNING: This action will delete all data except the admin user!',
+    clearConfirmText: 'I understand that all data will be deleted',
+    clearConfirmDialog: 'Are you sure you want to clear the database? This action cannot be undone!',
+    clearDatabaseBtn: 'Clear Database Now',
+    clearing: 'Clearing...',
+    databaseCleared: 'Database cleared successfully',
+    clearError: 'Error clearing database',
+    
+    // Import
+    importUsers: 'Import Users',
+    importDescription: 'Import multiple users from an Excel file',
+    downloadTemplate: 'Download Template',
+    downloadExcelTemplate: 'Download Excel Template',
+    uploadFile: 'Upload File',
+    preview: 'Preview',
+    username: 'Username',
+    displayName: 'Display Name',
+    role: 'Role',
+    teamleadUsername: 'Team Lead',
+    vacationDays: 'Vacation Days',
+    andMore: 'and {count} more...',
+    importUsersBtn: 'Import Users',
+    importing: 'Importing...',
+    importSuccess: 'Import successful',
+    importError: 'Import failed',
+    importSuccessMessage: '{count} users imported successfully',
+    importErrorMessage: 'Error importing users',
+    usersImported: '{count} users imported',
+    importFailed: 'Import failed',
+    templateDownloaded: 'Template downloaded',
+    fileLoaded: '{count} users loaded',
+    fileParseError: 'Error reading file'
+  }
+}
+
+export default en
