@@ -2,8 +2,8 @@
 import Database from 'better-sqlite3'
 import { join } from 'path'
 
-// Datenbankpfad
-const dbPath = join(process.cwd(), 'sqlite.db')
+// Datenbankpfad - KORREKT in server/database/
+const dbPath = join(process.cwd(), 'server', 'database', 'sqlite.db')
 
 // Datenbank initialisieren
 export const db = new Database(dbPath, { verbose: console.log })

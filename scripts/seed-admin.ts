@@ -3,11 +3,12 @@ import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
 import { join } from 'path'
 
-const dbPath = join(process.cwd(), 'sqlite.db')
+const dbPath = join(process.cwd(), 'server', 'database', 'sqlite.db')
 const db = new Database(dbPath)
 
 async function seedAdmin() {
   console.log('🌱 Seeding admin user...')
+  console.log('📍 Database path:', dbPath)
   
   // Prüfe ob admin schon existiert
   const existing = db.prepare('SELECT username FROM users WHERE username = ?').get('admin')
