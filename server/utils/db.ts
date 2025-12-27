@@ -1,9 +1,9 @@
-// server/utils/db.ts
+// server/server/utils/db.ts
 import Database from 'better-sqlite3'
 import { join } from 'path'
 
 // Datenbankpfad
-const dbPath = join(process.cwd(), 'vacation.db')
+const dbPath = join(process.cwd(), 'sqlite.db')
 
 // Datenbank initialisieren
 export const db = new Database(dbPath, { verbose: console.log })
