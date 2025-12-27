@@ -1,74 +1,87 @@
 // server/api/auth/login.post.ts
+import { db } from '../../utils/db'
 import bcrypt from 'bcrypt'
-import { queryOne } from '../../database/db'
+import jwt from 'jsonwebtoken'
+import type { DbUser } from '../../types/database'
 
-interface User {
-  id: number
-  username: string
-  firstName: string | null
-  lastName: string | null
-  password: string
-  role: string
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
 export default defineEventHandler(async (event) => {
+  const { username, password } = await readBody(event)
+
+  if (!username || !password) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Username and password are required'
+    })
+  }
+
   try {
-    const body = await readBody(event)
-    const { username, password } = body
-
-    if (!username || !password) {
-      throw createError({
-        statusCode: 400,
-        message: 'Username und Passwort erforderlich'
-      })
-    }
-
-    // User aus Datenbank holen
-    const user = queryOne<User>(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
-    )
+    // Find user
+    const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username) as DbUser | undefined
 
     if (!user) {
       throw createError({
         statusCode: 401,
-        message: 'Ungültige Anmeldedaten'
+        statusMessage: 'Invalid credentials'
       })
     }
 
-    // Passwort verifizieren
-    const isPasswordValid = await bcrypt.compare(password, user.password)
+    // Check if user is active
+    if (!user.isActive) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'User account is deactivated'
+      })
+    }
 
-    if (!isPasswordValid) {
+    // Verify password
+    const isValid = await bcrypt.compare(password, user.password)
+
+    if (!isValid) {
       throw createError({
         statusCode: 401,
-        message: 'Ungültige Anmeldedaten'
+        statusMessage: 'Invalid credentials'
       })
     }
 
-    // Displayname generieren
-    let displayName = user.username
-    if (user.firstName && user.lastName) {
-      displayName = `${user.firstName} ${user.lastName}`
-    }
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        username: user.username,
+        role: user.role,
+        displayName: user.displayName
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
 
-    // User ohne Passwort zurückgeben
+    // Set cookie
+    setCookie(event, 'auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+
     return {
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
-      displayName
+      success: true,
+      user: {
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+        vacationDays: user.vacationDays
+      }
     }
-
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
+    
     console.error('Login error:', error)
     throw createError({
       statusCode: 500,
-      message: 'Interner Server-Fehler'
+      statusMessage: 'Internal server error'
     })
   }
 })

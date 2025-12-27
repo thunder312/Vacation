@@ -1,9 +1,9 @@
-// composables/useVacationRequests.ts
+// composables/useVacationRequests-api.ts
 import type { VacationRequest } from '~/types/vacation'
 
 export const useVacationRequests = () => {
   const toast = useToast()
-    const { t } = useI18n()
+  const { t } = useI18n()
   
   // State für alle Requests (wird vom Server geladen)
   const requests = useState<VacationRequest[]>('vacationRequests', () => [])
@@ -39,12 +39,12 @@ export const useVacationRequests = () => {
 
       // Lokale Liste aktualisieren
       requests.value.push(newRequest)
-      toast.success( t('vacation.requestSubmitted'))
+      toast.success(t('vacation.requestSuccess'))
       
       return newRequest
     } catch (error) {
       console.error('Failed to submit request:', error)
-      toast.error('Fehler beim Einreichen des Antrags')
+      toast.error(t('vacation.requestError'))
       throw error
     }
   }
@@ -64,17 +64,17 @@ export const useVacationRequests = () => {
         
         if (level === 'teamlead') {
           request.teamleadApprovalDate = new Date().toISOString()
-          toast.success('Urlaubsantrag als Teamleiter genehmigt')
+          toast.success(t('vacation.approveSuccess'))
         } else {
           request.managerApprovalDate = new Date().toISOString()
-          toast.success('Urlaubsantrag als Manager genehmigt')
+          toast.success(t('vacation.approveSuccess'))
         }
       }
 
       return true
     } catch (error) {
       console.error('Failed to approve request:', error)
-      toast.error('Fehler beim Genehmigen des Antrags')
+      toast.error(t('vacation.approveError'))
       return false
     }
   }
@@ -93,11 +93,11 @@ export const useVacationRequests = () => {
         request.status = 'rejected'
       }
 
-      toast.success( t('vacation.requestRejected'))
+      toast.success(t('vacation.rejectSuccess'))
       return true
     } catch (error) {
       console.error('Failed to reject request:', error)
-      toast.error('Fehler beim Ablehnen des Antrags')
+      toast.error(t('vacation.rejectError'))
       return false
     }
   }
@@ -119,11 +119,11 @@ export const useVacationRequests = () => {
         }
       }
 
-      toast.success(response.message || 'Urlaub abgesagt')
+      toast.success(response.message || t('vacation.cancelSuccess'))
       return true
     } catch (error: any) {
       console.error('Failed to cancel request:', error)
-      toast.error(error.data?.message || 'Fehler beim Absagen des Urlaubs')
+      toast.error(error.data?.message || t('vacation.cancelError'))
       return false
     }
   }
@@ -168,6 +168,33 @@ export const useVacationRequests = () => {
     return computed(() => [...requests.value])
   }
 
+  // NEUE FUNKTIONEN FÜR vacation.vue
+  
+  // Team-Requests für einen Teamleiter (alle außer pending)
+  const getTeamRequests = (teamleadId: string) => {
+    return computed(() => {
+      const { getTeamMembers } = useOrganization()
+      const teamMemberIds = getTeamMembers(teamleadId).value.map(m => m.userId)
+      return requests.value.filter(r => 
+        teamMemberIds.includes(r.userId) && r.status !== 'pending'
+      )
+    })
+  }
+
+  // Manager-Requests (teamlead_approved)
+  const getManagerRequests = () => {
+    return computed(() => 
+      requests.value.filter(r => r.status === 'teamlead_approved')
+    )
+  }
+
+  // Genehmigte Requests (für Manager zum Absagen)
+  const getApprovedRequests = () => {
+    return computed(() => 
+      requests.value.filter(r => r.status === 'approved')
+    )
+  }
+
   return {
     requests: readonly(requests),
     loading: readonly(loading),
@@ -181,6 +208,9 @@ export const useVacationRequests = () => {
     getPendingTeamleadRequests,
     getPendingManagerRequests,
     getAllTeamRequests,
-    getAllRequests
+    getAllRequests,
+    getTeamRequests,
+    getManagerRequests,
+    getApprovedRequests
   }
 }

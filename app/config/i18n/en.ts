@@ -276,11 +276,8 @@ export const en = {
         weekend: 'Weekend',
         holiday: 'Holiday',
         noVacationMonth: 'No vacation requests this month'
-    }
-}
+    },
 
-export default en
-,
   admin: {
     database: 'Database',
     databaseDescription: 'Manage database: Backup, cleanup, and import',
@@ -333,5 +330,3 @@ export default en
     fileParseError: 'Error reading file'
   }
 }
-
-export default en

@@ -1,5 +1,5 @@
 // server/api/admin/backup/download.get.ts
-import { db } from '~/server/utils/db'
+import { db } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user

@@ -275,12 +275,8 @@ export const de = {
         weekend: 'Wochenende',
         holiday: 'Feiertag',
         noVacationMonth: 'Keine Urlaubsanträge in diesem Monat'
-    }
-}
-
-export default de
-,
-  admin: {
+    },
+ admin: {
     database: 'Datenbank',
     databaseDescription: 'Verwalten Sie die Datenbank: Backup, Bereinigung und Import',
     
@@ -332,5 +328,3 @@ export default de
     fileParseError: 'Fehler beim Lesen der Datei'
   }
 }
-
-export default de

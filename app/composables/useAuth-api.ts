@@ -1,4 +1,4 @@
-// composables/useAuth.ts
+// composables/useAuth-api.ts
 import type { UserRole } from '~/types/vacation'
 
 interface User {
@@ -7,6 +7,7 @@ interface User {
   lastName: string | null
   role: UserRole
   displayName: string
+  vacationDays?: number
 }
 
 export const useAuth = () => {
@@ -30,11 +31,26 @@ export const useAuth = () => {
       return true
     } catch (error: any) {
       console.error('Login failed:', error)
+      currentUser.value = null
+      
+      if (process.client) {
+        localStorage.removeItem('currentUser')
+      }
+      
       return false
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call logout endpoint to clear cookie
+      await $fetch('/api/auth/logout', {
+        method: 'POST'
+      })
+    } catch (error) {
+      console.error('Logout API error:', error)
+    }
+    
     currentUser.value = null
     
     if (process.client) {

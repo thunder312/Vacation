@@ -1,96 +1,77 @@
 // server/api/auth/change-password.post.ts
-import { execute, queryOne } from '../../database/db'
+import { db } from '../../utils/db'
 import bcrypt from 'bcrypt'
-import { icons } from '../../../app/config/icons'
+import type { DbUser } from '../../database/types'
 
 export default defineEventHandler(async (event) => {
+  const user = event.context.user
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Not authenticated'
+    })
+  }
+
+  const body = await readBody(event)
+  const { oldPassword, newPassword } = body
+
+  if (!oldPassword || !newPassword) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Old and new password are required'
+    })
+  }
+
+  if (newPassword.length < 8) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Password must be at least 8 characters'
+    })
+  }
+
   try {
-    const body = await readBody(event)
-    const { oldPassword, newPassword } = body
+    // Get current password
+    const dbUser = db.prepare('SELECT password FROM users WHERE username = ?')
+      .get(user.username) as Pick<DbUser, 'password'> | undefined
 
-    // Session-Cookie prüfen (username aus Session)
-    const authCookie = getCookie(event, 'auth')
-    if (!authCookie) {
-      throw createError({
-        statusCode: 401,
-        message: 'Nicht angemeldet'
-      })
-    }
-
-    let username: string
-    try {
-      const parsed = JSON.parse(authCookie)
-      username = parsed.username
-    } catch {
-      throw createError({
-        statusCode: 401,
-        message: 'Ungültige Session'
-      })
-    }
-
-    console.log('🔑 Change password for:', username)
-
-    // Validierung
-    if (!oldPassword || !newPassword) {
-      throw createError({
-        statusCode: 400,
-        message: 'Altes und neues Passwort erforderlich'
-      })
-    }
-
-    if (newPassword.length < 8) {
-      throw createError({
-        statusCode: 400,
-        message: 'Neues Passwort muss mindestens 8 Zeichen lang sein'
-      })
-    }
-
-    // User aus DB holen
-    const user = queryOne<any>('SELECT * FROM users WHERE username = ?', [username])
-    if (!user) {
+    if (!dbUser) {
       throw createError({
         statusCode: 404,
-        message: 'Benutzer nicht gefunden'
+        statusMessage: 'User not found'
       })
     }
 
-    // Altes Passwort prüfen
-    const isValidPassword = await bcrypt.compare(oldPassword, user.password)
-    if (!isValidPassword) {
-      console.log(icons.ui.error + ' Old password incorrect')
+    // Verify old password
+    const isValid = await bcrypt.compare(oldPassword, dbUser.password)
+
+    if (!isValid) {
       throw createError({
         statusCode: 401,
-        message: 'Altes Passwort ist falsch'
+        statusMessage: 'Old password is incorrect'
       })
     }
 
-    console.log('{{icons.actions.approve}} Old password correct')
-
-    // Neues Passwort hashen
+    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10)
 
-    // Passwort in DB aktualisieren
-    execute(`
-      UPDATE users 
-      SET password = ?, updatedAt = datetime('now')
-      WHERE username = ?
-    `, [hashedPassword, username])
+    // Update password
+    db.prepare('UPDATE users SET password = ? WHERE username = ?')
+      .run(hashedPassword, user.username)
 
-    console.log(icons.actions.approve + ' Password updated')
-
-    return { 
-      success: true, 
-      message: 'Passwort erfolgreich geändert' 
+    return {
+      success: true,
+      message: 'Password changed successfully'
     }
-
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    console.error(icons.ui.error + ' Error changing password:', error)
+
+    console.error('Change password error:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Ändern des Passworts'
+      statusMessage: 'Error changing password'
     })
   }
 })

@@ -275,11 +275,7 @@ export const ptBr = {
         weekend: 'Fim de semana',
         holiday: 'Feriado',
         noVacationMonth: 'Nenhum pedido de férias neste mês.'
-    }
-}
-
-export default ptBr
-,
+    },
   admin: {
     database: 'Banco de Dados',
     databaseDescription: 'Gerenciar banco de dados: Backup, limpeza e importação',
@@ -332,5 +328,3 @@ export default ptBr
     fileParseError: 'Erro ao ler arquivo'
   }
 }
-
-export default ptBr
