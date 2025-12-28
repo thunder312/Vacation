@@ -316,7 +316,7 @@ const { orgNodes, teamleads, fetchOrganization } = useOrganization()
 const { halfDayDates, fetchHalfDayRules } = useHalfDayRules()
 
 // State
-const activeTab = ref('antrag')
+const activeTab = ref('')
 const showUserMenu = ref(false)
 const showPasswordModal = ref(false)
 const showAboutModal = ref(false)
@@ -458,6 +458,13 @@ onMounted(async () => {
     return
   }
 
+  // Default Tab setzen basierend auf User
+  if (currentUser.value?.username === 'admin') {
+    activeTab.value = 'admin'  // Admin → Datenbank Tab
+  } else {
+    activeTab.value = 'antrag' // Alle anderen → Mein Antrag
+  }
+
   // Theme initialisieren
   initTheme()
 
@@ -526,7 +533,13 @@ const approvedRequests = computed(() => {
 const isAdmin = computed(() => currentUser.value?.username === 'admin')
 
 const visibleTabs = computed(() => {
-  const tabs = [{ id: 'antrag', label: t('tabs.myRequest'), count: 0 }]
+
+  const tabs = []
+
+  // "Mein Antrag" Tab nur für normale User (nicht für admin)
+  if (currentUser.value?.username !== 'admin') {
+    tabs.push({ id: 'antrag', label: t('tabs.myRequest'), count: 0 })
+  }
 
   if (currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager') {
     tabs.push({
