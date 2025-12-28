@@ -1,4 +1,4 @@
-// composables/useOrganization.ts
+// composables/useOrganization-api.ts
 import type { OrgNode, Team } from '~/types/vacation'
 
 export const useOrganization = () => {
@@ -31,7 +31,7 @@ export const useOrganization = () => {
       teamleadId: tl.userId,
       teamleadName: tl.displayName,
       members: orgNodes.value
-        .filter(n => n.teamId === tl.userId)
+        .filter(n => n.teamId?.toLowerCase() === tl.userId.toLowerCase())
         .map(n => n.userId)
     }))
   })
@@ -99,10 +99,12 @@ export const useOrganization = () => {
     return orgNodes.value.filter(n => n.role === 'employee' && !n.teamId)
   })
 
-  // Team eines bestimmten Teamleiters
+  // Team eines bestimmten Teamleiters - CASE INSENSITIVE
   const getTeamMembers = (teamleadId: string) => {
     return computed(() => 
-      orgNodes.value.filter(n => n.teamId === teamleadId)
+      orgNodes.value.filter(n => 
+        n.teamId?.toLowerCase() === teamleadId.toLowerCase()
+      )
     )
   }
 
@@ -121,16 +123,18 @@ export const useOrganization = () => {
     return orgNodes.value.find(n => n.role === 'manager' && n.userId !== 'admin')
   })
 
-  // Direkte Untergebene eines Users
+  // Direkte Untergebene eines Users - CASE INSENSITIVE
   const getDirectReports = (userId: string) => {
     return computed(() => 
-      orgNodes.value.filter(n => n.managerId === userId)
+      orgNodes.value.filter(n => 
+        n.managerId?.toLowerCase() === userId.toLowerCase()
+      )
     )
   }
 
   // Hierarchie-Ebene ermitteln
   const getLevel = (userId: string): number => {
-    const node = orgNodes.value.find(n => n.userId === userId)
+    const node = orgNodes.value.find(n => n.userId.toLowerCase() === userId.toLowerCase())
     if (!node) return 0
     if (!node.managerId) return 0
     return 1 + getLevel(node.managerId)
@@ -140,7 +144,7 @@ export const useOrganization = () => {
   const getOrgTree = computed(() => {
     const buildTree = (parentId?: string): any[] => {
       return orgNodes.value
-        .filter(n => n.managerId === parentId)
+        .filter(n => n.managerId?.toLowerCase() === parentId?.toLowerCase())
         .map(n => ({
           ...n,
           children: buildTree(n.userId)

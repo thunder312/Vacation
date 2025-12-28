@@ -509,8 +509,8 @@ const pendingTeamleadRequests = computed(() => {
   
   // Teamlead sieht nur pending requests seines Teams
   const myTeamMembers = orgNodes.value
-    .filter(n => n.teamleadId === currentUser.value.username)
-    .map(n => n.userId)
+      .filter(n => n.teamId?.toLowerCase() === currentUser.value.username?.toLowerCase())
+      .map(n => n.userId)
   
   return pending.filter(r => myTeamMembers.includes(r.userId))
 })
