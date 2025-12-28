@@ -21,7 +21,7 @@
               🔑 {{ t('login.changePassword') }}
             </button>
             <button @click="openAboutModal" class="dropdown-item">
-              {{icons.ui.info}} {{ t('footer.about') }}
+              {{ icons.ui.info }} {{ t('about.about') }}
             </button>
             <button @click="handleLogout" class="dropdown-item logout">
               🚪 {{ t('login.logout') }}
@@ -88,7 +88,7 @@
       </div>
     </div>
     <!-- About Modal -->
-    <AboutModal v-if="showAboutModal" @close="closeAboutModal" />
+    <AboutModal v-model="showAboutModal" />
 
     <!-- Urlaub absagen Modal -->
     <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
@@ -358,10 +358,6 @@ const closePasswordModal = () => {
 const openAboutModal = () => {
   showUserMenu.value = false
   showAboutModal.value = true
-}
-
-const closeAboutModal = () => {
-  showAboutModal.value = false
 }
 
 // Cancel Modal
