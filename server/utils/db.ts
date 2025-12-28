@@ -5,15 +5,20 @@ import { join } from 'path'
 // Datenbankpfad
 const dbPath = join(process.cwd(), 'server', 'database', 'sqlite.db')
 
+// Verbose mode nur in Development
+const isDev = process.env.NODE_ENV !== 'production'
+
 // Datenbank initialisieren
-export const db = new Database(dbPath, { verbose: console.log })
+export const db = new Database(dbPath, { 
+  verbose: isDev ? console.log : undefined  // Nur in Dev-Mode loggen
+})
 
 // WAL-Modus für bessere Performance
 db.pragma('journal_mode = WAL')
 
 // Tabellen erstellen falls sie nicht existieren
 export const initializeDatabase = () => {
-  // Users Tabelle - MIT firstName und lastName, OHNE displayName
+  // Users Tabelle
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +88,9 @@ export const initializeDatabase = () => {
     )
   `)
 
-  console.log('✅ Datenbank-Tabellen initialisiert')
+  if (isDev) {
+    console.log('✅ Datenbank-Tabellen initialisiert')
+  }
 }
 
 // Datenbank beim Import initialisieren

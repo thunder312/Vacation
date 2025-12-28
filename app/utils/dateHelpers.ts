@@ -56,11 +56,11 @@ export const getStatusText = (status: string): string => {
 export const getStatusTextWithIcon = (status: string): string => {
     const { t } = useI18n()
     const statusMap: Record<string, string> = {
-        pending: `icons.ui.loading ${t('status.pending')}`,
-        teamlead_approved: `{{icons.actions.approve}} ${t('status.teamleadApproved')}`,
-        approved: `✓✓ ${t('status.approved')}`,
-        rejected: `{{icons.actions.reject}} ${t('status.rejected')}`,
-        cancelled: `{{icons.actions.deactivate}} ${t('status.cancelled')}`
+        pending: `${icons.status.pending} ${t('status.pending')}`,
+        teamlead_approved: `${icons.actions.approve} ${t('status.teamleadApproved')}`,
+        approved: `${icons.status.approved} ${t('status.approved')}`,
+        rejected: `${icons.actions.reject} ${t('status.rejected')}`,
+        cancelled: `${icons.status.cancelled} ${t('status.cancelled')}`
     }
     return statusMap[status] || status
 }

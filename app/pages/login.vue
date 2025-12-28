@@ -4,7 +4,7 @@
       <img :src="branding.logo.main" :alt="`${branding.company.name} logo`" class="login-logo" />
       <div class="login-box">
         <h1>{{ t('login.title') }}</h1>
-        <form @submit.prevent="handleLogin">
+        <form @submit.prevent="handleLogin" autocomplete="off">
           <div class="form-group">
             <label for="username">{{ t('login.username') }}</label>
             <input
@@ -14,6 +14,8 @@
                 :class="{ error: hasError }"
                 :placeholder="t('login.usernamePlaceholder')"
                 required
+                autocomplete="username"
+                data-form-type="other"
             />
           </div>
 
@@ -26,6 +28,8 @@
                 :class="{ error: hasError }"
                 :placeholder="t('login.passwordPlaceholder')"
                 required
+                autocomplete="new-password"
+                data-form-type="other"
             />
           </div>
 
