@@ -126,50 +126,36 @@ const previewData = ref<any[]>([])
 const importResult = ref<any>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// Backup erstellen UND direkt herunterladen mit Speichern-Dialog
+// Backup erstellen
 const createAndDownloadBackup = async () => {
   creating.value = true
   try {
-    // Hole SQL-Backup vom Server
     const response = await fetch('/api/admin/backup/download', { 
       method: 'GET',
-      headers: {
-        'Accept': 'application/sql'
-      }
+      headers: { 'Accept': 'application/sql' }
     })
     
-    if (!response.ok) {
-      throw new Error('Backup failed')
-    }
+    if (!response.ok) throw new Error('Backup failed')
     
-    // Hole SQL als Text
     const sqlContent = await response.text()
-    
-    // Erstelle Blob aus SQL
     const blob = new Blob([sqlContent], { type: 'application/sql' })
-    
-    // Generiere Dateinamen mit Timestamp
     const timestamp = new Date().toISOString().split('T')[0]
     const filename = `vacation-backup-${timestamp}.sql`
     
-    // Erstelle Download-Link mit "download" attribute
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = filename
     a.style.display = 'none'
     
-    // Trigger Download
     document.body.appendChild(a)
     a.click()
     
-    // Cleanup
     setTimeout(() => {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     }, 100)
     
-    // Update lastBackup Info
     lastBackup.value = {
       date: new Date().toISOString(),
       size: blob.size
@@ -205,9 +191,9 @@ const clearDatabase = async () => {
 const downloadTemplate = () => {
   const template = [
     ['username', 'firstName', 'lastName', 'role', 'teamleadUsername', 'vacationDays'],
-    ['max.mustermann', 'Max', 'Mustermann', 'employee', 'anna.schmidt', '30'],
-    ['anna.schmidt', 'Anna', 'Schmidt', 'teamlead', '', '30'],
-    ['john.doe', 'John', 'Doe', 'manager', '', '30']
+    ['john.doe', 'John', 'Doe', 'manager', '', '30'],
+    ['anna.schmidt', 'Anna', 'Schmidt', 'teamlead', 'john.doe', '30'],
+    ['max.mustermann', 'Max', 'Mustermann', 'employee', 'anna.schmidt', '30']
   ]
   
   const ws = XLSX.utils.aoa_to_sheet(template)
@@ -269,7 +255,11 @@ const importUsers = async () => {
     
     toast.success(t('admin.usersImported', { count: response.imported }))
     
-    // Reset
+    // Automatischer PDF-Report
+    if (response.imported > 0 && response.details && response.details.length > 0) {
+      await generatePasswordPDF(response.details)
+    }
+    
     selectedFile.value = null
     previewData.value = []
     if (fileInput.value) fileInput.value.value = ''
@@ -286,6 +276,160 @@ const importUsers = async () => {
   }
 }
 
+// PDF Report generieren
+const generatePasswordPDF = async (details: string[]) => {
+  const userData = details
+    .filter(d => d.includes('Passwort:'))
+    .map(detail => {
+      const match = detail.match(/^(.+?):\s*Importiert\s*\(Passwort:\s*(.+?)\)/)
+      if (match) {
+        const username = match[1].trim()
+        const password = match[2].trim()
+        const user = previewData.value.find((u: any) => u.username === username)
+        
+        return {
+          username,
+          password,
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
+          displayName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+          role: user?.role || 'employee',
+          vacationDays: user?.vacationDays || 30,
+          teamleadUsername: user?.teamleadUsername || null
+        }
+      }
+      return null
+    })
+    .filter(Boolean)
+  
+  if (userData.length === 0) return
+  
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  })
+  
+  userData.forEach((user: any, index: number) => {
+    if (index > 0) doc.addPage()
+    
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Willkommen im Urlaubsverwaltungssystem', 105, 20, { align: 'center' })
+    
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Login-Informationen für neuen Mitarbeiter', 105, 30, { align: 'center' })
+    
+    doc.setLineWidth(0.5)
+    doc.line(20, 35, 190, 35)
+    
+    let y = 50
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Ihre Zugangsdaten:', 20, y)
+    
+    y += 15
+    doc.setFontSize(12)
+    
+    doc.setFont('helvetica', 'bold')
+    doc.text('Name:', 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.text(user.displayName, 80, y)
+    y += 10
+    
+    doc.setFont('helvetica', 'bold')
+    doc.text('Benutzername:', 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(14)
+    doc.text(user.username, 80, y)
+    doc.setFontSize(12)
+    y += 10
+    
+    doc.setFont('helvetica', 'bold')
+    doc.text('Passwort:', 30, y)
+    doc.setFont('courier', 'normal')
+    doc.setFontSize(14)
+    doc.text(user.password, 80, y)
+    doc.setFontSize(12)
+    y += 15
+    
+    const roleLabels = {
+      employee: 'Mitarbeiter',
+      teamlead: 'Teamleiter',
+      office: 'Büro',
+      manager: 'Manager',
+      sysadmin: 'System Administrator'
+    }
+    
+    doc.setFont('helvetica', 'bold')
+    doc.text('Ihre Rolle:', 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.text(roleLabels[user.role] || user.role, 80, y)
+    y += 10
+    
+    doc.setFont('helvetica', 'bold')
+    doc.text('Urlaubstage pro Jahr:', 30, y)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`${user.vacationDays} Tage`, 80, y)
+    
+    if (user.teamleadUsername) {
+      y += 10
+      doc.setFont('helvetica', 'bold')
+      doc.text('Ihr Teamleiter:', 30, y)
+      doc.setFont('helvetica', 'normal')
+      doc.text(user.teamleadUsername, 80, y)
+    }
+    
+    y += 25
+    doc.setLineWidth(0.5)
+    doc.line(20, y, 190, y)
+    y += 10
+    
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('So melden Sie sich an:', 20, y)
+    
+    y += 15
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'normal')
+    
+    const instructions = [
+      '1. Öffnen Sie die Urlaubsverwaltung im Browser',
+      '2. Geben Sie Ihren Benutzernamen ein',
+      '3. Geben Sie Ihr Passwort ein (bitte ändern Sie es nach der ersten Anmeldung)',
+      '4. Klicken Sie auf "Anmelden"'
+    ]
+    
+    instructions.forEach(instruction => {
+      doc.text(instruction, 30, y)
+      y += 8
+    })
+    
+    y += 10
+    doc.setFillColor(255, 243, 205)
+    doc.rect(20, y - 5, 170, 25, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.text('WICHTIG:', 25, y + 2)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Bitte bewahren Sie diese Zugangsdaten sicher auf', 25, y + 9)
+    doc.text('und ändern Sie Ihr Passwort nach der ersten Anmeldung!', 25, y + 16)
+    
+    doc.setFontSize(9)
+    doc.setTextColor(128, 128, 128)
+    doc.text('Erstellt am: ' + new Date().toLocaleDateString('de-DE'), 105, 280, { align: 'center' })
+    doc.text(`Seite ${index + 1} von ${userData.length}`, 190, 285, { align: 'right' })
+  })
+  
+  const pdfBlob = doc.output('blob')
+  const pdfUrl = URL.createObjectURL(pdfBlob)
+  window.open(pdfUrl, '_blank')
+  
+  toast.success(`PDF Report mit ${userData.length} Benutzer${userData.length > 1 ? 'n' : ''} erstellt`)
+  setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000)
+}
+
 // Helper
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString('de-DE')
@@ -298,7 +442,6 @@ const formatFileSize = (bytes: number) => {
 }
 
 onMounted(() => {
-  // Lade letzte Backup-Info
   $fetch('/api/admin/backup/last').then(data => {
     lastBackup.value = data
   }).catch(() => {})
