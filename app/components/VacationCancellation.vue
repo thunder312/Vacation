@@ -121,7 +121,7 @@
             class="btn-primary"
             :disabled="!canSubmit || submitting"
           >
-            {{ submitting ? icons.ui.loading + ' Wird verarbeitet...' : '{{icons.actions.reject}} Rückbuchung durchführen' }}
+            {{ submitting ? ' Wird verarbeitet...' : '{{icons.actions.reject}} Rückbuchung durchführen' }}
           </button>
           <button 
             @click="resetForm"
