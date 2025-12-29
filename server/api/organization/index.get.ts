@@ -7,6 +7,7 @@ interface OrgNode {
   role: string
   teamId: string | null
   managerId: string | null
+    isActive: number,
 }
 
 export default defineEventHandler(async (event) => {
@@ -15,6 +16,8 @@ export default defineEventHandler(async (event) => {
     const orgNodes = query<OrgNode>(`
       SELECT 
         u.username as userId,
+        u.firstName,
+        u.lastName,
         CASE 
           WHEN u.firstName IS NOT NULL AND u.lastName IS NOT NULL 
           THEN u.firstName || ' ' || u.lastName
@@ -22,7 +25,8 @@ export default defineEventHandler(async (event) => {
         END as displayName,
         u.role,
         o.teamId,
-        o.managerId
+        o.managerId,
+        u.isActive
       FROM users u
       LEFT JOIN organization o ON u.username = o.userId
       ORDER BY 

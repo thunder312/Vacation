@@ -25,7 +25,7 @@
 
       <div v-show="showTeamsSection" class="section-content">
         <div ref="teamsGridRef" class="teams-grid">
-        <div v-for="team in teams || []" :key="team.teamleadId" class="team-card">
+        <div v-for="team in teamsFiltered || []" :key="team.teamleadId" class="team-card">
           <div class="team-header">
             <h4>{{ icons.roles.teamlead}} Team {{ team.teamleadName }}</h4>
             <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
@@ -183,7 +183,7 @@ const organization = computed(() => {
   }
 
   // Gruppiere orgNodes nach Rolle
-  const nodes = orgNodes.value || []
+  const nodes = (orgNodes.value || []).filter(n => n.isActive === 1)
   return {
     managers: nodes.filter(n => n.role === 'manager'),
     teamleads: nodes.filter(n => n.role === 'teamlead'),
@@ -212,12 +212,34 @@ const toggleOrgTree = () => {
 const managers = computed(() => organization.value?.managers || [])
 const teamleads = computed(() => {
   const tls = organization.value?.teamleads || []
-  // Füge teamMembers zu jedem Teamlead hinzu
-  return tls.map(tl => ({
+
+
+  const result = tls.map(tl => ({
     ...tl,
-    teamMembers: (orgNodes.value || []).filter(n => n.teamId === tl.userId)
+    teamMembers: (orgNodes.value || []).filter(n => (n.teamId === tl.userId && n.isActive === 1))
   }))
+
+  return result;
 })
+
+const teamsFiltered = computed(() => {
+  const allTeams = getTeams.value || []
+
+  return allTeams.map(team => ({
+    ...team,
+    // Filter members: nur aktive User
+    members: (team.members || []).filter(memberId => {
+      const member = orgNodes.value?.find(n => n.userId === memberId)
+      return member && member.isActive === 1
+    })
+  })).filter(team => {
+    // Entferne Teams mit deaktivierten Teamleitern
+    const teamlead = orgNodes.value?.find(n => n.userId === team.teamleadId)
+    return teamlead && teamlead.isActive === 1
+  })
+})
+
+
 const officeUsers = computed(() => organization.value?.officeUsers || [])
 const sysadminUsers = computed(() => organization.value?.sysadminUsers || [])
 const unassignedEmployees = computed(() => organization.value?.unassignedEmployees || [])

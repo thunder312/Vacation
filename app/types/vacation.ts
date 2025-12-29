@@ -18,7 +18,8 @@ export interface User {
     lastName?: string // Optional: nur für normale Accounts
     password: string
     role: UserRole
-    displayName: string // "Vorname Nachname" oder "admin"/"office"
+    displayName: string
+    isActive: number
 }
 
 export interface HalfDayRule {
@@ -52,7 +53,8 @@ export interface OrgNode {
     role: UserRole
     managerId?: string // ID des Vorgesetzten
     teamId?: string // ID des Teamleiters (für employees)
-    username: string
+    username: string,
+    isActive: number
 }
 
 export interface Team {
