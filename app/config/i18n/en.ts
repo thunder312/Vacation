@@ -265,7 +265,8 @@ export const en = {
     pendingTeamlead: 'Awaiting Team Lead',
     pendingManager: 'Awaiting Manager',
     totalApprovedDays: 'Total Approved Days',
-    totalCancelledDays: 'Total Cancelled Days'
+    totalCancelledDays: 'Total Cancelled Days',
+      vacationOverviewPdf: 'All Vacation Requests'
   },
     modal: {
         warning: 'Warning',

@@ -23,10 +23,12 @@
           </div>
         </div>
 
-        <div v-if="previewUsername" class="username-preview">
-          <strong>{{ t('users.generated') }} {{ t('users.username') }}:</strong> {{ previewUsername }}
-        </div>
-
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ t('users.username') }} *</label>
+              <input v-model="newUser.username" type="text" required />
+            </div>
+          </div>
         <div class="form-row">
           <div class="form-group">
             <label>{{ t('users.role') }} *</label>
@@ -247,6 +249,7 @@ const { t } = useI18n()
 const newUser = ref({
   lastName: '',
   firstName: '',
+  username: '',
   role: '',
   teamleadId: '',
   vacationDays: 30,
@@ -278,6 +281,42 @@ const sortBy = (column: string) => {
   }
 }
 
+const toggleUserActive = async (user: any) => {
+  const newStatus = !user.isActive
+  const action = newStatus ? 'aktivieren' : 'deaktivieren'
+
+  if (!confirm(`Möchten Sie ${user.displayName} wirklich ${action}?`)) {
+    return
+  }
+
+  try {
+    // URL-encode den Username für Umlaute
+    const encodedUsername = encodeURIComponent(user.username)
+
+    await $fetch(`/api/users/${encodedUsername}/status`, {
+      method: 'PATCH',
+      body: { isActive: newStatus }
+    })
+
+    // Lokale Liste aktualisieren
+    if (users.data.value) {
+      const userIndex = users.data.value.findIndex((u: any) => u.username === user.username)
+      if (userIndex !== -1) {
+        users.data.value[userIndex].isActive = newStatus
+      }
+    }
+
+    // Trigger refresh - Liste neu laden
+    usersLastUpdated.value = Date.now()
+    await refreshUsers()
+
+    toast.success(`${user.displayName} wurde ${newStatus ? 'aktiviert' : 'deaktiviert'}`)
+  } catch (error: any) {
+    console.error('Toggle active error:', error)
+    toast.error(`Fehler beim ${action} des Benutzers`)
+  }
+}
+
 // Generiere sicheres Passwort
 const generatePassword = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*'
@@ -287,17 +326,6 @@ const generatePassword = () => {
   }
   return password
 }
-
-// Generiere Username-Preview (ohne DB-Check)
-const previewUsername = computed(() => {
-  if (!newUser.value.firstName || !newUser.value.lastName) {
-    return ''
-  }
-  // Einfache Preview - echter Username wird im Backend mit Konfliktprüfung generiert
-  const firstLower = newUser.value.firstName.toLowerCase()
-  const lastLower = newUser.value.lastName.toLowerCase()
-  return lastLower + ' (oder ' + firstLower.charAt(0) + lastLower + ' falls vergeben)'
-})
 
 // Initialisiere Passwort beim Laden
 onMounted(() => {
@@ -596,6 +624,7 @@ const handleAddUser = async () => {
       body: {
         firstName: newUser.value.firstName,
         lastName: newUser.value.lastName,
+        username: newUser.value.username,
         role: newUser.value.role,
         vacationDays: newUser.value.vacationDays,
         password: newUser.value.password,
@@ -620,6 +649,7 @@ const handleAddUser = async () => {
     newUser.value = {
       lastName: '',
       firstName: '',
+      username: '',
       role: '',
       teamleadId: '',
       vacationDays: 30,

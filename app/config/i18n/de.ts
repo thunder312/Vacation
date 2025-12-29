@@ -112,6 +112,7 @@ export const de = {
     exportApprovedVacations: 'Genehmigte Urlaube exportieren',
     exportTeamVacations: 'Team-Urlaube exportieren',
     exportAllVacations: 'Alle Urlaube exportieren',
+      exportNotApprovedVacations: 'Nicht genehmigte Urlaube exportieren',
     pdfGenerating: 'PDF wird erstellt, bitte warten...',
     pdfCreated: 'PDF erfolgreich erstellt',
     requestSuccess: 'Urlaub erfolgreich beantragt',
@@ -264,7 +265,10 @@ export const de = {
     pendingTeamlead: 'Wartet auf Teamleiter',
     pendingManager: 'Wartet auf Manager',
     totalApprovedDays: 'Genehmigte Tage gesamt',
-    totalCancelledDays: 'Abgesagte Tage gesamt'
+    totalCancelledDays: 'Abgesagte Tage gesamt',
+      vacationOverviewPdf: 'Alle Urlaubsanträge',
+      statistics: 'Statistiken'
+
   },
     modal: {
       warning: 'Achtung',

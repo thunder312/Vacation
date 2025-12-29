@@ -17,8 +17,8 @@ export const exportManagerVacations = (
   // Header mit Logo rechts oben
   const contentStartY = addPdfHeaderPortrait(
     doc,
-    t('organization.vacationOverviewPdf', { company: branding.company.name }),
-    `${t('organization.createdOn')}: ${managerName}\n${t('organization.createdOn')}: ${new Date().toLocaleDateString('de-DE')}`
+    t('pdf.vacationOverviewPdf', { company: branding.company.name }),
+    `${t('organization.createdOn')}: ${new Date().toLocaleDateString('de-DE')}`
   )
 
   // Tabelle

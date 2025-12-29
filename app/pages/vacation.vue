@@ -207,9 +207,9 @@
         <h2>{{ t('vacation.requestsForFinalApproval')}} ({{t('roles.manager')}})</h2>
 
         <div class="pdf-export-section">
-          <h3>{{ t('vacation.exportAllVacations') }}</h3>
-          <button @click="handleExportAllVacations" class="btn-pdf">
-            {{icons.actions.pdf}}  {{ t('vacation.exportAllPdf') }}
+          <h3>{{ t('vacation.exportNotApprovedVacations') }}</h3>
+          <button @click="handleExportNotApprovedVacations" class="btn-pdf">
+            {{icons.actions.pdf}}  {{ t('vacation.exportNotApprovedVacations') }}
           </button>
         </div>
 
@@ -684,10 +684,10 @@ const handleExportTeamVacations = () => {
   }
 }
 
-const handleExportAllVacations = () => {
+const handleExportNotApprovedVacations = () => {
   if (!currentUser.value || currentUser.value.role !== 'manager') return
   
-  const managerRequests = getAllRequests().value
+  const managerRequests = getManagerRequests().value
   if (!managerRequests.length) return
   
   toast.info(t('vacation.pdfGenerating'))

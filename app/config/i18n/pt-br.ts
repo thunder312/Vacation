@@ -264,7 +264,8 @@ export const ptBr = {
     pendingTeamlead: 'Aguardando Líder de Equipe',
     pendingManager: 'Aguardando Gerente',
     totalApprovedDays: 'Total de Dias Aprovados',
-    totalCancelledDays: 'Total de Dias Cancelados'
+    totalCancelledDays: 'Total de Dias Cancelados',
+      acationOverviewPdf: 'Todos os pedidos de férias'
   },
     modal: {
         warning: 'Aviso',
