@@ -217,7 +217,7 @@
                 </button>
                 <button
                     v-if="currentUser?.username === 'admin' || user.role !== 'manager'"
-                  @click="handleResetPassword(user)"
+                  @click="resetPassword(user)"
                   class="btn-icon"
                   :title="t('users.resetPassword')"
                 >
