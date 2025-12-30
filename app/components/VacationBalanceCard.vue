@@ -38,7 +38,7 @@
     </div>
 
     <div v-if="balance.remainingDays < 0" class="balance-error">
-      {{`icons.ui.error`}} Sie haben {{ Math.abs(balance.remainingDays) }} {{ t('common.days') }} zu viel beantragt!
+      {{ icons.ui.warning }} Sie haben {{ Math.abs(balance.remainingDays) }} {{ t('common.days') }} zu viel beantragt!
     </div>
 
     <div class="balance-progress">
@@ -50,7 +50,7 @@
         ></div>
       </div>
       <div class="progress-label">
-        {{ Math.round(progressPercentage) }}% {{t('vacation.used')}}
+        {{ Math.round(progressPercentage) }}% {{t('vacation.usedDays')}}
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 // server/api/reports/annual-employee-details.get.ts
-import { query } from '../../database/db'
-import { icons } from '../../../app/config/icons'
+import { db } from '../../utils/db'
+import { calculateWorkdays } from '../../../app/utils/dateHelpers'
 
 export default defineEventHandler(async (event) => {
   const queryParams = getQuery(event)
@@ -9,13 +9,17 @@ export default defineEventHandler(async (event) => {
   if (!year) {
     throw createError({
       statusCode: 400,
-      message: 'Jahr ist erforderlich'
+      statusMessage: 'Jahr ist erforderlich'
     })
   }
 
   try {
+    // Hole Halbtage
+    const halfDayRules = db.prepare(`SELECT date FROM half_day_rules`).all()
+    const halfDayDates = halfDayRules.map((rule: any) => rule.date)
+
     // Alle aktiven Mitarbeiter (OHNE admin)
-    const users = query<any>(`
+    const users = db.prepare(`
       SELECT 
         username,
         firstName || ' ' || lastName as displayName,
@@ -24,54 +28,70 @@ export default defineEventHandler(async (event) => {
       WHERE isActive = 1
         AND username != 'admin'
       ORDER BY lastName, firstName
-    `)
+    `).all()
 
     const employees = []
 
-    for (const user of users) {
-      // Übertrag aus Vorjahr
-      const carryoverResult = query<any>(`
-        SELECT carryoverDays
-        FROM carryover
-        WHERE userId = ? AND year = ?
-      `, [user.username, year])
-      
-      const carryover = carryoverResult[0]?.carryoverDays || 0
+    for (const user of users as any[]) {
+      // Übertrag aus Vorjahr - SAFE: prüfe welche Spalte existiert
+      let carryover = 0
+      try {
+        // Versuche neue Struktur (calculatedDays/approvedDays)
+        const result = db.prepare(`
+          SELECT calculatedDays, approvedDays
+          FROM carryover
+          WHERE userId = ? AND year = ?
+        `).get(user.username, year) as any
+        
+        if (result) {
+          // Nutze approvedDays falls vorhanden, sonst calculatedDays
+          carryover = result.approvedDays || result.calculatedDays || 0
+        }
+      } catch (e: any) {
+        // Falls Spalten nicht existieren, versuche alte Struktur
+        if (e.message.includes('no such column')) {
+          try {
+            const result = db.prepare(`
+              SELECT days as carryoverDays
+              FROM carryover
+              WHERE userId = ? AND year = ?
+            `).get(user.username, year) as any
+            carryover = result?.carryoverDays || 0
+          } catch {
+            carryover = 0
+          }
+        }
+      }
 
-      // Genommene Urlaubstage
-      const takenResult = query<any>(`
-        SELECT 
-          SUM(julianday(endDate) - julianday(startDate) + 1) as taken
-        FROM vacation_requests
-        WHERE userId = ?
-          AND status = 'approved'
-          AND strftime('%Y', startDate) = ?
-      `, [user.username, year])
-      
-      const taken = Math.round(takenResult[0]?.taken || 0)
-      const total = user.entitlement + carryover
-      const remaining = total - taken
-
-      // Alle genehmigten Urlaube
-      const vacations = query<any>(`
+      // Alle genehmigten Urlaube für das Jahr
+      const vacations = db.prepare(`
         SELECT 
           startDate,
           endDate,
-          reason,
-          julianday(endDate) - julianday(startDate) + 1 as days
+          reason
         FROM vacation_requests
         WHERE userId = ?
           AND status = 'approved'
           AND strftime('%Y', startDate) = ?
         ORDER BY startDate
-      `, [user.username, year])
+      `).all(user.username, year) as any[]
       
-      const formattedVacations = vacations.map((v: any) => ({
-        startDate: new Date(v.startDate).toLocaleDateString('de-DE'),
-        endDate: new Date(v.endDate).toLocaleDateString('de-DE'),
-        days: Math.round(v.days),
-        reason: v.reason
-      }))
+      // Berechne genommene Tage MIT calculateWorkdays (bereinigt!)
+      let taken = 0
+      const formattedVacations = vacations.map((v: any) => {
+        const workdays = calculateWorkdays(v.startDate, v.endDate, halfDayDates)
+        taken += workdays
+        
+        return {
+          startDate: new Date(v.startDate).toLocaleDateString('de-DE'),
+          endDate: new Date(v.endDate).toLocaleDateString('de-DE'),
+          days: workdays,
+          reason: v.reason
+        }
+      })
+
+      const total = user.entitlement + carryover
+      const remaining = total - taken
 
       employees.push({
         username: user.username,
@@ -85,15 +105,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log(icons.actions.activate + ' Annual report: Loaded ${employees.length} employees for year ${year}')
+    console.log(`✓ Annual report: Loaded ${employees.length} employees for year ${year}`)
     
     return employees
 
   } catch (error: any) {
-    console.error(icons.ui.error + ' ERROR in GET /api/reports/annual-employee-details:', error)
+    console.error('❌ ERROR in GET /api/reports/annual-employee-details:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Laden der Mitarbeiterdaten: ' + error.message
+      statusMessage: 'Fehler beim Laden der Mitarbeiterdaten: ' + error.message
     })
   }
 })
