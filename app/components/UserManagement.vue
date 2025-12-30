@@ -76,6 +76,9 @@
       </div>
     </div>
 
+    <!-- Urlaubs-Rückbuchung Section (nur für Manager) -->
+    <VacationCancellation v-if="currentUser?.role === 'manager' && currentUser?.username !== 'admin' " />
+
     <div class="users-list">
       <div class="section-header" @click="toggleUsersSection">
         <h3>
