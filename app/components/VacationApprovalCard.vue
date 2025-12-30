@@ -2,7 +2,8 @@
   <div v-if="request" class="request-card approval">
     <div class="request-header">
       <div>
-        <strong>{{ request.displayName || request.userId }}</strong>
+        <strong v-if="request.displayName !== null">{{ request.displayName }}</strong>
+        <strong v-if="request.displayName === null">{{ request.userId }}</strong>
         <span class="request-date">
           {{ formatDate(request.startDate) }} - {{ formatDate(request.endDate) }}
         </span>
@@ -63,6 +64,7 @@ const { halfDayRules } = useHalfDayRules()
 
 const canApprove = computed(() => {
   if (!props.request || props.showActions === false) return false
+  if (props.request.status === 'approved') return false
   return currentUser.value?.role === 'teamlead' || currentUser.value?.role === 'manager'
 })
 

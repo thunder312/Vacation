@@ -208,7 +208,7 @@
               </td>
               <td class="actions-cell">
                 <button 
-                  v-if="user.isActive && user.role !== 'manager'" 
+                  v-if="user.isActive && (user.role !== 'manager' || currentUser?.username === 'admin')"
                   @click="startEdit(user)" 
                   class="btn-icon"
                   :title="t('users.editUser')"
@@ -216,7 +216,7 @@
                   {{icons.actions.edit}}
                 </button>
                 <button
-                  v-if="user.role !== 'manager'"
+                    v-if="currentUser?.username === 'admin' || user.role !== 'manager'"
                   @click="handleResetPassword(user)"
                   class="btn-icon"
                   :title="t('users.resetPassword')"
@@ -224,7 +224,7 @@
                   🔑
                 </button>
                 <button
-                  v-if="user.role !== 'manager'"
+                    v-if="currentUser?.username === 'admin' || user.role !== 'manager'"
                   @click="toggleUserActive(user)"
                   class="btn-icon"
                   :title="user.isActive ? t('users.deactivateUser') : t('users.activateUser')"
