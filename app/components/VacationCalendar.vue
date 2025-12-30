@@ -34,6 +34,10 @@
         <span class="legend-color holiday"></span>
         <span>{{ t('calendar.holiday') }}</span>
       </div>
+      <div class="legend-item">
+        <span class="legend-color half-day"></span>
+        <span>Halbtag</span>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -89,9 +93,12 @@
 </template>
 
 <script setup lang="ts">
+import { isHoliday as checkIsHoliday } from '~/utils/holidays'
+
 const { t } = useI18n()
 const toast = useToast()
 const { locale } = useLocale()
+const { halfDayRules, fetchHalfDayRules } = useHalfDayRules()
 
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
@@ -109,6 +116,9 @@ const daysInMonth = computed(() => {
   const lastDay = new Date(year, month, 0).getDate()
   const days = []
   
+  // Liste der Halbtage-Daten
+  const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
+  
   for (let d = 1; d <= lastDay; d++) {
     // String-basierte Datumserstellung (kein toISOString() wegen Timezone)
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
@@ -119,7 +129,8 @@ const daysInMonth = computed(() => {
       day: d,
       weekday: date.toLocaleDateString(locale.value, { weekday: 'short' }),
       isWeekend: date.getDay() === 0 || date.getDay() === 6,
-      isHoliday: false
+      isHoliday: checkIsHoliday(date),
+      isHalfDay: halfDayDates.includes(dateStr)
     })
   }
   
@@ -135,16 +146,27 @@ const getDayClass = (day: any) => {
   const classes = []
   if (day.isWeekend) classes.push('weekend')
   if (day.isHoliday) classes.push('holiday')
+  if (day.isHalfDay) classes.push('half-day')
   return classes.join(' ')
 }
 
 const getDayTitle = (day: any) => {
   if (day.isHoliday) return t('calendar.holiday')
+  if (day.isHalfDay) return 'Halbtag'
   if (day.isWeekend) return t('calendar.weekend')
   return ''
 }
 
 const getVacationClass = (employee: any, date: string) => {
+  // Finde den Tag aus daysInMonth
+  const day = daysInMonth.value.find(d => d.date === date)
+  
+  // Wochenende, Feiertage und Halbtage haben VORRANG - keine vacation Klasse!
+  if (day && (day.isWeekend || day.isHoliday || day.isHalfDay)) {
+    return '' // Kein has-vacation, damit weekend/holiday/half-day Farbe sichtbar bleibt
+  }
+  
+  // Nur an normalen Werktagen vacation Klasse setzen
   const vacation = employee.vacations.find((v: any) => 
     date >= v.startDate && date <= v.endDate
   )
@@ -209,6 +231,19 @@ const loadCalendar = async () => {
 }
 
 onMounted(() => {
+  fetchHalfDayRules()
   loadCalendar()
 })
 </script>
+
+<style scoped>
+.legend-color.half-day {
+  background-color: #87CEEB; /* Hellblau (Sky Blue) */
+}
+
+.day-cell.half-day,
+.day-header.half-day {
+  background-color: #87CEEB !important;
+  color: #333;
+}
+</style>

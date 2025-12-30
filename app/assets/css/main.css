@@ -4052,11 +4052,11 @@ button {
 }
 
 .legend-color.weekend {
-  background: var(--color-gray-200);
+  background: var(--color-gray-500);
 }
 
 .legend-color.holiday {
-  background: var(--color-info);
+    background: #4169E1; /* Royal Blue - DUNKELBLAU */
 }
 
 .calendar-container {
@@ -4103,11 +4103,12 @@ button {
 }
 
 .day-header.weekend {
-  background: var(--color-gray-100);
+  background: var(--color-gray-400);
 }
 
 .day-header.holiday {
-  background: var(--color-info-light);
+    background: #4169E1 !important;
+    color: white;
 }
 
 .day-number {
@@ -4169,11 +4170,26 @@ button {
 }
 
 .day-cell.weekend {
-  background: var(--color-gray-100);
+  background: var(--color-gray-400);
 }
 
 .day-cell.holiday {
-  background: var(--color-info-light);
+    background: #4169E1 !important;
+    color: white;
+}
+
+.legend-color.half-day {
+    background: #87CEEB; /* Sky Blue - Hellblau */
+}
+
+.day-header.half-day {
+    background: #87CEEB !important;
+    color: #333;
+}
+
+.day-cell.half-day {
+    background: #87CEEB !important;
+    color: #333;
 }
 
 .day-cell.has-vacation {
