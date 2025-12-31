@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const userId = getRouterParam(event, 'userId')
     const body = await readBody(event)
-    const { teamId, managerId } = body
+      const { teamleadId } = body
 
     if (!userId) {
       throw createError({
@@ -16,12 +16,11 @@ export default defineEventHandler(async (event) => {
 
     // Update Organization
     execute(`
-      UPDATE organization 
-      SET teamId = ?, 
-          managerId = ?,
-          updatedAt = datetime('now')
+      UPDATE organization
+      SET teamleadId = ?,
+          updatedAt = CURRENT_TIMESTAMP
       WHERE userId = ?
-    `, [teamId || null, managerId || null, userId])
+    `, [teamleadId || null, userId])
 
     return { success: true }
 

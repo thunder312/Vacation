@@ -136,7 +136,7 @@ export default defineEventHandler(async (event) => {
         
         // Erstelle Zuordnung
         db.prepare(`
-          INSERT INTO organization (userId, teamId)
+            INSERT INTO organization (userId, teamleadId)
           VALUES (?, ?)
         `).run(userData.username, userData.teamleadUsername)
         

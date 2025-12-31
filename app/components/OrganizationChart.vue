@@ -189,7 +189,7 @@ const organization = computed(() => {
     teamleads: nodes.filter(n => n.role === 'teamlead'),
     officeUsers: nodes.filter(n => n.role === 'office'),
     sysadminUsers: nodes.filter(n => n.role === 'sysadmin'),
-    unassignedEmployees: nodes.filter(n => n.role === 'employee' && !n.teamId),
+    unassignedEmployees: nodes.filter(n => n.role === 'employee' && !n.teamleadId),
     teams: getTeams.value
   }
 })
@@ -216,7 +216,7 @@ const teamleads = computed(() => {
 
   const result = tls.map(tl => ({
     ...tl,
-    teamMembers: (orgNodes.value || []).filter(n => (n.teamId === tl.userId && n.isActive === 1))
+    teamMembers: (orgNodes.value || []).filter(n => (n.teamleadId === tl.userId && n.isActive === 1))
   }))
 
   return result;

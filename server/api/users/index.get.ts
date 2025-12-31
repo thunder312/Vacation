@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         END as displayName,
         u.role,
         u.vacationDays,
-        o.teamId as teamleadId,
+        o.teamleadId as teamleadId,
         u.isActive,
         u.createdAt
       FROM users u

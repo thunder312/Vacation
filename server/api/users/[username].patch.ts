@@ -64,17 +64,17 @@ export default defineEventHandler(async (event) => {
 
     // UPDATE organization Tabelle (teamId)
     if (body.teamleadId !== undefined) {
-      const teamId = body.teamleadId === '' ? null : body.teamleadId
-      console.log('  → Update teamleadId:', teamId)
+        const teamleadId = body.teamleadId === '' ? null : body.teamleadId
+      console.log('  → Update teamleadId:', teamleadId)
       
       const orgEntry = queryOne<any>('SELECT * FROM organization WHERE userId = ?', [username])
       
       if (orgEntry) {
         execute(`
-          UPDATE organization 
-          SET teamId = ?, managerId = ?
-          WHERE userId = ?
-        `, [teamId, teamId, username])
+            UPDATE organization
+            SET teamleadId = ?, updatedAt = CURRENT_TIMESTAMP
+            WHERE userId = ?
+        `, [teamleadId, username])
         console.log(icons.actions.approve + ' organization table updated')
       } else {
         execute(`
