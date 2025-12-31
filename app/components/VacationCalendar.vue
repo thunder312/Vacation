@@ -27,6 +27,10 @@
         <span>{{ t('calendar.approvedVacation') }}</span>
       </div>
       <div class="legend-item">
+        <span class="legend-color half-vacation"></span>
+        <span>Halber Urlaubstag (Firmenveranstaltung)</span>
+      </div>
+      <div class="legend-item">
         <span class="legend-color weekend"></span>
         <span>{{ t('calendar.weekend') }}</span>
       </div>
@@ -34,14 +38,10 @@
         <span class="legend-color holiday"></span>
         <span>{{ t('calendar.holiday') }}</span>
       </div>
-      <div class="legend-item">
-        <span class="legend-color half-day"></span>
-        <span>Halbtag</span>
-      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
-      {{`icons.ui.loading`}} {{ t('common.loading') }}
+      {{icons.ui.loading}} {{ t('common.loading') }}
     </div>
 
     <div v-else class="calendar-container">
@@ -93,17 +93,17 @@
 </template>
 
 <script setup lang="ts">
-import { isHoliday as checkIsHoliday } from '~/utils/holidays'
+import { icons } from '~/config/icons'
 
 const { t } = useI18n()
 const toast = useToast()
 const { locale } = useLocale()
-const { halfDayRules, fetchHalfDayRules } = useHalfDayRules()
 
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
 const loading = ref(false)
 const employeesWithVacation = ref<any[]>([])
+const exceptions = ref<any[]>([])
 
 const years = computed(() => {
   const currentYear = new Date().getFullYear()
@@ -116,9 +116,6 @@ const daysInMonth = computed(() => {
   const lastDay = new Date(year, month, 0).getDate()
   const days = []
   
-  // Liste der Halbtage-Daten
-  const halfDayDates = (halfDayRules.value || []).map(rule => rule.date)
-  
   for (let d = 1; d <= lastDay; d++) {
     // String-basierte Datumserstellung (kein toISOString() wegen Timezone)
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
@@ -129,8 +126,7 @@ const daysInMonth = computed(() => {
       day: d,
       weekday: date.toLocaleDateString(locale.value, { weekday: 'short' }),
       isWeekend: date.getDay() === 0 || date.getDay() === 6,
-      isHoliday: checkIsHoliday(date),
-      isHalfDay: halfDayDates.includes(dateStr)
+      isHoliday: false
     })
   }
   
@@ -146,40 +142,59 @@ const getDayClass = (day: any) => {
   const classes = []
   if (day.isWeekend) classes.push('weekend')
   if (day.isHoliday) classes.push('holiday')
-  if (day.isHalfDay) classes.push('half-day')
   return classes.join(' ')
 }
 
 const getDayTitle = (day: any) => {
   if (day.isHoliday) return t('calendar.holiday')
-  if (day.isHalfDay) return 'Halbtag'
   if (day.isWeekend) return t('calendar.weekend')
   return ''
 }
 
 const getVacationClass = (employee: any, date: string) => {
-  // Finde den Tag aus daysInMonth
-  const day = daysInMonth.value.find(d => d.date === date)
+  // Prüfe ob Exception an diesem Tag existiert
+  const exception = exceptions.value.find((e: any) => 
+    e.userId === employee.userId && e.date === date
+  )
   
-  // Wochenende, Feiertage und Halbtage haben VORRANG - keine vacation Klasse!
-  if (day && (day.isWeekend || day.isHoliday || day.isHalfDay)) {
-    return '' // Kein has-vacation, damit weekend/holiday/half-day Farbe sichtbar bleibt
+  if (exception) {
+    // Exception vorhanden: Reduziere oder entferne Urlaub
+    if (exception.deduction >= 1) {
+      // 1+ Tage: Kein Urlaub an diesem Tag
+      return ''
+    } else if (exception.deduction === 0.5) {
+      // 0.5 Tage: Halber Urlaubstag
+      return 'half-vacation'
+    }
   }
   
-  // Nur an normalen Werktagen vacation Klasse setzen
+  // Normaler Urlaub
   const vacation = employee.vacations.find((v: any) => 
     date >= v.startDate && date <= v.endDate
   )
+  
   return vacation ? 'has-vacation' : ''
 }
 
 const getVacationTooltip = (employee: any, date: string) => {
+  // Prüfe Exception zuerst
+  const exception = exceptions.value.find((e: any) => 
+    e.userId === employee.userId && e.date === date
+  )
+  
+  if (exception) {
+    return `${exception.reason} (-${exception.deduction} Tage)`
+  }
+  
+  // Normaler Urlaub
   const vacation = employee.vacations.find((v: any) => 
     date >= v.startDate && date <= v.endDate
   )
+  
   if (vacation) {
     return `Urlaub: ${vacation.startDate} - ${vacation.endDate}`
   }
+  
   return ''
 }
 
@@ -214,6 +229,7 @@ const nextMonth = () => {
 const loadCalendar = async () => {
   loading.value = true
   try {
+    // Lade Urlaubsdaten
     const data = await $fetch('/api/vacation/calendar', {
       params: {
         year: selectedYear.value,
@@ -222,6 +238,22 @@ const loadCalendar = async () => {
     })
     
     employeesWithVacation.value = data || []
+    
+    // Lade Exceptions für den Monat
+    try {
+      const exceptionsData = await $fetch('/api/vacation-exceptions', {
+        params: {
+          year: selectedYear.value,
+          month: selectedMonth.value
+        }
+      })
+      
+      exceptions.value = exceptionsData || []
+    } catch (err) {
+      console.warn('Keine Exceptions gefunden oder Fehler beim Laden:', err)
+      exceptions.value = []
+    }
+    
   } catch (error) {
     console.error('Fehler beim Laden des Kalenders:', error)
     toast.error('Fehler beim Laden des Kalenders')
@@ -231,19 +263,195 @@ const loadCalendar = async () => {
 }
 
 onMounted(() => {
-  fetchHalfDayRules()
   loadCalendar()
 })
 </script>
 
 <style scoped>
-.legend-color.half-day {
-  background-color: #87CEEB; /* Hellblau (Sky Blue) */
+.vacation-calendar {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.day-cell.half-day,
-.day-header.half-day {
-  background-color: #87CEEB !important;
-  color: #333;
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header h2 {
+  margin: 0;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.month-display {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.month-display select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: white;
+}
+
+.btn-nav {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-nav:hover {
+  background: var(--surface-secondary);
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--surface-secondary);
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.legend-color.approved,
+.day-cell.has-vacation {
+  background: #4caf50;
+}
+
+.legend-color.half-vacation,
+.day-cell.half-vacation {
+  background: repeating-linear-gradient(
+    45deg,
+    #4caf50,
+    #4caf50 10px,
+    #e0e0e0 10px,
+    #e0e0e0 20px
+  );
+}
+
+.legend-color.weekend,
+.day-header.weekend,
+.day-cell.weekend {
+  background: #f5f5f5;
+}
+
+.legend-color.holiday,
+.day-header.holiday,
+.day-cell.holiday {
+  background: #ffebee;
+}
+
+.calendar-grid {
+  overflow-x: auto;
+}
+
+.calendar-days-header {
+  display: flex;
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+.employee-header {
+  min-width: 150px;
+  padding: 0.75rem;
+  font-weight: bold;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+.days-row {
+  display: flex;
+  flex: 1;
+}
+
+.day-header {
+  min-width: 40px;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  font-size: 0.75rem;
+}
+
+.day-number {
+  font-weight: bold;
+}
+
+.day-name {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.calendar-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-row {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.employee-row:hover {
+  background: var(--surface-secondary);
+}
+
+.employee-name {
+  min-width: 150px;
+  padding: 0.75rem;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vacation-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.day-cell {
+  min-width: 40px;
+  height: 40px;
+  border-right: 1px solid var(--border-color);
+  cursor: default;
+}
+
+.empty-state,
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
 }
 </style>
