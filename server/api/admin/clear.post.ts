@@ -21,23 +21,27 @@ export default defineEventHandler(async (event) => {
     db.exec('BEGIN TRANSACTION')
     
     try {
-      // 1. Vacation Requests löschen (hat Foreign Key zu users)
+      // 1. Vacation Exceptions löschen (hat Foreign Keys)
+      db.prepare('DELETE FROM vacation_exceptions').run()
+      console.log('✓ vacation_exceptions gelöscht')
+      
+      // 2. Vacation Requests löschen (hat Foreign Key zu users)
       db.prepare('DELETE FROM vacation_requests').run()
       console.log('✓ vacation_requests gelöscht')
       
-      // 2. Organization löschen (hat Foreign Keys zu users)
+      // 3. Organization löschen (hat Foreign Keys zu users)
       db.prepare('DELETE FROM organization').run()
       console.log('✓ organization gelöscht')
       
-      // 3. Carryover löschen (hat Foreign Key zu users)
+      // 4. Carryover löschen (hat Foreign Key zu users)
       db.prepare('DELETE FROM carryover').run()
       console.log('✓ carryover gelöscht')
       
-      // 4. Half Day Rules löschen (keine Foreign Keys)
+      // 5. Half Day Rules löschen (keine Foreign Keys)
       db.prepare('DELETE FROM half_day_rules').run()
       console.log('✓ half_day_rules gelöscht')
       
-      // 5. Alle Users außer admin löschen
+      // 6. Alle Users außer admin löschen
       db.prepare("DELETE FROM users WHERE username != 'admin'").run()
       console.log('✓ users gelöscht (außer admin)')
       
