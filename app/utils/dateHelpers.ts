@@ -18,7 +18,12 @@ export const calculateDays = (start: string, end: string): number => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }
 
-export const calculateWorkdays = (start: string, end: string, halfDayDates: string[] = []): number => {
+export const calculateWorkdays = (
+    start: string, 
+    end: string, 
+    halfDayDates: string[] = [],
+    exceptions?: Array<{date: string, deduction: number}>
+): number => {
     const startDate = new Date(start)
     const endDate = new Date(end)
 
@@ -29,9 +34,18 @@ export const calculateWorkdays = (start: string, end: string, halfDayDates: stri
         if (isWorkday(currentDate)) {
             const dateStr = currentDate.toISOString().split('T')[0]
             
-            if (halfDayDates.includes(dateStr)) {
+            // Prüfe ob es eine personalisierte Exception gibt
+            const exception = exceptions?.find(e => e.date === dateStr)
+            if (exception) {
+                // Exception: 1 - deduction (z.B. 1 - 0.5 = 0.5)
+                workdays += Math.max(0, 1 - exception.deduction)
+            }
+            // Sonst prüfe globale Halbtage
+            else if (halfDayDates.includes(dateStr)) {
                 workdays += 0.5
-            } else {
+            } 
+            // Normal workday
+            else {
                 workdays += 1
             }
         }

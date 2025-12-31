@@ -88,6 +88,23 @@ export const initializeDatabase = () => {
     )
   `)
 
+  // Vacation Exceptions Tabelle (für personalisierte Rückbuchungen)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS vacation_exceptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vacationRequestId INTEGER NOT NULL,
+      userId TEXT NOT NULL,
+      date TEXT NOT NULL,
+      deduction REAL NOT NULL,
+      reason TEXT NOT NULL,
+      createdBy TEXT NOT NULL,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (vacationRequestId) REFERENCES vacation_requests(id),
+      FOREIGN KEY (userId) REFERENCES users(username),
+      UNIQUE(vacationRequestId, date)
+    )
+  `)
+
   if (isDev) {
     console.log('✅ Datenbank-Tabellen initialisiert')
   }

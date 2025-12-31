@@ -8,8 +8,8 @@ export const useVacationBalance = () => {
   const { getAllRequests } = useVacationRequests()
   const { getCarryover } = useCarryover()
 
-  // Berechnet genutzte Urlaubstage (nur genehmigte)
-  const calculateUsedDays = (userId: string): number => {
+  // Berechnet genutzte Urlaubstage (nur genehmigte) - MIT EXCEPTIONS
+  const calculateUsedDays = async (userId: string): Promise<number> => {
     const allRequests = getAllRequests()
     
     // Null-Check: Wenn noch keine Daten geladen
@@ -25,12 +25,26 @@ export const useVacationBalance = () => {
 
     const { halfDayDates } = useHalfDayRules()
 
+    // Lade Exceptions für diesen User
+    let exceptions: Array<{date: string, deduction: number, vacationRequestId: number}> = []
+    try {
+      exceptions = await $fetch(`/api/vacation-exceptions?userId=${userId}`)
+    } catch (error) {
+      console.warn('Could not load exceptions:', error)
+    }
+
     let totalDays = 0
     for (const request of approvedRequests) {
+      // Finde relevante Exceptions für diesen Urlaubsantrag
+      const relevantExceptions = exceptions
+        .filter(e => e.vacationRequestId === request.id)
+        .map(e => ({ date: e.date, deduction: e.deduction }))
+
       const days = calculateWorkdays(
         request.startDate,
         request.endDate,
-        halfDayDates.value || []
+        halfDayDates.value || [],
+        relevantExceptions // ← NEU: Exceptions übergeben
       )
       totalDays += days
     }
@@ -38,11 +52,11 @@ export const useVacationBalance = () => {
     return totalDays
   }
 
-  // Urlaubskonto für einen User abrufen
-  const getBalance = (userId: string, year: number = new Date().getFullYear()): VacationBalance => {
+  // Urlaubskonto für einen User abrufen - ASYNC wegen exceptions
+  const getBalance = async (userId: string, year: number = new Date().getFullYear()): Promise<VacationBalance> => {
     const carryoverDays = getCarryover(userId, year).value
     const totalDays = STANDARD_VACATION_DAYS + carryoverDays
-    const usedDays = calculateUsedDays(userId)
+    const usedDays = await calculateUsedDays(userId) // ← Jetzt async
     const remainingDays = totalDays - usedDays
 
     return {
@@ -56,28 +70,51 @@ export const useVacationBalance = () => {
     }
   }
 
-  // Computed für aktuellen User
+  // Computed für aktuellen User - ASYNC Ref
   const getCurrentUserBalance = (userId: string) => {
-    return computed(() => {
-      // Warte bis Daten geladen sind
-      const allRequests = getAllRequests()
-      if (!allRequests || !allRequests.value) {
-        return null
-      }
+    const balance = ref<VacationBalance | null>(null)
+    const loading = ref(true)
 
-      return getBalance(userId)
+    const load = async () => {
+      loading.value = true
+      try {
+        // Warte bis Daten geladen sind
+        const allRequests = getAllRequests()
+        if (!allRequests || !allRequests.value) {
+          balance.value = null
+          return
+        }
+
+        balance.value = await getBalance(userId)
+      } catch (error) {
+        console.error('Error loading balance:', error)
+        balance.value = null
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Initial load
+    load()
+
+    // Watch für Updates
+    const allRequests = getAllRequests()
+    watch(() => allRequests.value, () => {
+      load()
     })
+
+    return { balance: computed(() => balance.value), loading, refresh: load }
   }
 
-  // Prüft ob Urlaubskonto im Minus ist
-  const isInDeficit = (userId: string): boolean => {
-    const balance = getBalance(userId)
+  // Prüft ob Urlaubskonto im Minus ist - ASYNC
+  const isInDeficit = async (userId: string): Promise<boolean> => {
+    const balance = await getBalance(userId)
     return balance.remainingDays < 0
   }
 
-  // Prüft ob Urlaubskonto fast aufgebraucht ist (< 5 Tage)
-  const isLowBalance = (userId: string): boolean => {
-    const balance = getBalance(userId)
+  // Prüft ob Urlaubskonto fast aufgebraucht ist (< 5 Tage) - ASYNC
+  const isLowBalance = async (userId: string): Promise<boolean> => {
+    const balance = await getBalance(userId)
     return balance.remainingDays < 5 && balance.remainingDays >= 0
   }
 
