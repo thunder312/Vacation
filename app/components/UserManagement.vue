@@ -38,6 +38,7 @@
               <option value="teamlead">{{ t('roles.teamlead') }}</option>
               <option value="office">{{ t('roles.office') }}</option>
               <option value="sysadmin">{{ t('roles.sysadmin') }}</option>
+              <option value="manager" v-if="currentUser?.username === 'admin'">{{ t('roles.manager') }}</option>
             </select>
           </div>
 
