@@ -1,5 +1,5 @@
 // server/api/users/index.post.ts
-import { execute, queryOne } from '../../database/db'
+import { db } from '../../utils/db'
 import bcrypt from 'bcrypt'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     if (!firstName || !lastName || !role || vacationDays === undefined) {
       throw createError({
         statusCode: 400,
-        message: 'Fehlende Pflichtfelder'
+        statusMessage: 'Fehlende Pflichtfelder'
       })
     }
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     if (password && password.length < 8) {
       throw createError({
         statusCode: 400,
-        message: 'Passwort muss mindestens 8 Zeichen lang sein'
+        statusMessage: 'Passwort muss mindestens 8 Zeichen lang sein'
       })
     }
 
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     const hashedPassword = await bcrypt.hash(plainPassword, 10)
 
     // 1. User erstellen
-    execute(`
+    db.prepare(`
       INSERT INTO users (
         username, 
         password, 
@@ -39,39 +39,50 @@ export default defineEventHandler(async (event) => {
         isActive
       )
       VALUES (?, ?, ?, ?, ?, ?, 1)
-    `, [username, hashedPassword, firstName, lastName, role, vacationDays])
+    `).run(username, hashedPassword, firstName, lastName, role, vacationDays)
 
     // 2. Organization-Eintrag erstellen
-    let managerId = null
-    let teamId = null
+    // Die organization Tabelle hat nur: userId, teamleadId
+    let finalTeamleadId = null
     
     if (role === 'employee' && teamleadId) {
-      teamId = teamleadId
-      managerId = teamleadId
-    } else if (role === 'teamlead' || role === 'office' || role === 'sysadmin') {
-      // Teamleiter, Office und System-Admin direkt unter Manager
-      managerId = 'Schulz'
+      // Employee hat einen Teamleiter
+      finalTeamleadId = teamleadId
+    } else if (role === 'teamlead') {
+      // Teamleiter: Suche ob es einen Manager gibt
+      const manager = db.prepare(`
+        SELECT username FROM users WHERE role = 'manager' LIMIT 1
+      `).get() as any
+      
+      if (manager) {
+        finalTeamleadId = manager.username  // Teamleiter → unter Manager
+      }
+      // Sonst null (kein Manager vorhanden)
     }
+    // Für manager, office, sysadmin: teamleadId bleibt null
     
-    execute(`
-      INSERT INTO organization (userId, teamId, managerId)
-      VALUES (?, ?, ?)
-    `, [username, teamId, managerId])
+    db.prepare(`
+      INSERT INTO organization (userId, teamleadId)
+      VALUES (?, ?)
+    `).run(username, finalTeamleadId)
+
+    console.log(`✓ User created: ${username} (${role})`)
 
     return {
       success: true,
       username,
-      message: `Benutzer '${username}' erstellt. Passwort: ${plainPassword}`
+      password: plainPassword,
+      message: `Benutzer '${username}' erstellt`
     }
 
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    console.error('Error creating user:', error)
+    console.error('❌ Error creating user:', error)
     throw createError({
       statusCode: 500,
-      message: 'Fehler beim Erstellen des Benutzers: ' + error.message
+      statusMessage: 'Fehler beim Erstellen des Benutzers: ' + error.message
     })
   }
 })
