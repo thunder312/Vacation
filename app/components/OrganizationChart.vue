@@ -213,14 +213,40 @@ const managers = computed(() => organization.value?.managers || [])
 const teamleads = computed(() => {
   const tls = organization.value?.teamleads || []
 
+  // 🔍 DEBUG: Was kommt rein?
+  console.log('🔍 orgNodes:', orgNodes.value)
+  console.log('🔍 teamleads:', tls)
 
-  const result = tls.map(tl => ({
-    ...tl,
-    teamMembers: (orgNodes.value || []).filter(n => (n.teamleadId === tl.userId && n.isActive === 1))
-  }))
+  const result = tls.map(tl => {
+    console.log(`🔍 Teamlead: ${tl.userId}`)
 
-  return result;
+    const members = (orgNodes.value || []).filter(n => {
+      const matches = n.teamleadId === tl.userId && n.isActive === 1
+      console.log(`  ${n.userId}: teamleadId=${n.teamleadId}, matches=${matches}`)
+      return matches
+    })
+
+    console.log(`  → ${members.length} members`)
+
+    return { ...tl, teamMembers: members }
+  })
+
+  return result
 })
+Dann:
+
+    Speichern
+Browser-Console öffnen (F12)
+Organisation-Seite neu laden
+Screenshot von der Console schicken
+
+Die Console sollte zeigen:
+
+    Ob orgNodes Daten hat
+Ob Daniel Ertl ein teamleadId hat
+Ob der Filter matcht
+
+Das zeigt uns wo genau das Problem ist! 🔍Debug organizationchartDokument · MD HerunterladenClaude ist eine KI und kann Fehler machen. Bitte überprüfe die Antworten.
 
 const teamsFiltered = computed(() => {
   const allTeams = getTeams.value || []

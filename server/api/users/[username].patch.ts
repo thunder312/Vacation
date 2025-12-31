@@ -59,52 +59,56 @@ export default defineEventHandler(async (event) => {
       console.log('Params:', userParams)
 
       execute(sql, userParams)
-      console.log(icons.actions.approve + 'users table updated')
+      console.log(icons.actions.approve + ' users table updated')
     }
 
-    // UPDATE organization Tabelle (teamId)
+    // UPDATE organization Tabelle (teamleadId)
     if (body.teamleadId !== undefined) {
-        const teamleadId = body.teamleadId === '' ? null : body.teamleadId
+      const teamleadId = body.teamleadId === '' ? null : body.teamleadId
       console.log('  → Update teamleadId:', teamleadId)
       
       const orgEntry = queryOne<any>('SELECT * FROM organization WHERE userId = ?', [username])
       
       if (orgEntry) {
+        // Organization existiert → UPDATE
         execute(`
-            UPDATE organization
-            SET teamleadId = ?, updatedAt = CURRENT_TIMESTAMP
-            WHERE userId = ?
+          UPDATE organization
+          SET teamleadId = ?, updatedAt = datetime('now')
+          WHERE userId = ?
         `, [teamleadId, username])
         console.log(icons.actions.approve + ' organization table updated')
       } else {
+        // Organization existiert nicht → INSERT
         execute(`
-          INSERT INTO organization (userId, teamId, managerId)
-          VALUES (?, ?, ?)
-        `, [username, teamId, teamId])
+          INSERT INTO organization (userId, teamleadId)
+          VALUES (?, ?)
+        `, [username, teamleadId])
         console.log(icons.actions.approve + ' organization entry created')
       }
     }
 
-    // Rolle geändert? → Update organization.managerId
-    if (body.role !== undefined) {
-      const newRole = body.role
-      let managerId = null
+    // Rolle geändert zu employee? → teamleadId automatisch setzen
+    if (body.role === 'employee' && body.teamleadId !== undefined) {
+      const teamleadId = body.teamleadId === '' ? null : body.teamleadId
       
-      if (newRole === 'employee' && body.teamleadId) {
-        managerId = body.teamleadId === '' ? null : body.teamleadId
-      } else if (newRole === 'teamlead' || newRole === 'office' || newRole === 'sysadmin') {
-        // Teamleiter, Office und System-Admin direkt unter Manager
-        managerId = 'Schulz'
+      console.log('  → Employee role: set teamleadId:', teamleadId)
+      
+      const orgEntry = queryOne<any>('SELECT * FROM organization WHERE userId = ?', [username])
+      
+      if (orgEntry) {
+        execute(`
+          UPDATE organization 
+          SET teamleadId = ?, updatedAt = datetime('now')
+          WHERE userId = ?
+        `, [teamleadId, username])
+      } else {
+        execute(`
+          INSERT INTO organization (userId, teamleadId)
+          VALUES (?, ?)
+        `, [username, teamleadId])
       }
       
-      console.log('  → Update managerId:', managerId)
-      
-      execute(`
-        UPDATE organization 
-        SET managerId = ?
-        WHERE userId = ?
-      `, [managerId, username])
-      console.log(icons.actions.approve + ' organization managerId updated')
+      console.log(icons.actions.approve + ' organization teamleadId updated for employee')
     }
 
     console.log(icons.actions.activate + ' Update completed successfully')
