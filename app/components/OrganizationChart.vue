@@ -25,28 +25,28 @@
 
       <div v-show="showTeamsSection" class="section-content">
         <div ref="teamsGridRef" class="teams-grid">
-        <div v-for="team in teamsFiltered || []" :key="team.teamleadId" class="team-card">
-          <div class="team-header">
-            <h4>{{ icons.roles.teamlead}} Team {{ team.teamleadName }}</h4>
-            <span class="team-count">{{ team.members?.length || 0 }} {{ t('roles.employee') }}</span>
-          </div>
-          <div class="team-members">
-            <div v-if="!team.members || team.members.length === 0" class="empty-team">
-              {{ t('organization.noEmployeesAssigned') }}
+          <div v-for="teamlead in teamleads || []" :key="teamlead._key" class="team-card">
+            <div class="team-header">
+              <h4>{{ icons.roles.teamlead}} Team {{ teamlead.displayName }}</h4>
+              <span class="team-count">{{ teamlead.teamMembers?.length || 0 }} {{ t('roles.employee') }}</span>
             </div>
-            <div v-for="memberId in team.members || []" :key="memberId" class="member-item">
-              {{ getDisplayName(memberId) }}
-              <button
-                v-if="isEditable"
-                @click="handleRemove(memberId)"
-                class="remove-btn"
-                :title="t('organization.removeFromTeam')"
-              >
-                ✕
-              </button>
+            <div class="team-members">
+              <div v-if="!teamlead.teamMembers || teamlead.teamMembers.length === 0" class="empty-team">
+                {{ t('organization.noEmployeesAssigned') }}
+              </div>
+              <div v-for="member in teamlead.teamMembers || []" :key="member.userId" class="member-item">
+                {{ member.displayName }}
+                <button
+                    v-if="isEditable"
+                    @click="handleRemove(member.userId)"
+                    class="remove-btn"
+                    :title="t('organization.removeFromTeam')"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
@@ -89,7 +89,7 @@
               </div>
             </div>
 
-            <div v-for="teamlead in teamleads" :key="teamlead.userId" class="org-node teamlead">
+            <div v-for="teamlead in teamleads" :key="teamlead._key" class="org-node teamlead">
               <div class="node-header">
                 <div class="node-icon">👨‍💼</div>
                 <div class="node-info">
@@ -213,40 +213,21 @@ const managers = computed(() => organization.value?.managers || [])
 const teamleads = computed(() => {
   const tls = organization.value?.teamleads || []
 
-  // 🔍 DEBUG: Was kommt rein?
-  console.log('🔍 orgNodes:', orgNodes.value)
-  console.log('🔍 teamleads:', tls)
+  return tls.map(tl => {
+    // Finde Members direkt aus orgNodes
+    const members = (orgNodes.value || []).filter(n =>
+        n.teamleadId === tl.userId && n.isActive === 1
+    )
 
-  const result = tls.map(tl => {
-    console.log(`🔍 Teamlead: ${tl.userId}`)
-
-    const members = (orgNodes.value || []).filter(n => {
-      const matches = n.teamleadId === tl.userId && n.isActive === 1
-      console.log(`  ${n.userId}: teamleadId=${n.teamleadId}, matches=${matches}`)
-      return matches
-    })
-
-    console.log(`  → ${members.length} members`)
-
-    return { ...tl, teamMembers: members }
+    // Wichtig: Neues Objekt mit spread
+    return {
+      ...tl,
+      teamMembers: members,
+      // Force reactive update
+      _key: `${tl.userId}-${members.length}`
+    }
   })
-
-  return result
 })
-Dann:
-
-    Speichern
-Browser-Console öffnen (F12)
-Organisation-Seite neu laden
-Screenshot von der Console schicken
-
-Die Console sollte zeigen:
-
-    Ob orgNodes Daten hat
-Ob Daniel Ertl ein teamleadId hat
-Ob der Filter matcht
-
-Das zeigt uns wo genau das Problem ist! 🔍Debug organizationchartDokument · MD HerunterladenClaude ist eine KI und kann Fehler machen. Bitte überprüfe die Antworten.
 
 const teamsFiltered = computed(() => {
   const allTeams = getTeams.value || []
