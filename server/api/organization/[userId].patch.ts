@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const userId = getRouterParam(event, 'userId')
     const body = await readBody(event)
-      const { teamleadId } = body
+    const { teamleadId } = body
 
     if (!userId) {
       throw createError({
@@ -16,16 +16,15 @@ export default defineEventHandler(async (event) => {
 
     // Update Organization
     execute(`
-      UPDATE organization
-      SET teamleadId = ?,
-          updatedAt = CURRENT_TIMESTAMP
+      UPDATE organization 
+      SET teamleadId = ?
       WHERE userId = ?
     `, [teamleadId || null, userId])
 
     return { success: true }
 
-  } catch (error) {
-    console.error('Error updating organization:', error)
+  } catch (error: any) {
+    console.error('Error updating organization:', error.message || error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Aktualisieren der Zuordnung'

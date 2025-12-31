@@ -4,9 +4,9 @@ import { execute } from '../../database/db'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { date, description, createdBy } = body
+    const { date, description } = body
 
-    if (!date || !description || !createdBy) {
+    if (!date || !description) {
       throw createError({
         statusCode: 400,
         message: 'Fehlende Pflichtfelder'
@@ -14,15 +14,14 @@ export default defineEventHandler(async (event) => {
     }
 
     const result = execute(`
-      INSERT INTO half_day_rules (date, description, createdBy)
-      VALUES (?, ?, ?)
-    `, [date, description, createdBy])
+      INSERT INTO half_day_rules (date, description)
+      VALUES (?, ?)
+    `, [date, description])
 
     return {
       id: result.lastInsertRowid,
       date,
-      description,
-      createdBy
+      description
     }
 
   } catch (error: any) {
@@ -34,7 +33,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    console.error('Error creating half day rule:', error)
+    console.error('Error creating half day rule:', error.message || error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Erstellen der Halbtags-Regelung'

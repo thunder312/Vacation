@@ -27,17 +27,15 @@ export default defineEventHandler(async (event) => {
       params.push(userId)
     }
 
-    // Filter nach Jahr
-    if (year) {
-      sql += ` AND strftime('%Y', ve.date) = ?`
-      params.push(year)
-    }
-
-    // Filter nach Monat
+    // Filter nach Jahr UND Monat (kombiniert)
     if (month && year) {
       sql += ` AND strftime('%Y-%m', ve.date) = ?`
-      params.pop() // Remove year param
       params.push(`${year}-${String(month).padStart(2, '0')}`)
+    } 
+    // Filter nur nach Jahr (wenn kein Monat angegeben)
+    else if (year) {
+      sql += ` AND strftime('%Y', ve.date) = ?`
+      params.push(year)
     }
 
     sql += ` ORDER BY ve.date DESC`
@@ -47,7 +45,7 @@ export default defineEventHandler(async (event) => {
     return exceptions
 
   } catch (error: any) {
-    console.error('❌ ERROR in GET /api/vacation-exceptions:', error)
+    console.error('❌ ERROR in GET /api/vacation-exceptions:', error.message)
     throw createError({
       statusCode: 500,
       statusMessage: 'Fehler beim Laden der Exceptions: ' + error.message

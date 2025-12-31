@@ -91,7 +91,7 @@ export const ptBr = {
     submitRequest: 'Enviar Solicitação',
     myRequests: 'Minhas Solicitações de Férias',
     noRequests: 'Ainda não há solicitações de férias',
-    requestsForApproval: 'Solicitações de Férias para Aprovação',
+      requestsForApproval: 'Solicitações de Férias para Aprovação',
     requestsForFinalApproval: 'Solicitações de Férias para Aprovação Final',
     noPendingRequests: 'Não há solicitações de férias pendentes',
     noPendingFinalRequests: 'Não há solicitações pendentes para aprovação final',

@@ -32,9 +32,7 @@ export default defineEventHandler(async (event) => {
         // Teamleiter-Genehmigung
         execute(`
           UPDATE vacation_requests 
-          SET status = 'teamlead_approved', 
-              teamleadApprovalDate = datetime('now'),
-              updatedAt = datetime('now')
+          SET status = 'teamlead_approved'
           WHERE id = ?
         `, [id])
 
@@ -42,27 +40,11 @@ export default defineEventHandler(async (event) => {
 
       } else if (level === 'manager') {
         // Manager-Genehmigung (finale)
-        // Wenn der Request noch 'pending' ist (z.B. Office-User), 
-        // setze auch teamleadApprovalDate = managerApprovalDate
-        if (request.status === 'pending') {
-          execute(`
-            UPDATE vacation_requests 
-            SET status = 'approved', 
-                teamleadApprovalDate = datetime('now'),
-                managerApprovalDate = datetime('now'),
-                updatedAt = datetime('now')
-            WHERE id = ?
-          `, [id])
-        } else {
-          // Normal: war schon teamlead_approved
-          execute(`
-            UPDATE vacation_requests 
-            SET status = 'approved', 
-                managerApprovalDate = datetime('now'),
-                updatedAt = datetime('now')
-            WHERE id = ?
-          `, [id])
-        }
+        execute(`
+          UPDATE vacation_requests 
+          SET status = 'approved'
+          WHERE id = ?
+        `, [id])
 
         return { success: true, status: 'approved' }
       }
@@ -71,8 +53,7 @@ export default defineEventHandler(async (event) => {
       // Ablehnen
       execute(`
         UPDATE vacation_requests 
-        SET status = 'rejected',
-            updatedAt = datetime('now')
+        SET status = 'rejected'
         WHERE id = ?
       `, [id])
 
@@ -88,7 +69,7 @@ export default defineEventHandler(async (event) => {
     if (error.statusCode) {
       throw error
     }
-    console.error('Error updating vacation request:', error)
+    console.error('❌ Error updating vacation request:', error.message || error)
     throw createError({
       statusCode: 500,
       message: 'Fehler beim Aktualisieren des Urlaubsantrags'

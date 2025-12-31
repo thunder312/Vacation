@@ -31,7 +31,7 @@ export const useOrganization = () => {
       teamleadId: tl.userId,
       teamleadName: tl.displayName,
       members: orgNodes.value
-        .filter(n => n.teamId?.toLowerCase() === tl.userId.toLowerCase())
+        .filter(n => n.teamleadId?.toLowerCase() === tl.userId.toLowerCase())
         .map(n => n.userId)
     }))
   })
@@ -41,14 +41,13 @@ export const useOrganization = () => {
     try {
       await $fetch(`/api/organization/${userId}`, {
         method: 'PATCH',
-        body: { teamId: teamleadId, managerId: teamleadId }
+        body: { teamleadId: teamleadId }
       })
 
       // Lokale Daten aktualisieren
       const node = orgNodes.value.find(n => n.userId === userId)
       if (node) {
-        node.teamId = teamleadId
-        node.managerId = teamleadId
+        node.teamleadId = teamleadId
       }
 
       toast.success(`${node?.displayName || userId} wurde Team ${teamleadId} zugeordnet`)
@@ -70,14 +69,13 @@ export const useOrganization = () => {
     try {
       await $fetch(`/api/organization/${userId}`, {
         method: 'PATCH',
-        body: { teamId: null, managerId: null }
+        body: { teamleadId: null }
       })
 
       // Lokale Daten aktualisieren
       const node = orgNodes.value.find(n => n.userId === userId)
       if (node) {
-        node.teamId = undefined
-        node.managerId = undefined
+        node.teamleadId = undefined
       }
 
       toast.success(`${node?.displayName || userId} wurde aus dem Team entfernt`)
@@ -96,14 +94,14 @@ export const useOrganization = () => {
 
   // Alle Mitarbeiter ohne Team
   const getUnassignedEmployees = computed(() => {
-    return orgNodes.value.filter(n => n.role === 'employee' && !n.teamId)
+    return orgNodes.value.filter(n => n.role === 'employee' && !n.teamleadId)
   })
 
   // Team eines bestimmten Teamleiters - CASE INSENSITIVE
   const getTeamMembers = (teamleadId: string) => {
     return computed(() => 
       orgNodes.value.filter(n => 
-        n.teamId?.toLowerCase() === teamleadId.toLowerCase()
+        n.teamleadId?.toLowerCase() === teamleadId.toLowerCase()
       )
     )
   }
@@ -127,7 +125,7 @@ export const useOrganization = () => {
   const getDirectReports = (userId: string) => {
     return computed(() => 
       orgNodes.value.filter(n => 
-        n.managerId?.toLowerCase() === userId.toLowerCase()
+        n.teamleadId?.toLowerCase() === userId.toLowerCase()
       )
     )
   }
@@ -136,15 +134,15 @@ export const useOrganization = () => {
   const getLevel = (userId: string): number => {
     const node = orgNodes.value.find(n => n.userId.toLowerCase() === userId.toLowerCase())
     if (!node) return 0
-    if (!node.managerId) return 0
-    return 1 + getLevel(node.managerId)
+    if (!node.teamleadId) return 0
+    return 1 + getLevel(node.teamleadId)
   }
 
   // Organigramm als Baum-Struktur
   const getOrgTree = computed(() => {
     const buildTree = (parentId?: string): any[] => {
       return orgNodes.value
-        .filter(n => n.managerId?.toLowerCase() === parentId?.toLowerCase())
+        .filter(n => n.teamleadId?.toLowerCase() === parentId?.toLowerCase())
         .map(n => ({
           ...n,
           children: buildTree(n.userId)
@@ -152,7 +150,7 @@ export const useOrganization = () => {
     }
 
     return orgNodes.value
-      .filter(n => !n.managerId)
+      .filter(n => !n.teamleadId)
       .map(n => ({
         ...n,
         children: buildTree(n.userId)
