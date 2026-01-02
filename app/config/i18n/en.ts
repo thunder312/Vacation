@@ -278,7 +278,7 @@ export const en = {
         holiday: 'Holiday',
         noVacationMonth: 'No vacations this month',
         employee: 'Employee',
-        halfDay: 'half working day',
+        halfDay: 'Half working day',
         vacation: 'Vacation day',
         halfVacation: 'Half vacation day',
     },
