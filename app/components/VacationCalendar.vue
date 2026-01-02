@@ -20,6 +20,11 @@
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
 
+    <!-- Empty State wenn keine Urlaube -->
+    <div v-else-if="employeesWithVacation.length === 0" class="empty-state">
+      {{ t('calendar.noVacationMonth') }}
+    </div>
+
     <div v-else class="calendar-grid">
       <!-- Header: Employee names -->
       <div class="employee-column header-column">
@@ -52,19 +57,19 @@
           :class="[getDayClass(day), getVacationClass(employee, day.date)]"
           :title="getVacationTooltip(employee, day.date)"
         >
-          <!-- Visueller Indikator für Urlaub -->
-          <span v-if="getVacationClass(employee, day.date)" class="vacation-indicator">
-            {{ icons.calendar.vacation }}
-          </span>
         </div>
       </template>
     </div>
 
     <!-- Legend -->
-    <div class="calendar-legend">
+    <div v-if="employeesWithVacation.length > 0" class="calendar-legend">
       <div class="legend-item">
         <div class="legend-color weekend"></div>
         <span>{{ t('calendar.weekend') }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color holiday"></div>
+        <span>{{ t('calendar.holiday') }}</span>
       </div>
       <div class="legend-item">
         <div class="legend-color half-day"></div>
@@ -83,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { icons } from '~/config/icons'
+import { getBavarianHolidays } from '~/utils/holidays'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -107,10 +112,19 @@ const daysInMonth = computed(() => {
   const lastDay = new Date(year, month, 0).getDate()
   const days = []
   
+  // Lade bayerische Feiertage für das Jahr
+  const holidays = getBavarianHolidays(year)
+  
   for (let d = 1; d <= lastDay; d++) {
     // String-basierte Datumserstellung (kein toISOString() wegen Timezone)
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
     const date = new Date(year, month - 1, d)
+    
+    // Prüfe ob dieser Tag ein Feiertag ist
+    const isHoliday = holidays.some(holiday =>
+      holiday.getDate() === date.getDate() &&
+      holiday.getMonth() === date.getMonth()
+    )
     
     // Prüfe ob dieser Tag ein Half-day ist (z.B. 24.12., 31.12.)
     const isHalfDay = halfDayRules.value.some(rule => {
@@ -124,6 +138,7 @@ const daysInMonth = computed(() => {
       day: d,
       weekday: date.toLocaleDateString(locale.value, { weekday: 'short' }),
       isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      isHoliday: isHoliday,
       isHalfDay: isHalfDay,
       halfDayDescription: isHalfDay 
         ? halfDayRules.value.find(r => {
@@ -145,17 +160,39 @@ const getMonthName = (month: number) => {
 const getDayClass = (day: any) => {
   const classes = []
   if (day.isWeekend) classes.push('weekend')
+  if (day.isHoliday) classes.push('holiday')
   if (day.isHalfDay) classes.push('half-day')
   return classes.join(' ')
 }
 
 const getDayTitle = (day: any) => {
+  if (day.isHoliday) return t('calendar.holiday')
   if (day.isHalfDay) return day.halfDayDescription || t('calendar.halfDay')
   if (day.isWeekend) return t('calendar.weekend')
   return ''
 }
 
 const getVacationClass = (employee: any, date: string) => {
+  // WICHTIG: Wochenenden und Feiertage bleiben IMMER in ihrer Farbe (kein vacation class)
+  const [year, month, day] = date.split('-').map(Number)
+  const dateObj = new Date(year, month - 1, day)
+  
+  // Prüfe ob Wochenende
+  const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6
+  if (isWeekend) {
+    return '' // Wochenenden bekommen keine vacation class!
+  }
+  
+  // Prüfe ob Feiertag
+  const holidays = getBavarianHolidays(year)
+  const isHoliday = holidays.some(holiday =>
+    holiday.getDate() === dateObj.getDate() &&
+    holiday.getMonth() === dateObj.getMonth()
+  )
+  if (isHoliday) {
+    return '' // Feiertage bekommen keine vacation class!
+  }
+  
   // Prüfe ob Exception an diesem Tag existiert
   const exception = exceptions.value.find((e: any) => 
     e.userId === employee.userId && e.date === date
@@ -173,6 +210,11 @@ const getVacationClass = (employee: any, date: string) => {
   }
   
   // Normaler Urlaub
+  // Safety Check: vacations kann undefined sein
+  if (!employee.vacations || !Array.isArray(employee.vacations)) {
+    return ''
+  }
+  
   const vacation = employee.vacations.find((v: any) => 
     date >= v.startDate && date <= v.endDate
   )
@@ -191,6 +233,11 @@ const getVacationTooltip = (employee: any, date: string) => {
   }
   
   // Normaler Urlaub
+  // Safety Check: vacations kann undefined sein
+  if (!employee.vacations || !Array.isArray(employee.vacations)) {
+    return ''
+  }
+  
   const vacation = employee.vacations.find((v: any) => 
     date >= v.startDate && date <= v.endDate
   )
@@ -251,6 +298,7 @@ const loadCalendar = async () => {
     })
     
     employeesWithVacation.value = data || []
+    console.log('✅ Loaded employees with vacation:', employeesWithVacation.value.length)
     
     // Lade Exceptions für den Monat
     try {
@@ -262,6 +310,7 @@ const loadCalendar = async () => {
       })
       
       exceptions.value = exceptionsData || []
+      console.log('✅ Loaded exceptions:', exceptions.value.length)
     } catch (err) {
       console.warn('Keine Exceptions gefunden oder Fehler beim Laden:', err)
       exceptions.value = []

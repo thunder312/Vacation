@@ -437,10 +437,28 @@ watch([activeTab, usersLastUpdated], ([newTab, lastUpdate]) => {
 })
 
 // Urlaubskonto des aktuellen Users
-const { getCurrentUserBalance } = useVacationBalance()
-const userBalance = computed(() => {
-  if (!currentUser.value?.username) return null
-  return getCurrentUserBalance(currentUser.value.username).value
+const { getBalance } = useVacationBalance()
+const userBalance = ref(null)
+
+const loadBalance = async () => {
+  if (!currentUser.value?.username) {
+    userBalance.value = null
+    return
+  }
+
+  try {
+    userBalance.value = await getBalance(currentUser.value.username)
+    console.log('✅ Balance geladen:', userBalance.value)
+  } catch (error) {
+    console.error('❌ Fehler beim Laden der Balance:', error)
+    userBalance.value = null
+  }
+}
+
+watchEffect(() => {
+  if (currentUser.value?.username) {
+    loadBalance()
+  }
 })
 
 // Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen

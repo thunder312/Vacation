@@ -4059,6 +4059,17 @@ button {
     background: #4169E1; /* Royal Blue - DUNKELBLAU */
 }
 
+/* Holiday Day Column & Header */
+.day-column.holiday .day-header {
+    background: #4169E1; /* Royal Blue */
+    color: white;
+    font-weight: 600;
+}
+
+.day-cell.holiday {
+    background: #E6F2FF; /* Light blue background for holiday cells */
+}
+
 .calendar-container {
     overflow-x: auto;
     overflow-y: visible;
@@ -4963,4 +4974,195 @@ button {
     #e0e0e0 5px,
     #e0e0e0 10px
   ) !important;
+}
+
+/* ============================================================ */
+/* VACATION CANCELLATION - Form Styling */
+/* ============================================================ */
+
+/* Date Input Styling */
+.date-input {
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    min-width: 200px;
+    transition: border-color var(--transition-base);
+    background: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Select Styling in VacationCancellation */
+.vacation-cancellation select {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: white;
+    transition: border-color var(--transition-base);
+}
+
+.vacation-cancellation select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Textarea Styling in VacationCancellation */
+.vacation-cancellation textarea {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: inherit;
+    min-height: 100px;
+    resize: vertical;
+    background: white;
+    transition: border-color var(--transition-base);
+}
+
+.vacation-cancellation textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Form Row Styling */
+.vacation-cancellation .form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Form Group Label */
+.vacation-cancellation .form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--color-gray-700);
+}
+
+/* Small Text */
+.vacation-cancellation small {
+    display: block;
+    margin-top: var(--spacing-xs);
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+}
+
+/* Date Picker Group */
+.date-picker-group {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Employee List */
+.employees-list {
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.employee-item {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    background: white;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-base);
+}
+
+.employee-item:hover {
+    background: var(--color-gray-100);
+}
+
+.employee-item label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.employee-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vacation-period {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+/* Select All */
+.select-all {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-gray-300);
+}
+
+.select-all label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+/* Preview Box */
+.preview-box {
+    background: var(--color-warning-light);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.preview-box h5 {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--color-warning-dark);
+}
+
+.preview-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-xs) 0;
+}
+
+.preview-detail strong {
+    color: var(--color-gray-700);
+}
+
+/* Step Section Styling */
+.vacation-cancellation .step-section {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+}
+
+.vacation-cancellation .step-section h4 {
+    margin: 0 0 var(--spacing-md);
+    color: var(--color-gray-800);
+    font-size: 1.1rem;
+}
+
+/* Empty State in Cancellation */
+.vacation-cancellation .empty-state {
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--color-gray-600);
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    font-style: italic;
 }
