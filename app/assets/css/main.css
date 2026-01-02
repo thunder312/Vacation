@@ -4070,6 +4070,11 @@ button {
     min-width: 1400px;
 }
 
+
+/* ============================================================ */
+/* VACATION CALENDAR - Grid Layout (Fixed) */
+/* ============================================================ */
+
 .calendar-days-header {
     display: grid;
     grid-template-columns: 150px 1fr;
@@ -4080,35 +4085,75 @@ button {
     z-index: 10;
 }
 
-.employee-header {
-    padding: 12px;
+.calendar-grid {
+    display: grid;
+    grid-template-columns: 150px repeat(31, minmax(40px, 1fr));
+    gap: 0;
+    background: white;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    min-width: 1400px;
+}
+
+/* Employee Column (links) */
+.employee-column {
+    grid-column: 1;
+    background: var(--color-gray-50);
+    border-right: 2px solid var(--color-gray-300);
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+.employee-column.header-column {
+    background: var(--color-gray-200);
     font-weight: 600;
+}
+
+.employee-name {
+    padding: 12px;
+    font-weight: 500;
     color: var(--color-gray-800);
-    border-right: 1px solid var(--color-gray-300);
     display: flex;
     align-items: center;
+    gap: 5px;
+    min-height: 40px;
+    border-bottom: 1px solid var(--color-gray-200);
 }
 
-.days-row {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(40px, 1fr);
+.employee-name.header-cell {
+    font-weight: 600;
+    background: var(--color-gray-200);
+    border-bottom: 2px solid var(--color-gray-400);
 }
 
+/* Day Columns (rechts) */
+.day-column {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-gray-200);
+}
+
+.day-column:last-child {
+    border-right: none;
+}
+
+/* Day Header (oben) */
 .day-header {
     padding: 8px 4px;
     text-align: center;
-    border-right: 1px solid var(--color-gray-200);
     font-size: 12px;
-}
-
-.day-header.weekend {
-    background: var(--color-gray-400);
-}
-
-.day-header.holiday {
-    background: #4169E1 !important;
-    color: white;
+    background: var(--color-gray-100);
+    border-bottom: 2px solid var(--color-gray-300);
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .day-number {
@@ -4124,74 +4169,43 @@ button {
     margin-top: 2px;
 }
 
-.calendar-body {
-    background: white;
+/* Weekend Day Headers */
+.day-column.weekend .day-header {
+    background: var(--color-gray-300);
 }
 
-.employee-row {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    border-bottom: 1px solid var(--color-gray-200);
+/* Half-day Headers */
+.day-column.half-day .day-header {
+    background: #e3f2fd !important;
+    color: #1976d2;
 }
 
-.employee-row:nth-child(even) {
-    background: var(--color-gray-50);
-}
-
-.employee-row:hover {
-    background: #f8f9fa;
-}
-
-.employee-name {
-    padding: 12px;
-    font-weight: 500;
-    color: var(--color-gray-800);
-    border-right: 1px solid var(--color-gray-300);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    position: sticky;
-    left: 0;
-    background: inherit;
-    z-index: 5;
-}
-
-.vacation-count {
-    font-size: 12px;
-    color: var(--color-gray-600);
-    font-weight: normal;
-}
-
+/* Day Cells (für jeden Employee) */
 .day-cell {
     min-height: 40px;
-    border-right: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--color-gray-200);
     position: relative;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.day-cell:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* Weekend Cells */
 .day-cell.weekend {
-    background: var(--color-gray-400);
+    background: #f5f5f5;
 }
 
-.day-cell.holiday {
-    background: #4169E1 !important;
-    color: white;
-}
-
-.legend-color.half-day {
-    background: #87CEEB; /* Sky Blue - Hellblau */
-}
-
-.day-header.half-day {
-    background: #87CEEB !important;
-    color: #333;
-}
-
+/* Half-day Cells */
 .day-cell.half-day {
-    background: #87CEEB !important;
-    color: #333;
+    background: #e3f2fd;
 }
 
+/* Vacation Cells (Grün) */
 .day-cell.has-vacation {
     background: var(--color-success) !important;
     cursor: pointer;
@@ -4202,6 +4216,84 @@ button {
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
+/* Half-Vacation Cells (Gestreift) */
+.day-cell.half-vacation {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-success),
+        var(--color-success) 10px,
+        #e0e0e0 10px,
+        #e0e0e0 20px
+    ) !important;
+    cursor: help;
+}
+
+.day-cell.half-vacation:hover {
+    opacity: 0.9;
+}
+
+/* Vacation Indicator Icon */
+.vacation-indicator {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* Calendar Legend */
+.calendar-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-gray-700);
+}
+
+.legend-color {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-gray-300);
+}
+
+.legend-color.weekend {
+    background: #f5f5f5;
+}
+
+.legend-color.half-day {
+    background: #e3f2fd;
+}
+
+.legend-color.has-vacation {
+    background: var(--color-success);
+}
+
+.legend-color.half-vacation {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--color-success),
+        var(--color-success) 5px,
+        #e0e0e0 5px,
+        #e0e0e0 10px
+    );
+}
+
+/* Loading & Empty States */
+.loading {
+    padding: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: var(--color-gray-700);
+}
+
 .empty-state {
     padding: 40px;
     text-align: center;
@@ -4209,11 +4301,19 @@ button {
     font-style: italic;
 }
 
-.loading-state {
-    padding: 40px;
-    text-align: center;
-    font-size: 16px;
-    color: var(--color-gray-700);
+/* Responsive */
+@media (max-width: 1400px) {
+    .calendar-grid {
+        min-width: 100%;
+    }
+    
+    .employee-column {
+        min-width: 120px;
+    }
+    
+    .day-column {
+        min-width: 35px;
+    }
 }
 /* ============================================================ */
 /* ANNUAL VACATION REPORT */
