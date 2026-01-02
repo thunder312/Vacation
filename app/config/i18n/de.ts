@@ -278,7 +278,11 @@ export const de = {
         approvedVacation: 'Genehmigter Urlaub',
         weekend: 'Wochenende',
         holiday: 'Feiertag',
-        noVacationMonth: 'Keine Urlaubsanträge in diesem Monat'
+        noVacationMonth: 'Keine Urlaube in diesem Monat',
+        employee: 'Mitarbeiter',
+        halfDay: 'halber Arbeitstag',
+        vacation: 'Urlaubstag',
+        halfVacation: 'halber Urlaubstag',
     },
  admin: {
     database: 'Datenbank',

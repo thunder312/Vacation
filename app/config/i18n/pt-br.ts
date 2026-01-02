@@ -275,7 +275,11 @@ export const ptBr = {
         approvedVacation: 'Férias aprovadas',
         weekend: 'Fim de semana',
         holiday: 'Feriado',
-        noVacationMonth: 'Nenhum pedido de férias neste mês.'
+        noVacationMonth: 'Não há feriados este mês.',
+        employee: 'Funcionário',
+        halfDay: 'Metade de um dia de trabalho',
+        vacation: 'Feriado',
+        halfVacation: 'Meio dia de férias',
     },
   admin: {
     database: 'Banco de Dados',

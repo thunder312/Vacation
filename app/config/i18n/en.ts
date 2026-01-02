@@ -276,7 +276,11 @@ export const en = {
         approvedVacation: 'Approved vacation',
         weekend: 'Weekend',
         holiday: 'Holiday',
-        noVacationMonth: 'No vacation requests this month'
+        noVacationMonth: 'No vacations this month',
+        employee: 'Employee',
+        halfDay: 'half working day',
+        vacation: 'Vacation day',
+        halfVacation: 'Half vacation day',
     },
 
   admin: {
