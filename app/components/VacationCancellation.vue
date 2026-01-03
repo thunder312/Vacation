@@ -177,11 +177,14 @@
 </template>
 
 <script setup lang="ts">
+import { formatDate } from '~/utils/dateHelpers'
+import { icons } from '~/config/icons'
+import { useEventBus } from '~/composables/useEventBus'
+
 const { t } = useI18n()
 const toast = useToast()
 const { currentUser } = useAuth()
-import { formatDate } from '~/utils/dateHelpers'
-import { icons } from '~/config/icons'
+const { emit } = useEventBus()
 
 const showSection = ref(false)
 const selectedDate = ref('')
@@ -255,22 +258,27 @@ const askConfirmation = () => {
 const confirmCancellation = async () => {
   showConfirmModal.value = false
   submitting.value = true
-  
+
   try {
     let successCount = 0
     let errorCount = 0
-    
+    const errors: Array<{employee: string, error: string}> = []
+
     // Erstelle Exception für jeden ausgewählten Mitarbeiter
     for (const userId of selectedEmployees.value) {
       const employee = employeesOnVacation.value.find(e => e.userId === userId)
-      
+
       if (!employee) {
         errorCount++
+        errors.push({
+          employee: userId,
+          error: 'Mitarbeiter nicht gefunden'
+        })
         continue
       }
-      
+
       try {
-        await $fetch('/api/vacation-exceptions', {
+        const result = await $fetch('/api/vacation-exceptions', {
           method: 'POST',
           body: {
             vacationRequestId: employee.id,
@@ -281,27 +289,63 @@ const confirmCancellation = async () => {
             createdBy: currentUser.value?.username || 'admin'
           }
         })
+
+        console.log(`✅ Exception created for ${employee.displayName}:`, result)
         successCount++
+
       } catch (err: any) {
-        console.error(`Fehler für ${userId}:`, err)
+        console.error(`❌ Error for ${employee.displayName}:`, err)
         errorCount++
+
+        // Extract detailed error message
+        const errorMsg = err.data?.statusMessage
+          || err.statusMessage
+          || err.message
+          || 'Unbekannter Fehler'
+
+        errors.push({
+          employee: employee.displayName,
+          error: errorMsg
+        })
       }
     }
-    
+
+    // Show results with priority on errors
+    if (errorCount > 0) {
+      // Show detailed error list
+      const errorList = errors.map(e => `• ${e.employee}: ${e.error}`).join('\n')
+      toast.error(
+        `${errorCount} Rückbuchung(en) fehlgeschlagen:\n${errorList}`,
+        { duration: 10000 }  // Longer duration for reading
+      )
+    }
+
     if (successCount > 0) {
       const dayText = daysToCancel.value === 1 ? 'Tag' : 'Tage'
-      toast.success(`Erfolgreich ${daysToCancel.value} ${dayText} für ${successCount} Mitarbeiter zurückgebucht`)
+      toast.success(
+        `✅ Erfolgreich: ${daysToCancel.value} ${dayText} für ${successCount} Mitarbeiter zurückgebucht`
+      )
+
+      // Notify calendar to refresh
+      emit('vacation-exception-created', {
+        date: selectedDate.value,
+        count: successCount,
+        deduction: daysToCancel.value
+      })
+
+      // Only reset form if all succeeded
+      if (errorCount === 0) {
+        resetForm()
+      }
     }
-    
-    if (errorCount > 0) {
-      toast.error(`${errorCount} Rückbuchung(en) fehlgeschlagen`)
+
+    if (successCount === 0 && errorCount === 0) {
+      toast.warning('Keine Rückbuchungen durchgeführt')
     }
-    
-    resetForm()
-    
+
   } catch (error: any) {
-    console.error('Fehler bei Rückbuchung:', error)
-    toast.error('Fehler bei der Rückbuchung')
+    console.error('❌ Kritischer Fehler bei Rückbuchung:', error)
+    toast.error('Kritischer Fehler: ' + (error.message || 'Unbekannter Fehler'))
   } finally {
     submitting.value = false
   }

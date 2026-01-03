@@ -89,10 +89,12 @@
 
 <script setup lang="ts">
 import { getBavarianHolidays } from '~/utils/holidays'
+import { useEventBus } from '~/composables/useEventBus'
 
 const { t } = useI18n()
 const toast = useToast()
 const { locale } = useLocale()
+const { on, off } = useEventBus()
 
 const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
@@ -324,7 +326,20 @@ const loadCalendar = async () => {
   }
 }
 
+// Handler for exception created event
+const handleExceptionCreated = (data?: any) => {
+  console.log('🔄 Exception created event received, reloading calendar...', data)
+  loadCalendar()
+}
+
 onMounted(() => {
   loadCalendar()
+  // Listen for exception creation events
+  on('vacation-exception-created', handleExceptionCreated)
+})
+
+// Cleanup listener on unmount
+onUnmounted(() => {
+  off('vacation-exception-created', handleExceptionCreated)
 })
 </script>
