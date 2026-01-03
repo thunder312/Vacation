@@ -88,7 +88,10 @@ export const exportApprovedVacations = async (
     if (hasAnyExceptions) {
       if (requestExceptions.length > 0) {
         const totalDeduction = requestExceptions.reduce((sum, e) => sum + e.deduction, 0)
-        baseRow.push(`${originalDays} - ${totalDeduction} = ${effectiveDays}`)
+        // Sammle alle Rückbuchungs-Gründe (eindeutig)
+        const reasons = [...new Set(requestExceptions.map(e => e.reason).filter(Boolean))]
+        const reasonText = reasons.length > 0 ? `\n(${reasons.join(', ')})` : ''
+        baseRow.push(`${originalDays} - ${totalDeduction} = ${effectiveDays}${reasonText}`)
       } else {
         baseRow.push('-')
       }
@@ -123,31 +126,18 @@ export const exportApprovedVacations = async (
 
   // Anmerkung zu Rückbuchungen (falls vorhanden)
   if (hasAnyExceptions) {
-    finalY += 10
-    doc.setFontSize(9)
-    doc.setFont('arial', 'italic')
-    doc.setTextColor(150, 80, 0) // Orange/Braun für Warnung
-
-    // Zähle Gesamtanzahl der Rückbuchungen
+    finalY += 8
     const totalExceptions = allExceptions.length
     const totalDeductions = allExceptions.reduce((sum, e) => sum + e.deduction, 0)
 
-    doc.text('⚠ Hinweis:', 15, finalY)
-    finalY += 5
-    doc.setFont('arial', 'normal')
+    doc.setFontSize(8)
+    doc.setFont('arial', 'italic')
+    doc.setTextColor(150, 80, 0) // Orange/Braun
     doc.text(
-      `${totalExceptions} Rückbuchung${totalExceptions > 1 ? 'en' : ''} (insgesamt ${totalDeductions} Tag${totalDeductions !== 1 ? 'e' : ''}) wurden bei der Berechnung berücksichtigt.`,
+      `* ${totalExceptions} Rückbuchung${totalExceptions > 1 ? 'en' : ''} (${totalDeductions} Tag${totalDeductions !== 1 ? 'e' : ''}) bereits abgezogen`,
       15,
       finalY
     )
-    finalY += 5
-    doc.text(
-      'Die Spalte "Rückbuchung" zeigt: Ursprüngliche Tage - Abzug = Effektive Tage',
-      15,
-      finalY
-    )
-
-    // Setze Farbe zurück
     doc.setTextColor(0, 0, 0)
     doc.setFont('arial', 'normal')
   }
