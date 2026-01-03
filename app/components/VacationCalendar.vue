@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { getBavarianHolidays } from '~/utils/holidays'
+import { getBavarianHolidays, getBavarianHolidaysWithNames } from '~/utils/holidays'
 import { useEventBus } from '~/composables/useEventBus'
 import { formatDate } from '~/utils/dateHelpers'
 
@@ -109,44 +109,45 @@ const daysInMonth = computed(() => {
   const month = selectedMonth.value
   const lastDay = new Date(year, month, 0).getDate()
   const days = []
-  
-  // Lade bayerische Feiertage für das Jahr
-  const holidays = getBavarianHolidays(year)
-  
+
+  // Lade bayerische Feiertage für das Jahr (mit Namen)
+  const holidays = getBavarianHolidaysWithNames(year)
+
   for (let d = 1; d <= lastDay; d++) {
     // String-basierte Datumserstellung (kein toISOString() wegen Timezone)
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
     const date = new Date(year, month - 1, d)
-    
-    // Prüfe ob dieser Tag ein Feiertag ist
-    const isHoliday = holidays.some(holiday =>
-      holiday.getDate() === date.getDate() &&
-      holiday.getMonth() === date.getMonth()
+
+    // Prüfe ob dieser Tag ein Feiertag ist und hole den Namen
+    const holiday = holidays.find(h =>
+      h.date.getDate() === date.getDate() &&
+      h.date.getMonth() === date.getMonth()
     )
-    
+
     // Prüfe ob dieser Tag ein Half-day ist (z.B. 24.12., 31.12.)
     const isHalfDay = halfDayRules.value.some(rule => {
       // Vergleiche nur Monat und Tag (Jahr-unabhängig)
       const ruleDate = new Date(rule.date)
       return ruleDate.getMonth() === month - 1 && ruleDate.getDate() === d
     })
-    
+
     days.push({
       date: dateStr,
       day: d,
       weekday: date.toLocaleDateString(locale.value, { weekday: 'short' }),
       isWeekend: date.getDay() === 0 || date.getDay() === 6,
-      isHoliday: isHoliday,
+      isHoliday: !!holiday,
+      holidayName: holiday?.name || '',
       isHalfDay: isHalfDay,
-      halfDayDescription: isHalfDay 
+      halfDayDescription: isHalfDay
         ? halfDayRules.value.find(r => {
             const rd = new Date(r.date)
             return rd.getMonth() === month - 1 && rd.getDate() === d
-          })?.description 
+          })?.description
         : ''
     })
   }
-  
+
   return days
 })
 
@@ -164,7 +165,7 @@ const getDayClass = (day: any) => {
 }
 
 const getDayTitle = (day: any) => {
-  if (day.isHoliday) return t('calendar.holiday')
+  if (day.isHoliday) return day.holidayName || t('calendar.holiday')
   if (day.isHalfDay) return day.halfDayDescription || t('calendar.halfDay')
   if (day.isWeekend) return t('calendar.weekend')
   return ''

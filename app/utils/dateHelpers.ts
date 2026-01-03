@@ -18,9 +18,18 @@ export const calculateDays = (start: string, end: string): number => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }
 
+// Hilfsfunktion: Prüft ob ein Datum einem Halbtag entspricht (jahresunabhängig)
+const isHalfDay = (dateStr: string, halfDayDates: string[]): boolean => {
+    // Extrahiere Monat und Tag aus dem aktuellen Datum (Format: YYYY-MM-DD)
+    const monthDay = dateStr.slice(5) // z.B. "12-24"
+
+    // Prüfe ob einer der Halbtage denselben Monat+Tag hat
+    return halfDayDates.some(hd => hd.slice(5) === monthDay)
+}
+
 export const calculateWorkdays = (
-    start: string, 
-    end: string, 
+    start: string,
+    end: string,
     halfDayDates: string[] = [],
     exceptions?: Array<{date: string, deduction: number}>
 ): number => {
@@ -33,17 +42,17 @@ export const calculateWorkdays = (
     while (currentDate <= endDate) {
         if (isWorkday(currentDate)) {
             const dateStr = currentDate.toISOString().split('T')[0]
-            
+
             // Prüfe ob es eine personalisierte Exception gibt
             const exception = exceptions?.find(e => e.date === dateStr)
             if (exception) {
                 // Exception: 1 - deduction (z.B. 1 - 0.5 = 0.5)
                 workdays += Math.max(0, 1 - exception.deduction)
             }
-            // Sonst prüfe globale Halbtage
-            else if (halfDayDates.includes(dateStr)) {
+            // Sonst prüfe globale Halbtage (jahresunabhängig!)
+            else if (isHalfDay(dateStr, halfDayDates)) {
                 workdays += 0.5
-            } 
+            }
             // Normal workday
             else {
                 workdays += 1

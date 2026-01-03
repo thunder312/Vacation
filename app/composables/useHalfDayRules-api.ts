@@ -75,9 +75,10 @@ export const useHalfDayRules = () => {
     }
   }
 
-  // Prüfen ob ein Datum ein Halbtag ist
+  // Prüfen ob ein Datum ein Halbtag ist (jahresunabhängig - nur Monat+Tag vergleichen)
   const isHalfDay = (date: string): boolean => {
-    return halfDayRules.value.some(rule => rule.date === date)
+    const monthDay = date.slice(5) // z.B. "12-24" aus "2025-12-24"
+    return halfDayRules.value.some(rule => rule.date.slice(5) === monthDay)
   }
 
   // Alle Halbtags-Daten als Array

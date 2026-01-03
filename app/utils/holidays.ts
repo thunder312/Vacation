@@ -18,19 +18,25 @@ const calculateEaster = (year: number): Date => {
     return new Date(year, month - 1, day)
 }
 
-// Gibt alle bayerischen Feiertage für ein bestimmtes Jahr zurück
-export const getBavarianHolidays = (year: number): Date[] => {
-    const holidays: Date[] = []
+// Typ für Feiertag mit Name
+export interface Holiday {
+    date: Date
+    name: string
+}
+
+// Gibt alle bayerischen Feiertage für ein bestimmtes Jahr zurück (mit Namen)
+export const getBavarianHolidaysWithNames = (year: number): Holiday[] => {
+    const holidays: Holiday[] = []
 
     // Feste Feiertage
-    holidays.push(new Date(year, 0, 1))   // Neujahr
-    holidays.push(new Date(year, 0, 6))   // Heilige Drei Könige
-    holidays.push(new Date(year, 4, 1))   // Tag der Arbeit
-    holidays.push(new Date(year, 7, 15))  // Mariä Himmelfahrt
-    holidays.push(new Date(year, 9, 3))   // Tag der Deutschen Einheit
-    holidays.push(new Date(year, 10, 1))  // Allerheiligen
-    holidays.push(new Date(year, 11, 25)) // 1. Weihnachtsfeiertag
-    holidays.push(new Date(year, 11, 26)) // 2. Weihnachtsfeiertag
+    holidays.push({ date: new Date(year, 0, 1), name: 'Neujahr' })
+    holidays.push({ date: new Date(year, 0, 6), name: 'Heilige Drei Könige' })
+    holidays.push({ date: new Date(year, 4, 1), name: 'Tag der Arbeit' })
+    holidays.push({ date: new Date(year, 7, 15), name: 'Mariä Himmelfahrt' })
+    holidays.push({ date: new Date(year, 9, 3), name: 'Tag der Deutschen Einheit' })
+    holidays.push({ date: new Date(year, 10, 1), name: 'Allerheiligen' })
+    holidays.push({ date: new Date(year, 11, 25), name: '1. Weihnachtsfeiertag' })
+    holidays.push({ date: new Date(year, 11, 26), name: '2. Weihnachtsfeiertag' })
 
     // Bewegliche Feiertage (abhängig von Ostern)
     const easter = calculateEaster(year)
@@ -38,29 +44,47 @@ export const getBavarianHolidays = (year: number): Date[] => {
     // Karfreitag (2 Tage vor Ostern)
     const goodFriday = new Date(easter)
     goodFriday.setDate(easter.getDate() - 2)
-    holidays.push(goodFriday)
+    holidays.push({ date: goodFriday, name: 'Karfreitag' })
 
     // Ostermontag (1 Tag nach Ostern)
     const easterMonday = new Date(easter)
     easterMonday.setDate(easter.getDate() + 1)
-    holidays.push(easterMonday)
+    holidays.push({ date: easterMonday, name: 'Ostermontag' })
 
     // Christi Himmelfahrt (39 Tage nach Ostern)
     const ascension = new Date(easter)
     ascension.setDate(easter.getDate() + 39)
-    holidays.push(ascension)
+    holidays.push({ date: ascension, name: 'Christi Himmelfahrt' })
 
     // Pfingstmontag (50 Tage nach Ostern)
     const whitMonday = new Date(easter)
     whitMonday.setDate(easter.getDate() + 50)
-    holidays.push(whitMonday)
+    holidays.push({ date: whitMonday, name: 'Pfingstmontag' })
 
     // Fronleichnam (60 Tage nach Ostern)
     const corpusChristi = new Date(easter)
     corpusChristi.setDate(easter.getDate() + 60)
-    holidays.push(corpusChristi)
+    holidays.push({ date: corpusChristi, name: 'Fronleichnam' })
 
     return holidays
+}
+
+// Gibt alle bayerischen Feiertage für ein bestimmtes Jahr zurück (nur Datum für Rückwärtskompatibilität)
+export const getBavarianHolidays = (year: number): Date[] => {
+    return getBavarianHolidaysWithNames(year).map(h => h.date)
+}
+
+// Gibt den Namen eines Feiertags zurück, oder null wenn kein Feiertag
+export const getHolidayName = (date: Date): string | null => {
+    const year = date.getFullYear()
+    const holidays = getBavarianHolidaysWithNames(year)
+
+    const holiday = holidays.find(h =>
+        h.date.getDate() === date.getDate() &&
+        h.date.getMonth() === date.getMonth()
+    )
+
+    return holiday?.name || null
 }
 
 // Prüft ob ein Datum ein Feiertag ist
