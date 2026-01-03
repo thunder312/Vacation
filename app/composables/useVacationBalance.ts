@@ -8,18 +8,26 @@ export const useVacationBalance = () => {
   const { getAllRequests } = useVacationRequests()
   const { getCarryover } = useCarryover()
 
-  // Berechnet genutzte Urlaubstage (nur genehmigte) MIT EXCEPTIONS
-  const calculateUsedDays = async (userId: string): Promise<number> => {
+  // Berechnet genutzte Urlaubstage (nur genehmigte) MIT EXCEPTIONS - STRIKT NACH JAHR
+  const calculateUsedDays = async (userId: string, year: number): Promise<number> => {
     const allRequests = getAllRequests()
-    
+
     // Null-Check: Wenn noch keine Daten geladen
     if (!allRequests || !allRequests.value || allRequests.value.length === 0) {
       return 0
     }
 
-    const approvedRequests = allRequests.value.filter(
-      r => r.userId === userId && r.status === 'approved'
-    )
+    // Filter: Nur genehmigte Requests UND nur für das angegebene Jahr
+    const approvedRequests = allRequests.value.filter(r => {
+      if (r.userId !== userId || r.status !== 'approved') return false
+
+      // Prüfe ob der Urlaub im angegebenen Jahr liegt
+      const startYear = new Date(r.startDate).getFullYear()
+      const endYear = new Date(r.endDate).getFullYear()
+
+      // Urlaub zählt zum Jahr, wenn Start ODER Ende im Jahr liegt
+      return startYear === year || endYear === year
+    })
 
     if (approvedRequests.length === 0) return 0
 
@@ -36,14 +44,30 @@ export const useVacationBalance = () => {
 
     let totalDays = 0
     for (const request of approvedRequests) {
-      // Finde Exceptions für diesen Request
-      const requestExceptions = userExceptions.filter(
-        (ex: any) => ex.vacationRequestId === request.id
-      )
-      
+      // Bestimme den effektiven Zeitraum für das betrachtete Jahr
+      const requestStart = new Date(request.startDate)
+      const requestEnd = new Date(request.endDate)
+      const yearStart = new Date(year, 0, 1) // 1. Januar des Jahres
+      const yearEnd = new Date(year, 11, 31) // 31. Dezember des Jahres
+
+      // Schneide den Urlaub auf das betrachtete Jahr zu
+      const effectiveStart = requestStart < yearStart ? yearStart : requestStart
+      const effectiveEnd = requestEnd > yearEnd ? yearEnd : requestEnd
+
+      // Formatiere Daten für calculateWorkdays
+      const effectiveStartStr = effectiveStart.toISOString().split('T')[0]
+      const effectiveEndStr = effectiveEnd.toISOString().split('T')[0]
+
+      // Finde Exceptions für diesen Request (nur die im betrachteten Jahr)
+      const requestExceptions = userExceptions.filter((ex: any) => {
+        if (ex.vacationRequestId !== request.id) return false
+        const exDate = new Date(ex.date)
+        return exDate >= yearStart && exDate <= yearEnd
+      })
+
       const days = calculateWorkdays(
-        request.startDate,
-        request.endDate,
+        effectiveStartStr,
+        effectiveEndStr,
         halfDayDates.value || [],
         requestExceptions
       )
@@ -57,7 +81,7 @@ export const useVacationBalance = () => {
   const getBalance = async (userId: string, year: number = new Date().getFullYear()): Promise<VacationBalance> => {
     const carryoverDays = getCarryover(userId, year).value
     const totalDays = STANDARD_VACATION_DAYS + carryoverDays
-    const usedDays = await calculateUsedDays(userId)
+    const usedDays = await calculateUsedDays(userId, year) // Jahr übergeben!
     const remainingDays = totalDays - usedDays
 
     return {
@@ -85,14 +109,14 @@ export const useVacationBalance = () => {
   }
 
   // Prüft ob Urlaubskonto im Minus ist
-  const isInDeficit = async (userId: string): Promise<boolean> => {
-    const balance = await getBalance(userId)
+  const isInDeficit = async (userId: string, year: number = new Date().getFullYear()): Promise<boolean> => {
+    const balance = await getBalance(userId, year)
     return balance.remainingDays < 0
   }
 
   // Prüft ob Urlaubskonto fast aufgebraucht ist (< 5 Tage)
-  const isLowBalance = async (userId: string): Promise<boolean> => {
-    const balance = await getBalance(userId)
+  const isLowBalance = async (userId: string, year: number = new Date().getFullYear()): Promise<boolean> => {
+    const balance = await getBalance(userId, year)
     return balance.remainingDays < 5
   }
 
