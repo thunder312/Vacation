@@ -423,9 +423,19 @@ const resetForm = () => {
 .date-input {
   flex: 1;
   max-width: 200px;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background: white;
+  transition: border-color var(--transition-base);
+  cursor: pointer;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .employees-list {
@@ -488,9 +498,24 @@ const resetForm = () => {
 
 .form-group select,
 .form-group textarea {
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background: white;
+  transition: border-color var(--transition-base);
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-group small {

@@ -20,11 +20,6 @@
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
 
-    <!-- Empty State wenn keine Urlaube -->
-    <div v-else-if="employeesWithVacation.length === 0" class="empty-state">
-      {{ t('calendar.noVacationMonth') }}
-    </div>
-
     <div v-else class="calendar-grid">
       <!-- Header: Employee names -->
       <div class="employee-column header-column">
@@ -62,7 +57,7 @@
     </div>
 
     <!-- Legend -->
-    <div v-if="employeesWithVacation.length > 0" class="calendar-legend">
+    <div v-if="!loading" class="calendar-legend">
       <div class="legend-item">
         <div class="legend-color weekend"></div>
         <span>{{ t('calendar.weekend') }}</span>
@@ -90,6 +85,7 @@
 <script setup lang="ts">
 import { getBavarianHolidays } from '~/utils/holidays'
 import { useEventBus } from '~/composables/useEventBus'
+import { formatDate } from '~/utils/dateHelpers'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -226,28 +222,37 @@ const getVacationClass = (employee: any, date: string) => {
 
 const getVacationTooltip = (employee: any, date: string) => {
   // Prüfe Exception zuerst
-  const exception = exceptions.value.find((e: any) => 
+  const exception = exceptions.value.find((e: any) =>
     e.userId === employee.userId && e.date === date
   )
-  
+
   if (exception) {
-    return `${exception.reason} (-${exception.deduction} Tage)`
+    return `${exception.reason} (-${exception.deduction} ${exception.deduction === 1 ? 'Tag' : 'Tage'})`
   }
-  
+
   // Normaler Urlaub
   // Safety Check: vacations kann undefined sein
   if (!employee.vacations || !Array.isArray(employee.vacations)) {
     return ''
   }
-  
-  const vacation = employee.vacations.find((v: any) => 
+
+  const vacation = employee.vacations.find((v: any) =>
     date >= v.startDate && date <= v.endDate
   )
-  
+
   if (vacation) {
-    return `Urlaub: ${vacation.startDate} - ${vacation.endDate}`
+    const tooltipParts = [
+      `Urlaub: ${formatDate(vacation.startDate)} - ${formatDate(vacation.endDate)}`
+    ]
+
+    // Füge Begründung hinzu, falls vorhanden
+    if (vacation.reason && vacation.reason.trim()) {
+      tooltipParts.push(`Grund: ${vacation.reason}`)
+    }
+
+    return tooltipParts.join('\n')
   }
-  
+
   return ''
 }
 
@@ -326,20 +331,34 @@ const loadCalendar = async () => {
   }
 }
 
-// Handler for exception created event
+// Event handlers for vacation changes
 const handleExceptionCreated = (data?: any) => {
-  console.log('🔄 Exception created event received, reloading calendar...', data)
+  console.log('🔄 vacation-exception-created event received, reloading calendar...', data)
+  loadCalendar()
+}
+
+const handleVacationApproved = (data?: any) => {
+  console.log('🔄 vacation-approved event received, reloading calendar...', data)
+  loadCalendar()
+}
+
+const handleVacationCancelled = (data?: any) => {
+  console.log('🔄 vacation-cancelled event received, reloading calendar...', data)
   loadCalendar()
 }
 
 onMounted(() => {
   loadCalendar()
-  // Listen for exception creation events
+  // Listen for all vacation-related events
   on('vacation-exception-created', handleExceptionCreated)
+  on('vacation-approved', handleVacationApproved)
+  on('vacation-cancelled', handleVacationCancelled)
 })
 
-// Cleanup listener on unmount
+// Cleanup listeners on unmount
 onUnmounted(() => {
   off('vacation-exception-created', handleExceptionCreated)
+  off('vacation-approved', handleVacationApproved)
+  off('vacation-cancelled', handleVacationCancelled)
 })
 </script>

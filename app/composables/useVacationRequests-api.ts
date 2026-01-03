@@ -1,9 +1,11 @@
 // composables/useVacationRequests-api.ts
 import type { VacationRequest } from '~/types/vacation'
+import { useEventBus } from '~/composables/useEventBus'
 
 export const useVacationRequests = () => {
   const toast = useToast()
   const { t } = useI18n()
+  const { emit } = useEventBus()
   
   // State für alle Requests (wird vom Server geladen)
   const requests = useState<VacationRequest[]>('vacationRequests', () => [])
@@ -61,7 +63,7 @@ export const useVacationRequests = () => {
       const request = requests.value.find(r => r.id === id)
       if (request) {
         request.status = response.status as any
-        
+
         if (level === 'teamlead') {
           request.teamleadApprovalDate = new Date().toISOString()
           toast.success(t('vacation.approveSuccess'))
@@ -69,6 +71,15 @@ export const useVacationRequests = () => {
           request.managerApprovalDate = new Date().toISOString()
           toast.success(t('vacation.approveSuccess'))
         }
+
+        // Notify calendar to refresh
+        emit('vacation-approved', {
+          requestId: id,
+          level: level,
+          status: response.status,
+          startDate: request.startDate,
+          endDate: request.endDate
+        })
       }
 
       return true
@@ -117,6 +128,14 @@ export const useVacationRequests = () => {
         if (cancellationReason) {
           request.reason = `${request.reason}\n\n[ABGESAGT] ${cancellationReason}`
         }
+
+        // Notify calendar to refresh
+        emit('vacation-cancelled', {
+          requestId: id,
+          startDate: request.startDate,
+          endDate: request.endDate,
+          reason: cancellationReason
+        })
       }
 
       toast.success(response.message || t('vacation.cancelSuccess'))
