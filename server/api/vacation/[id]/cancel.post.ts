@@ -71,8 +71,7 @@ export default defineEventHandler(async (event) => {
     execute(`
       UPDATE vacation_requests 
       SET status = 'cancelled',
-          reason = ?,
-          updatedAt = datetime('now')
+          reason = ?
       WHERE id = ?
     `, [updatedReason, id])
 
@@ -105,11 +104,11 @@ export default defineEventHandler(async (event) => {
       // Wenn kein Carryover existiert, werden die Tage automatisch im nächsten Jahr verfügbar
     }
 
-    console.log(icons.actions.activate + ' acation cancelled successfully')
+    console.log(icons.actions.activate + ' Vacation cancelled successfully')
 
     return {
       success: true,
-      message: ` t('vacation.requestCancelled'). ${daysToRefund} Tage zurückgebucht.`,
+      message: `Urlaubsantrag abgesagt. ${daysToRefund} Tage zurückgebucht.`,
       daysRefunded: daysToRefund
     }
 

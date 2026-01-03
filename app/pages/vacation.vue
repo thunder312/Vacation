@@ -437,10 +437,28 @@ watch([activeTab, usersLastUpdated], ([newTab, lastUpdate]) => {
 })
 
 // Urlaubskonto des aktuellen Users
-const { getCurrentUserBalance } = useVacationBalance()
-const userBalance = computed(() => {
-  if (!currentUser.value?.username) return null
-  return getCurrentUserBalance(currentUser.value.username).value
+const { getBalance } = useVacationBalance()
+const userBalance = ref(null)
+
+const loadBalance = async () => {
+  if (!currentUser.value?.username) {
+    userBalance.value = null
+    return
+  }
+
+  try {
+    userBalance.value = await getBalance(currentUser.value.username)
+    console.log('✅ Balance geladen:', userBalance.value)
+  } catch (error) {
+    console.error('❌ Fehler beim Laden der Balance:', error)
+    userBalance.value = null
+  }
+}
+
+watchEffect(() => {
+  if (currentUser.value?.username) {
+    loadBalance()
+  }
 })
 
 // Helper-Funktion für Urlaubstage-Berechnung mit Halbtagen
@@ -512,7 +530,7 @@ const pendingTeamleadRequests = computed(() => {
   
   // Teamlead sieht nur pending requests seines Teams
   const myTeamMembers = orgNodes.value
-      .filter(n => n.teamId?.toLowerCase() === currentUser.value.username?.toLowerCase())
+      .filter(n => n.teamleadId?.toLowerCase() === currentUser.value.username?.toLowerCase())
       .map(n => n.userId)
   
   return pending.filter(r => myTeamMembers.includes(r.userId))
@@ -642,18 +660,19 @@ const handleReject = async (requestId: number) => {
 }
 
 // PDF Export Handlers
-const handleExportMyVacations = () => {
+const handleExportMyVacations = async () => {
   if (!currentUser.value || !approvedUserRequests.value.length || !userBalance.value) return
-  
+
   toast.info(t('vacation.pdfGenerating'))
-  
+
   try {
-    exportApprovedVacations(
+    await exportApprovedVacations(
       currentUser.value.displayName,
       approvedUserRequests.value,
       userBalance.value,
       halfDayDates.value,
-      t
+      t,
+      currentUser.value.username
     )
     toast.success(t('vacation.pdfCreated'))
   } catch (error) {

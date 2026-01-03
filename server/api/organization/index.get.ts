@@ -5,9 +5,8 @@ interface OrgNode {
   userId: string
   displayName: string
   role: string
-  teamId: string | null
-  managerId: string | null
-    isActive: number,
+  teamleadId: string | null  // ← Geändert von teamId
+  isActive: number
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,8 +23,7 @@ export default defineEventHandler(async (event) => {
           ELSE u.username
         END as displayName,
         u.role,
-        o.teamId,
-        o.managerId,
+        o.teamleadId,
         u.isActive
       FROM users u
       LEFT JOIN organization o ON u.username = o.userId

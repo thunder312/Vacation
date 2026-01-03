@@ -85,8 +85,17 @@ export const icons = {
     de: '/flags/de.png',      // Deutschland
     en: '/flags/gb.png',      // Großbritannien
     'pt-br': '/flags/br.png'  // Brasilien
-  }
+  },
+
+    calendar: {
+        vacation: '🏖️',
+        weekend: '🏁',
+        halfDay: '🕐',
+        halfVacation: '⚡'
+    },
 }
+
+
 
 /**
  * Icon-Typen für TypeScript

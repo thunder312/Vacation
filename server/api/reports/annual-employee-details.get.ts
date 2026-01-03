@@ -36,7 +36,6 @@ export default defineEventHandler(async (event) => {
       // Übertrag aus Vorjahr - SAFE: prüfe welche Spalte existiert
       let carryover = 0
       try {
-        // Versuche neue Struktur (calculatedDays/approvedDays)
         const result = db.prepare(`
           SELECT calculatedDays, approvedDays
           FROM carryover
@@ -44,11 +43,9 @@ export default defineEventHandler(async (event) => {
         `).get(user.username, year) as any
         
         if (result) {
-          // Nutze approvedDays falls vorhanden, sonst calculatedDays
           carryover = result.approvedDays || result.calculatedDays || 0
         }
       } catch (e: any) {
-        // Falls Spalten nicht existieren, versuche alte Struktur
         if (e.message.includes('no such column')) {
           try {
             const result = db.prepare(`
@@ -63,9 +60,17 @@ export default defineEventHandler(async (event) => {
         }
       }
 
+      // Lade Exceptions für diesen User (inkl. Grund)
+      const exceptions = db.prepare(`
+        SELECT date, deduction, vacationRequestId, reason
+        FROM vacation_exceptions
+        WHERE userId = ?
+      `).all(user.username) as any[]
+
       // Alle genehmigten Urlaube für das Jahr
       const vacations = db.prepare(`
         SELECT 
+          id,
           startDate,
           endDate,
           reason
@@ -76,16 +81,37 @@ export default defineEventHandler(async (event) => {
         ORDER BY startDate
       `).all(user.username, year) as any[]
       
-      // Berechne genommene Tage MIT calculateWorkdays (bereinigt!)
+      // Berechne genommene Tage MIT calculateWorkdays + Exceptions!
       let taken = 0
       const formattedVacations = vacations.map((v: any) => {
-        const workdays = calculateWorkdays(v.startDate, v.endDate, halfDayDates)
+        // Finde relevante Exceptions für diesen Urlaubsantrag
+        const relevantExceptions = exceptions
+          .filter(e => e.vacationRequestId === v.id)
+          .map(e => ({ date: e.date, deduction: e.deduction }))
+
+        const workdays = calculateWorkdays(
+          v.startDate, 
+          v.endDate, 
+          halfDayDates,
+          relevantExceptions // ← NEU: Exceptions übergeben
+        )
         taken += workdays
         
+        // Berechne Original-Tage (ohne Exceptions) für Rückbuchungs-Anzeige
+        const originalDays = calculateWorkdays(v.startDate, v.endDate, halfDayDates, [])
+        const fullExceptions = exceptions.filter(e => e.vacationRequestId === v.id)
+        const totalDeduction = fullExceptions.reduce((sum, e) => sum + e.deduction, 0)
+        // Sammle alle Rückbuchungs-Gründe (eindeutig)
+        const exceptionReasons = [...new Set(fullExceptions.map(e => e.reason).filter(Boolean))]
+
         return {
           startDate: new Date(v.startDate).toLocaleDateString('de-DE'),
           endDate: new Date(v.endDate).toLocaleDateString('de-DE'),
           days: workdays,
+          originalDays: originalDays,
+          deduction: totalDeduction,
+          hasException: fullExceptions.length > 0,
+          exceptionReason: exceptionReasons.join(', '),
           reason: v.reason
         }
       })

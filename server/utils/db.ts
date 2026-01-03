@@ -1,6 +1,7 @@
 // server/utils/db.ts
 import Database from 'better-sqlite3'
 import { join } from 'path'
+import bcrypt from 'bcrypt'
 
 // Datenbankpfad
 const dbPath = join(process.cwd(), 'server', 'database', 'sqlite.db')
@@ -17,7 +18,7 @@ export const db = new Database(dbPath, {
 db.pragma('journal_mode = WAL')
 
 // Tabellen erstellen falls sie nicht existieren
-export const initializeDatabase = () => {
+export const initializeDatabase = async () => {
   // Users Tabelle
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -88,8 +89,49 @@ export const initializeDatabase = () => {
     )
   `)
 
+  // Vacation Exceptions Tabelle (für personalisierte Rückbuchungen)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS vacation_exceptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vacationRequestId INTEGER NOT NULL,
+      userId TEXT NOT NULL,
+      date TEXT NOT NULL,
+      deduction REAL NOT NULL,
+      reason TEXT NOT NULL,
+      createdBy TEXT NOT NULL,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (vacationRequestId) REFERENCES vacation_requests(id),
+      FOREIGN KEY (userId) REFERENCES users(username),
+      UNIQUE(vacationRequestId, date)
+    )
+  `)
+
   if (isDev) {
     console.log('✅ Datenbank-Tabellen initialisiert')
+  }
+
+  // Admin User automatisch erstellen falls nicht vorhanden
+  const adminExists = db.prepare(`
+    SELECT COUNT(*) as count FROM users WHERE username = 'admin'
+  `).get() as { count: number }
+
+  if (adminExists.count === 0) {
+    const hashedPassword = await bcrypt.hash('admin123', 10)
+    
+    db.prepare(`
+      INSERT INTO users (username, firstName, lastName, password, role, vacationDays, isActive)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run('admin', 'Admin', 'User', hashedPassword, 'sysadmin', 30, 1)
+    
+    // Organization-Eintrag für Admin
+    db.prepare(`
+      INSERT INTO organization (userId, teamleadId)
+      VALUES (?, ?)
+    `).run('admin', null)
+    
+    console.log('✅ Admin User erstellt')
+    console.log('   Username: admin')
+    console.log('   Passwort: admin123')
   }
 }
 
