@@ -5,13 +5,23 @@ import { addPdfHeaderPortrait } from '../shared/pdfHeader'
 import { addPdfFooter } from '../shared/pdfFooter'
 import { openPdfInNewTab } from '../shared/pdfBase'
 
-export const exportApprovedVacations = (
+export const exportApprovedVacations = async (
   username: string,
   approvedRequests: any[],
   balance: any,
   halfDayDates: string[],
-  t: (key: string, params?: any) => string
+  t: (key: string, params?: any) => string,
+  userId: string
 ) => {
+  // Lade alle Exceptions für den User
+  let allExceptions: any[] = []
+  try {
+    allExceptions = await $fetch(`/api/vacation-exceptions?userId=${userId}`)
+  } catch (err) {
+    console.warn('Could not load exceptions for PDF export:', err)
+    allExceptions = []
+  }
+
   const doc = new jsPDF()
 
   // Header mit Logo rechts oben
@@ -56,32 +66,91 @@ export const exportApprovedVacations = (
     (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
   )
 
-  const tableData = sortedRequests.map(req => [
-    formatDate(req.startDate),
-    formatDate(req.endDate),
-    calculateWorkdays(req.startDate, req.endDate, halfDayDates).toString(),
-    req.reason || '-',
-    getStatusText(req.status)
-  ])
+  // Prüfe ob es Exceptions gibt
+  const hasAnyExceptions = allExceptions.length > 0
+
+  const tableData = sortedRequests.map(req => {
+    // Finde Exceptions für diesen Request
+    const requestExceptions = allExceptions.filter(e => e.vacationRequestId === req.id)
+
+    const originalDays = calculateWorkdays(req.startDate, req.endDate, halfDayDates)
+    const effectiveDays = calculateWorkdays(req.startDate, req.endDate, halfDayDates, requestExceptions)
+
+    const baseRow = [
+      formatDate(req.startDate),
+      formatDate(req.endDate),
+      effectiveDays.toString(),
+      req.reason || '-',
+      getStatusText(req.status)
+    ]
+
+    // Füge Rückbuchungs-Spalte nur hinzu, wenn es welche gibt
+    if (hasAnyExceptions) {
+      if (requestExceptions.length > 0) {
+        const totalDeduction = requestExceptions.reduce((sum, e) => sum + e.deduction, 0)
+        baseRow.push(`${originalDays} - ${totalDeduction} = ${effectiveDays}`)
+      } else {
+        baseRow.push('-')
+      }
+    }
+
+    return baseRow
+  })
+
+  const headers = [t('common.from'), t('common.to'), t('vacation.vacationDays'), t('common.reason'), t('common.status')]
+  if (hasAnyExceptions) {
+    headers.push('Rückbuchung')
+  }
 
   autoTable(doc, {
     startY: currentY,
-    head: [[t('common.from'), t('common.to'), t('vacation.vacationDays'), t('common.reason'), t('common.status')]],
+    head: [headers],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [102, 126, 234] },
     styles: { fontSize: 10, cellPadding: 3 }
   })
 
-  // Summe
-  const totalDays = approvedRequests.reduce(
-    (sum, req) => sum + calculateWorkdays(req.startDate, req.endDate, halfDayDates),
-    0
-  )
+  // Summe (mit Exceptions berücksichtigt)
+  const totalDays = approvedRequests.reduce((sum, req) => {
+    const requestExceptions = allExceptions.filter(e => e.vacationRequestId === req.id)
+    return sum + calculateWorkdays(req.startDate, req.endDate, halfDayDates, requestExceptions)
+  }, 0)
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10
+  let finalY = (doc as any).lastAutoTable.finalY + 10
   doc.setFontSize(11)
   doc.text(`${t('pdf.totalApprovedDays')}: ${totalDays}`, 15, finalY)
+
+  // Anmerkung zu Rückbuchungen (falls vorhanden)
+  if (hasAnyExceptions) {
+    finalY += 10
+    doc.setFontSize(9)
+    doc.setFont('arial', 'italic')
+    doc.setTextColor(150, 80, 0) // Orange/Braun für Warnung
+
+    // Zähle Gesamtanzahl der Rückbuchungen
+    const totalExceptions = allExceptions.length
+    const totalDeductions = allExceptions.reduce((sum, e) => sum + e.deduction, 0)
+
+    doc.text('⚠ Hinweis:', 15, finalY)
+    finalY += 5
+    doc.setFont('arial', 'normal')
+    doc.text(
+      `${totalExceptions} Rückbuchung${totalExceptions > 1 ? 'en' : ''} (insgesamt ${totalDeductions} Tag${totalDeductions !== 1 ? 'e' : ''}) wurden bei der Berechnung berücksichtigt.`,
+      15,
+      finalY
+    )
+    finalY += 5
+    doc.text(
+      'Die Spalte "Rückbuchung" zeigt: Ursprüngliche Tage - Abzug = Effektive Tage',
+      15,
+      finalY
+    )
+
+    // Setze Farbe zurück
+    doc.setTextColor(0, 0, 0)
+    doc.setFont('arial', 'normal')
+  }
 
   // Footer
   addPdfFooter(doc, (current, total) => t('pdf.totalPages', { current, total }))

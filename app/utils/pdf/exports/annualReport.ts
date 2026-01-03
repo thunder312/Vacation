@@ -108,23 +108,66 @@ const generateEmployeePage = (doc: jsPDF, employee: any, year: number) => {
   y += 5
   
   if (employee.vacations && employee.vacations.length > 0) {
-    const tableData = employee.vacations.map((v: any) => [
-      v.startDate,
-      v.endDate,
-      v.days.toString(),
-      v.reason || '-'
-    ])
-    
+    // Prüfe ob es Rückbuchungen gibt
+    const hasAnyExceptions = employee.vacations.some((v: any) => v.hasException)
+
+    const tableData = employee.vacations.map((v: any) => {
+      const baseRow = [
+        v.startDate,
+        v.endDate,
+        v.days.toString(),
+        v.reason || '-'
+      ]
+
+      // Füge Rückbuchungs-Spalte hinzu, wenn es welche gibt
+      if (hasAnyExceptions) {
+        if (v.hasException) {
+          // Zeige Berechnung + Grund
+          const reasonText = v.exceptionReason ? `\n(${v.exceptionReason})` : ''
+          baseRow.push(`${v.originalDays} - ${v.deduction} = ${v.days}${reasonText}`)
+        } else {
+          baseRow.push('-')
+        }
+      }
+
+      return baseRow
+    })
+
+    const headers = ['Von', 'Bis', 'Tage', 'Grund']
+    if (hasAnyExceptions) {
+      headers.push('Rückbuchung')
+    }
+
     autoTable(doc, {
       startY: y,
-      head: [['Von', 'Bis', 'Tage', 'Grund']],
+      head: [headers],
       body: tableData,
       styles: { fontSize: 9 },
       headStyles: { fillColor: [66, 139, 202] },
       margin: { left: 20, right: 20 }
     })
-    
-    y = (doc as any).lastAutoTable.finalY + 15
+
+    y = (doc as any).lastAutoTable.finalY + 8
+
+    // Hinweis zu Rückbuchungen (falls vorhanden)
+    if (hasAnyExceptions) {
+      const totalDeductions = employee.vacations
+        .filter((v: any) => v.hasException)
+        .reduce((sum: number, v: any) => sum + v.deduction, 0)
+      const exceptionCount = employee.vacations.filter((v: any) => v.hasException).length
+
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'italic')
+      doc.setTextColor(150, 80, 0) // Orange/Braun
+      doc.text(
+        `* ${exceptionCount} Rückbuchung${exceptionCount > 1 ? 'en' : ''} (${totalDeductions} Tag${totalDeductions !== 1 ? 'e' : ''}) bereits abgezogen`,
+        20,
+        y
+      )
+      doc.setTextColor(0, 0, 0) // Zurücksetzen
+      doc.setFont('helvetica', 'normal')
+      y += 7
+    }
   } else {
     doc.setFont('helvetica', 'italic')
     doc.text('Keine Urlaube in diesem Jahr', 25, y + 5)

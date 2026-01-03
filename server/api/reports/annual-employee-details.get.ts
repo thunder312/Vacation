@@ -60,9 +60,9 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      // Lade Exceptions für diesen User
+      // Lade Exceptions für diesen User (inkl. Grund)
       const exceptions = db.prepare(`
-        SELECT date, deduction, vacationRequestId
+        SELECT date, deduction, vacationRequestId, reason
         FROM vacation_exceptions
         WHERE userId = ?
       `).all(user.username) as any[]
@@ -97,10 +97,21 @@ export default defineEventHandler(async (event) => {
         )
         taken += workdays
         
+        // Berechne Original-Tage (ohne Exceptions) für Rückbuchungs-Anzeige
+        const originalDays = calculateWorkdays(v.startDate, v.endDate, halfDayDates, [])
+        const fullExceptions = exceptions.filter(e => e.vacationRequestId === v.id)
+        const totalDeduction = fullExceptions.reduce((sum, e) => sum + e.deduction, 0)
+        // Sammle alle Rückbuchungs-Gründe (eindeutig)
+        const exceptionReasons = [...new Set(fullExceptions.map(e => e.reason).filter(Boolean))]
+
         return {
           startDate: new Date(v.startDate).toLocaleDateString('de-DE'),
           endDate: new Date(v.endDate).toLocaleDateString('de-DE'),
           days: workdays,
+          originalDays: originalDays,
+          deduction: totalDeduction,
+          hasException: fullExceptions.length > 0,
+          exceptionReason: exceptionReasons.join(', '),
           reason: v.reason
         }
       })

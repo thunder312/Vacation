@@ -660,18 +660,19 @@ const handleReject = async (requestId: number) => {
 }
 
 // PDF Export Handlers
-const handleExportMyVacations = () => {
+const handleExportMyVacations = async () => {
   if (!currentUser.value || !approvedUserRequests.value.length || !userBalance.value) return
-  
+
   toast.info(t('vacation.pdfGenerating'))
-  
+
   try {
-    exportApprovedVacations(
+    await exportApprovedVacations(
       currentUser.value.displayName,
       approvedUserRequests.value,
       userBalance.value,
       halfDayDates.value,
-      t
+      t,
+      currentUser.value.username
     )
     toast.success(t('vacation.pdfCreated'))
   } catch (error) {
