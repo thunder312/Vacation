@@ -3960,10 +3960,13 @@ button {
 }
 
 .calendar-container {
-    overflow-x: auto;
-    overflow-y: visible;
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+}
+
+.calendar-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
 }
 
 .calendar-grid {
@@ -3990,20 +3993,18 @@ button {
     grid-template-columns: 150px repeat(31, minmax(40px, 1fr));
     gap: 0;
     background: white;
-    border: 1px solid var(--color-gray-300);
     border-radius: var(--radius-md);
-    overflow-x: auto;
     min-width: 1400px;
 }
 
-/* Employee Column (links) */
+/* Employee Column (links) - sticky */
 .employee-column {
     grid-column: 1;
     background: var(--color-gray-50);
     border-right: 2px solid var(--color-gray-300);
     position: sticky;
     left: 0;
-    z-index: 10;
+    z-index: 20;
 }
 
 .employee-column.header-column {

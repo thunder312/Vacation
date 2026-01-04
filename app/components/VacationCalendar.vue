@@ -20,40 +20,42 @@
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
 
-    <div v-else class="calendar-grid">
-      <!-- Header: Employee names -->
-      <div class="employee-column header-column">
-        <div class="employee-name header-cell">{{ t('calendar.employee') }}</div>
-      </div>
-
-      <!-- Day columns -->
-      <div 
-        v-for="day in daysInMonth" 
-        :key="day.date"
-        class="day-column"
-        :class="getDayClass(day)"
-      >
-        <div class="day-header" :title="getDayTitle(day)">
-          <div class="day-number">{{ day.day }}</div>
-          <div class="day-name">{{ day.weekday }}</div>
-        </div>
-      </div>
-
-      <!-- Employee rows -->
-      <template v-for="employee in employeesWithVacation" :key="employee.userId">
-        <div class="employee-column">
-          <div class="employee-name">{{ getCompactName(employee.displayName) }}</div>
+    <div v-else class="calendar-scroll-wrapper">
+      <div class="calendar-grid">
+        <!-- Header: Employee names -->
+        <div class="employee-column header-column">
+          <div class="employee-name header-cell">{{ t('calendar.employee') }}</div>
         </div>
 
-        <div 
-          v-for="day in daysInMonth" 
-          :key="`${employee.userId}-${day.date}`"
-          class="day-cell"
-          :class="[getDayClass(day), getVacationClass(employee, day.date)]"
-          :title="getVacationTooltip(employee, day.date)"
+        <!-- Day columns -->
+        <div
+          v-for="day in daysInMonth"
+          :key="day.date"
+          class="day-column"
+          :class="getDayClass(day)"
         >
+          <div class="day-header" :title="getDayTitle(day)">
+            <div class="day-number">{{ day.day }}</div>
+            <div class="day-name">{{ day.weekday }}</div>
+          </div>
         </div>
-      </template>
+
+        <!-- Employee rows -->
+        <template v-for="employee in employeesWithVacation" :key="employee.userId">
+          <div class="employee-column">
+            <div class="employee-name">{{ getCompactName(employee.displayName) }}</div>
+          </div>
+
+          <div
+            v-for="day in daysInMonth"
+            :key="`${employee.userId}-${day.date}`"
+            class="day-cell"
+            :class="[getDayClass(day), getVacationClass(employee, day.date)]"
+            :title="getVacationTooltip(employee, day.date)"
+          >
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- Legend -->
