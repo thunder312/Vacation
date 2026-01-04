@@ -1487,23 +1487,6 @@ button {
 
 /* Organigramm Baum */
 .org-tree {
-    background: var(--color-white);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    margin-bottom: var(--spacing-xl);
-    margin-top: var(--spacing-lg);
-    overflow-x: auto;
-    overflow-y: visible;
-}
-
-/* Organigramm Baum */
-.org-tree {
-    background: var(--color-white);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    margin-bottom: var(--spacing-xl);
     overflow-x: auto;
     overflow-y: visible;
 }
@@ -1600,11 +1583,6 @@ button {
     margin: var(--spacing-xs);
 }
 
-.org-node:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    z-index: 10;
-}
 
 .org-node.manager {
     background: #ffebee;
@@ -3583,6 +3561,10 @@ button {
 
 .teams-overview .section-content {
     padding: 20px;
+}
+
+.org-tree-section .section-content {
+    padding: 0 20px 20px 20px;
 }
 
 
