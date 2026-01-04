@@ -155,9 +155,9 @@ export const ptBr = {
   },
 
   organization: {
-    teamManagement: 'Gerenciamento de Equipe',
+    teamManagement: 'Equipes',
     teams: 'Equipes',
-    assignEmployeesToTeams: 'Atribuir funcionários às equipes',
+    assignEmployeesToTeams: 'Visão geral da composição das equipes',
     noEmployeesAssigned: 'Nenhum funcionário atribuído',
     removeFromTeam: 'Remover da equipe',
     orgChart: 'Organograma',

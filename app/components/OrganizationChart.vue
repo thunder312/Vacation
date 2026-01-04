@@ -13,11 +13,10 @@
 
     <div class="teams-overview">
       <div class="section-header" @click="toggleTeamsSection">
-        <div class="header-left">
+        <h3>
           <span class="toggle-icon">{{ showTeamsSection ? '▼' : '▶' }}</span>
-          <h3>{{ t('organization.teamManagement') }}</h3>
-          <span class="count-badge">{{ teams?.length || 0 }} {{ t('organization.teams') }}</span>
-        </div>
+          {{ t('organization.teamManagement') }} ({{ teams?.length || 0 }})
+        </h3>
         <span class="description-collapsed" v-if="!showTeamsSection">
           {{ t('organization.assignEmployeesToTeams') }}
         </span>
@@ -53,10 +52,10 @@
 
     <div class="org-tree-section">
       <div class="section-header" @click="toggleOrgTree">
-        <div class="header-left">
+        <h3>
           <span class="toggle-icon">{{ showOrgTree ? '▼' : '▶' }}</span>
-          <h3>{{ t('organization.orgChart') }}</h3>
-        </div>
+          {{ t('organization.orgChart') }}
+        </h3>
         <span class="description-collapsed" v-if="!showOrgTree">
           {{ t('organization.graphicalRepresentation') }}
         </span>

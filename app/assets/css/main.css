@@ -1706,20 +1706,6 @@ button {
     background: var(--color-gray-300);
 }
 
-/* Team-Übersicht */
-.teams-overview {
-    background: var(--color-white);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    margin-bottom: var(--spacing-xl);
-}
-
-.teams-overview h3 {
-    margin: 0 0 var(--spacing-lg);
-    color: var(--color-gray-800);
-}
-
 .teams-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -3558,8 +3544,16 @@ button {
     padding: 20px;
 }
 
+.org-tree-section {
+    background: white;
+    padding: 0;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 30px;
+}
+
 .org-tree-section .section-content {
-    padding: 0 20px 20px 20px;
+    padding: 20px;
 }
 
 
