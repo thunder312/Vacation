@@ -4,6 +4,7 @@
 :root {
     /* Primärfarben */
     --color-primary: #113049;
+    --color-primary-rgb: 17, 48, 73;
     --color-primary-dark: #17354E;
     --color-primary-light: #4AC9F8;
 
@@ -40,6 +41,11 @@
     --color-gray-700: #555;
     --color-gray-800: #333;
     --color-gray-900: #222;
+
+    /* Semantische Farben */
+    --color-border: #e0e0e0;
+    --color-text: #333;
+    --color-text-secondary: #666;
 
     /* Status Badge Farben */
     --status-pending-bg: #fff3cd;
@@ -83,6 +89,7 @@
 [data-theme="summer"] {
     /* Primärfarben - Warme Sommer-Töne */
     --color-primary: #FF6B35;
+    --color-primary-rgb: 255, 107, 53;
     --color-primary-dark: #FF8C42;
     --color-primary-light: #FFD93D;
 
@@ -119,6 +126,11 @@
     --color-gray-700: #B35624;
     --color-gray-800: #8C3B1A;
     --color-gray-900: #662010;
+
+    /* Semantische Farben - Sommerlich */
+    --color-border: #FFE5CC;
+    --color-text: #8C3B1A;
+    --color-text-secondary: #B35624;
 
     /* Status Badge Farben - Sommerlich */
     --status-pending-bg: #FFF3E0;
@@ -2254,14 +2266,7 @@ button {
     font-weight: bold;
 }
 
-/* ============================================================ */
-/* COMPONENT STYLES - Extracted from Vue Components */
-/* ============================================================ */
-
-
-============================================================
 /* AboutModal.vue */
-============================================================
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -2541,9 +2546,8 @@ button {
     }
 }
 
-============================================================
+
 /* CarryoverInfo.vue */
-============================================================
 .carryover-info-banner {
     margin-bottom: 24px;
     border-radius: 12px;
@@ -2640,9 +2644,7 @@ button {
     }
 }
 
-============================================================
 /* CarryoverReview.vue */
-============================================================
 .carryover-review {
     background: white;
     border-radius: 12px;
@@ -3060,9 +3062,7 @@ button {
     }
 }
 
-============================================================
 /* LanguageSwitcher.vue */
-============================================================
 .language-dropdown {
     position: relative;
     display: inline-block;
@@ -3190,9 +3190,9 @@ button {
     font-size: 16px;
 }
 
-============================================================
+
 /* YearTransitionPanel.vue */
-============================================================
+
 .year-transition-section {
     background: white;
     border-radius: 12px;
@@ -3476,9 +3476,9 @@ button {
     color: var(--color-gray-500);
 }
 
-/* ============================================================ */
+/*  */
 /* COLLAPSIBLE SECTIONS - Shared Styles */
-/* ============================================================ */
+/*  */
 
 .section-header {
     background: var(--color-gray-50);
@@ -3528,9 +3528,9 @@ button {
     }
 }
 
-/* ============================================================ */
+/*  */
 /* USER MANAGEMENT - Add User Section */
-/* ============================================================ */
+/*  */
 
 .add-user-section {
     background: white;
@@ -3544,9 +3544,9 @@ button {
     padding: 20px;
 }
 
-/* ============================================================ */
+/*  */
 /* ORGANIZATION CHART - Teams Overview */
-/* ============================================================ */
+/*  */
 
 .teams-overview {
     background: white;
@@ -3561,9 +3561,9 @@ button {
 }
 
 
-/* ============================================================ */
+
 /* VACATION CANCELLATION - Admin Panel */
-/* ============================================================ */
+
 
 .vacation-cancellation {
     background: white;
@@ -3823,9 +3823,9 @@ button {
 }
 
 
-/* ============================================================ */
+
 /* VACATION CALENDAR */
-/* ============================================================ */
+
 
 /* ===== VACATION CALENDAR ===== */
 .vacation-calendar {
@@ -3946,9 +3946,9 @@ button {
 }
 
 
-/* ============================================================ */
+
 /* VACATION CALENDAR - Grid Layout (Fixed) */
-/* ============================================================ */
+
 
 .calendar-days-header {
     display: grid;
@@ -4190,9 +4190,9 @@ button {
         min-width: 35px;
     }
 }
-/* ============================================================ */
+
 /* ANNUAL VACATION REPORT */
-/* ============================================================ */
+
 
 .annual-vacation-report {
     max-width: 900px;
@@ -4344,9 +4344,9 @@ button {
 }
 
 
-/* ============================================================ */
+
 /* APPROVED VACATION LIST (Genehmigte Urlaube - Manager Tab) */
-/* ============================================================ */
+
 
 .approved-vacation-list {
     margin-top: 40px;
@@ -4840,10 +4840,8 @@ button {
   ) !important;
 }
 
-/* ============================================================ */
-/* VACATION CANCELLATION - Form Styling */
-/* ============================================================ */
 
+/* VACATION CANCELLATION - Form Styling */
 /* Date Input Styling */
 .date-input {
     padding: var(--spacing-md);
