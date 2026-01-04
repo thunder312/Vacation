@@ -53,7 +53,7 @@
         </div>
         <div class="rule-footer">
           <small>
-            Erstellt von {{ rule.createdBy }} am {{ formatDate(rule.createdAt) }}
+            Erstellt am {{ formatDate(rule.createdAt) }}
           </small>
         </div>
       </div>
