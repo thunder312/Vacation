@@ -42,7 +42,18 @@ export const useVacationRequests = () => {
       // Lokale Liste aktualisieren
       requests.value.push(newRequest)
       toast.success(t('vacation.requestSuccess'))
-      
+
+      // Bei automatisch genehmigten Anträgen (Manager) den Kalender benachrichtigen
+      if (newRequest.status === 'approved') {
+        emit('vacation-approved', {
+          requestId: newRequest.id,
+          level: 'manager',
+          status: newRequest.status,
+          startDate: newRequest.startDate,
+          endDate: newRequest.endDate
+        })
+      }
+
       return newRequest
     } catch (error) {
       console.error('Failed to submit request:', error)
@@ -187,7 +198,7 @@ export const useVacationRequests = () => {
         if (r.status === 'pending') {
           const userNode = orgNodes.value.find(n => n.userId === r.userId)
           // User hat keinen Teamlead ODER ist selbst Teamlead/Office/Manager
-          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager'].includes(userNode.role))) {
+          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager', 'sysadmin'].includes(userNode.role))) {
             return true
           }
         }
@@ -231,7 +242,7 @@ export const useVacationRequests = () => {
         if (r.status === 'pending') {
           const userNode = orgNodes.value.find(n => n.userId === r.userId)
           // User hat keinen Teamlead ODER ist selbst Teamlead/Office/Manager
-          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager'].includes(userNode.role))) {
+          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager', 'sysadmin'].includes(userNode.role))) {
             return true
           }
         }

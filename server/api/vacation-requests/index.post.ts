@@ -12,24 +12,26 @@ export default defineEventHandler(async (event) => {
     console.log(icons.actions.search + ' Extracted values:', { userId, displayName, startDate, endDate, reason })
 
     // Validierung
-    if (!userId || !displayName || !startDate || !endDate) {
+    if (!userId || !startDate || !endDate) {
       console.log(icons.ui.error + ' Validation failed:', {
-        hasUserId: !!userId, 
-        hasDisplayName: !!displayName, 
-        hasStartDate: !!startDate, 
-        hasEndDate: !!endDate 
+        hasUserId: !!userId,
+        hasStartDate: !!startDate,
+        hasEndDate: !!endDate
       })
       throw createError({
         statusCode: 400,
         message: 'Fehlende Pflichtfelder'
       })
     }
-    
+
     console.log(icons.actions.activate + ' Validation passed, checking user role...')
-    
-    // Prüfe Rolle des Users
-    const user = queryOne<any>('SELECT role FROM users WHERE username = ?', [userId])
+
+    // Prüfe Rolle des Users und hole displayName falls nicht vorhanden
+    const user = queryOne<any>('SELECT role, lastName, firstName FROM users WHERE username = ?', [userId])
     const isManager = user?.role === 'manager'
+
+    // Fallback für displayName: lastName, firstName oder userId
+    const effectiveDisplayName = displayName || user?.lastName || user?.firstName || userId
     
     console.log(icons.actions.search + ' User role:', user?.role, 'isManager:', isManager)
 
@@ -41,14 +43,14 @@ export default defineEventHandler(async (event) => {
           teamleadApprovalDate, managerApprovalDate
         )
         VALUES (?, ?, ?, ?, ?, 'approved', datetime('now'), datetime('now'))
-      `, [userId, displayName, startDate, endDate, reason || null])
-      
+      `, [userId, effectiveDisplayName, startDate, endDate, reason || null])
+
       console.log(icons.actions.activate + ' Manager request auto-approved, ID:', result.lastInsertRowid)
 
       return {
         id: result.lastInsertRowid,
         userId,
-        displayName,
+        displayName: effectiveDisplayName,
         startDate,
         endDate,
         reason,
@@ -62,14 +64,14 @@ export default defineEventHandler(async (event) => {
     const result = execute(`
       INSERT INTO vacation_requests (userId, displayName, startDate, endDate, reason, status)
       VALUES (?, ?, ?, ?, ?, 'pending')
-    `, [userId, displayName, startDate, endDate, reason || null])
-    
+    `, [userId, effectiveDisplayName, startDate, endDate, reason || null])
+
     console.log(icons.actions.activate + ' Insert successful, ID:', result.lastInsertRowid)
 
     return {
       id: result.lastInsertRowid,
       userId,
-      displayName,
+      displayName: effectiveDisplayName,
       startDate,
       endDate,
       reason,

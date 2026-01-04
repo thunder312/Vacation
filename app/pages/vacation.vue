@@ -519,12 +519,12 @@ const pendingTeamleadRequests = computed(() => {
   const allRequests = getAllRequests().value || []
   const pending = allRequests.filter(r => r.status === 'pending')
   
-  // Manager sieht alle pending requests (außer Office & Teamleiter)
+  // Manager sieht alle pending requests (außer Office, Teamleiter & SysAdmin - diese gehen direkt zum Manager)
   if (currentUser.value.role === 'manager') {
     const { orgNodes } = useOrganization()
     return pending.filter(r => {
       const requester = orgNodes.value.find(n => n.userId === r.userId)
-      return requester && requester.role !== 'office' && requester.role !== 'teamlead'
+      return requester && !['office', 'teamlead', 'sysadmin'].includes(requester.role)
     })
   }
   
@@ -644,7 +644,7 @@ const handleSubmitRequest = async (formData: { startDate: string; endDate: strin
 
   await submitRequest(
       currentUser.value.username,
-      currentUser.value.displayName,
+      currentUser.value.displayName || currentUser.value.username,
       formData.startDate,
       formData.endDate,
       formData.reason

@@ -45,11 +45,31 @@ export const initializeDatabase = async () => {
       endDate TEXT NOT NULL,
       reason TEXT,
       status TEXT NOT NULL DEFAULT 'pending',
+      teamleadApprovalDate TEXT,
+      managerApprovalDate TEXT,
       cancelReason TEXT,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (userId) REFERENCES users(username)
     )
   `)
+
+  // Migration: Fehlende Spalten hinzufügen für bestehende Datenbanken
+  try {
+    const columns = db.prepare("PRAGMA table_info(vacation_requests)").all() as { name: string }[]
+    const columnNames = columns.map(c => c.name)
+
+    if (!columnNames.includes('teamleadApprovalDate')) {
+      db.exec('ALTER TABLE vacation_requests ADD COLUMN teamleadApprovalDate TEXT')
+      console.log('📦 Migration: teamleadApprovalDate Spalte hinzugefügt')
+    }
+
+    if (!columnNames.includes('managerApprovalDate')) {
+      db.exec('ALTER TABLE vacation_requests ADD COLUMN managerApprovalDate TEXT')
+      console.log('📦 Migration: managerApprovalDate Spalte hinzugefügt')
+    }
+  } catch (error) {
+    console.error('Migration Fehler:', error)
+  }
 
   // Organization Tabelle
   db.exec(`
