@@ -1,5 +1,10 @@
 # TODOs
+   ## bugs
+  - Warnung bei zuvielen Tagen schon beim Beantragen
+  - Manager kann keinen Urlaub beantragen
+
    ## business logic
+  - Kalender-PDF pro Monat
   - <del>days off per year: 30 (carryover to next year)</del>
   - <del>custom days (holidays) addable by admin, even half days</del>
   - <del>role: office (see as admin, but no edits)</del>
@@ -35,13 +40,15 @@
   - <del>Alle Urlaube shall ordered by von-date, then bis-date and group by user.</del>
   - <del>Finish about modal</del>
   - Create Manual deutsch/englisch
-  - Pflichtenhelft/Lastenheft???
   - <del>dummy company for gitHub</del>
 
 ## Code organization
-- <del>all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.</del>
-- 
+- all icons (Organigramm, scheme, toasts?...) as images in assets to be easier swapable.
+- complete i18n
 - FINAL Version of seed and scheme.
+- PDF alle in app/utils/pdf/exports (beate /shared mit header und footer)
+- css doch aufteilen?
+- admin als eigene Rolle? (aktuell 'manager' wie Chef)
 
 ## DB
   - <del>DB connection</del>
