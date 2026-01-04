@@ -208,16 +208,16 @@
                 <span v-else class="status-inactive">○ {{ t('status.inactive') }}</span>
               </td>
               <td class="actions-cell">
-                <button 
-                  v-if="user.isActive && (user.role !== 'manager' || currentUser?.username === 'admin')"
-                  @click="startEdit(user)" 
+                <button
+                  v-if="user.isActive && (user.role !== 'manager' || currentUser?.username === 'admin' || currentUser?.username === user.username)"
+                  @click="startEdit(user)"
                   class="btn-icon"
                   :title="t('users.editUser')"
                 >
                   {{icons.actions.edit}}
                 </button>
                 <button
-                    v-if="currentUser?.username === 'admin' || user.role !== 'manager'"
+                    v-if="currentUser?.username === 'admin' || user.role !== 'manager' || currentUser?.username === user.username"
                   @click="resetPassword(user)"
                   class="btn-icon"
                   :title="t('users.resetPassword')"
@@ -225,7 +225,7 @@
                   🔑
                 </button>
                 <button
-                    v-if="currentUser?.username === 'admin' || user.role !== 'manager'"
+                    v-if="(currentUser?.username === 'admin' || user.role !== 'manager') && currentUser?.username !== user.username"
                   @click="toggleUserActive(user)"
                   class="btn-icon"
                   :title="user.isActive ? t('users.deactivateUser') : t('users.activateUser')"
