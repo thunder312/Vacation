@@ -176,7 +176,25 @@ export const useVacationRequests = () => {
   }
 
   const getPendingManagerRequests = () => {
-    return computed(() => requests.value.filter(r => r.status === 'teamlead_approved'))
+    return computed(() => {
+      const { orgNodes } = useOrganization()
+
+      return requests.value.filter(r => {
+        // Anträge, die vom Teamlead genehmigt wurden
+        if (r.status === 'teamlead_approved') return true
+
+        // Pending Anträge von Usern ohne Teamlead (Teamleiter, Office, etc.)
+        if (r.status === 'pending') {
+          const userNode = orgNodes.value.find(n => n.userId === r.userId)
+          // User hat keinen Teamlead ODER ist selbst Teamlead/Office/Manager
+          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager'].includes(userNode.role))) {
+            return true
+          }
+        }
+
+        return false
+      })
+    })
   }
 
   const getAllTeamRequests = (currentUserId: string) => {
@@ -200,11 +218,27 @@ export const useVacationRequests = () => {
     })
   }
 
-  // Manager-Requests (teamlead_approved)
+  // Manager-Requests (teamlead_approved + pending von Usern ohne Teamlead)
   const getManagerRequests = () => {
-    return computed(() => 
-      requests.value.filter(r => r.status === 'teamlead_approved')
-    )
+    return computed(() => {
+      const { orgNodes } = useOrganization()
+
+      return requests.value.filter(r => {
+        // Anträge, die vom Teamlead genehmigt wurden
+        if (r.status === 'teamlead_approved') return true
+
+        // Pending Anträge von Usern ohne Teamlead (Teamleiter, Office, etc.)
+        if (r.status === 'pending') {
+          const userNode = orgNodes.value.find(n => n.userId === r.userId)
+          // User hat keinen Teamlead ODER ist selbst Teamlead/Office/Manager
+          if (userNode && (!userNode.teamleadId || ['teamlead', 'office', 'manager'].includes(userNode.role))) {
+            return true
+          }
+        }
+
+        return false
+      })
+    })
   }
 
   // Genehmigte Requests (für Manager zum Absagen)
