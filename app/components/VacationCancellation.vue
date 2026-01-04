@@ -105,8 +105,8 @@
           <small>{{ description.length }}/500 Zeichen</small>
         </div>
 
-        <div class="cancellation-preview">
-          <h5>{{icons.roles.office}} Vorschau:</h5>
+        <div class="info-box">
+          <strong>{{icons.roles.office}} Vorschau:</strong>
           <ul>
             <li><strong>{{ t('common.date') }}:</strong> {{ formatDate(selectedDate) }}</li>
             <li><strong>Betroffene:</strong> {{ selectedEmployees.length }} {{ t('organization.employees') }}</li>
@@ -521,26 +521,6 @@ const resetForm = () => {
 .form-group small {
   color: var(--text-secondary);
   font-size: 0.875rem;
-}
-
-.cancellation-preview {
-  background: var(--surface-secondary);
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.cancellation-preview h5 {
-  margin: 0 0 0.75rem 0;
-}
-
-.cancellation-preview ul {
-  margin: 0;
-  padding-left: 1.5rem;
-}
-
-.cancellation-preview li {
-  margin: 0.5rem 0;
 }
 
 .action-buttons {
