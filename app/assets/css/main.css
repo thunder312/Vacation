@@ -1531,6 +1531,30 @@ button {
     margin: 0 auto;
 }
 
+.org-connector-vertical-small {
+    width: 2px;
+    height: 15px;
+    background: var(--color-gray-300);
+    margin: 0 auto;
+}
+
+/* Team-Members innerhalb eines Teams */
+.team-members-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: var(--spacing-xs);
+}
+
+.employees-level {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    width: 100%;
+}
+
 /* Teamlead & Office Ebene */
 .teamlead-level {
     display: flex;
@@ -1595,7 +1619,8 @@ button {
     border-color: #f57c00;
     color: #f57c00;
     min-width: 120px;
-    max-width: 120px;
+    max-width: none;
+    width: fit-content;
 }
 
 .org-node.employee {
