@@ -155,9 +155,9 @@ export const en = {
   },
 
   organization: {
-    teamManagement: 'Team Management',
+    teamManagement: 'Teams',
     teams: 'Teams',
-    assignEmployeesToTeams: 'Assign employees to teams',
+    assignEmployeesToTeams: 'Overview of team composition',
     noEmployeesAssigned: 'No employees assigned',
     removeFromTeam: 'Remove from team',
     orgChart: 'Organization Chart',

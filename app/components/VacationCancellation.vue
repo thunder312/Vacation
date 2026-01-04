@@ -361,50 +361,6 @@ const resetForm = () => {
 </script>
 
 <style scoped>
-.vacation-cancellation {
-  margin: 1rem 0;
-}
-
-.section-header {
-  background: var(--surface-secondary);
-  padding: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background 0.2s;
-}
-
-.section-header:hover {
-  background: var(--surface-hover);
-}
-
-.section-header h3 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.toggle-icon {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.description-collapsed {
-  color: var(--text-secondary);
-  margin: 0;
-  font-size: 0.875rem;
-}
-
-.section-content {
-  padding: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-
 .step-section {
   margin-bottom: 2rem;
 }
