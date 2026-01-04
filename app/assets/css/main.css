@@ -1283,11 +1283,6 @@ button {
     transition: all var(--transition-fast);
 }
 
-.rule-card:hover {
-    box-shadow: var(--shadow-sm);
-    transform: translateX(4px);
-}
-
 .rule-header {
     display: flex;
     justify-content: space-between;
