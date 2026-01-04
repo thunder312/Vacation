@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
         // Organization existiert → UPDATE
         execute(`
           UPDATE organization
-          SET teamleadId = ?, updatedAt = datetime('now')
+          SET teamleadId = ?
           WHERE userId = ?
         `, [teamleadId, username])
         console.log(icons.actions.approve + ' organization table updated')
@@ -97,8 +97,8 @@ export default defineEventHandler(async (event) => {
       
       if (orgEntry) {
         execute(`
-          UPDATE organization 
-          SET teamleadId = ?, updatedAt = datetime('now')
+          UPDATE organization
+          SET teamleadId = ?
           WHERE userId = ?
         `, [teamleadId, username])
       } else {
