@@ -44,19 +44,6 @@
       </div>
     </div>
   </div>
-  <table>
-    <thead>
-      <tr><th>Rolle</th><th>Username</th><th>Password</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>ADMIN (Vorsicht!)</td><td>admin</td><td>admin123</td></tr>
-      <tr><td>Manager</td><td>sos</td><td>zmxn62tv</td></tr>
-      <tr><td>Teamleiter</td><td>hoegi</td><td>72zoa3mq</td></tr>
-      <tr><td>Mitarbeiter</td><td>ertl</td><td>iwplelkr</td></tr>
-      <tr><td>Office</td><td>kra</td><td>kram1234</td></tr>
-      <tr><td>SysAdmin</td><td>bre</td><td>kpacfsPfq4Tm</td></tr>
-    </tbody>
-  </table>
 </template>
 
 <script setup lang="ts">
