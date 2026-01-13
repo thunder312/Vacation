@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(cat:*)",
+      "Bash(comm:*)",
+      "Bash(npx better-sqlite3-cli:*)",
+      "Bash(sqlite3:*)",
+      "Bash(node -e:*)",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
